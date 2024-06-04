@@ -1,0 +1,24 @@
+#ifndef DEFINES_H
+#define DEFINES_H
+
+#define UART_TX GPIO_NUM_18
+#define UART_RX GPIO_NUM_8
+#define UART_PORT UART_NUM_0
+#define UART_BUFF_SIZE 9
+#define UART_BAUDRATE 115200
+
+#define DAC_SAMPLERATE 16000
+#define DAC_PIN DAC_CHANNEL_1
+
+#define ADC_UNIT ADC_UNIT_1   
+#define ADC_CHANNEL ADC1_CHANNEL_2 
+#define ADC_RES ADC_WIDTH_BIT_13
+#define ADC_ATTEN ADC_ATTEN_DB_11
+
+#define RS 10000
+#define DAC_OFFSET 0
+
+
+#define LED_2 GPIO_NUM_37
+#define LED_3 GPIO_NUM_36
+#endif // defines

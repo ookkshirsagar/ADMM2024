@@ -107,8 +107,8 @@ def admm_start_and_get_measurement():
         return None, None, None
 
 print("Set Frequency: ", admm_set(CMD_SET_FREQ_HZ, 200)[1])
-print("Set Current: ", admm_set(CMD_SET_CURRENT_UA, 330)[1])
-print("Set Duration: ", admm_set(CMD_SET_MEASURE_DURATION, 10)[1])
+print("Set Current: ", admm_set(CMD_SET_CURRENT_UA, 150)[1])
+print("Set Duration: ", admm_set(CMD_SET_MEASURE_DURATION, 2)[1])
 
 # Way 1 to get impedance:
 received_command, abs_rms_voltage, angle_cur_vol = admm_start_and_get_measurement()

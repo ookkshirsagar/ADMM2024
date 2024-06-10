@@ -24,7 +24,7 @@ MQTT_PASSWORD = "Bhawbhaw5050"
 
 def open_serial_connection(port, baudrate, timeout):
     try:
-        ser = serial.Serial(port, baudrate, timeout=timeout, inter_byte_timeout=0.5)
+        ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1, inter_byte_timeout=0.5)
         time.sleep(1)  # Wait for the device to initialize
         return ser
     except serial.SerialException as e:
@@ -128,7 +128,7 @@ def on_connect(client, userdata, flags, rc):
         print(f"Failed to connect, return code {rc}")
 
 def main():
-    ser = open_serial_connection('COM5', 115200, timeout=1)
+    ser = open_serial_connection('/dev/ttyUSB0', 115200, timeout=1)  # Update with your correct serial port
     if ser is None:
         return
 

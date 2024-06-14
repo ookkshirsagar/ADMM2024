@@ -1,0 +1,3 @@
+sudo nano /etc/profile
+source /home/admm2024/admm/bin/activate
+source /etc/profile

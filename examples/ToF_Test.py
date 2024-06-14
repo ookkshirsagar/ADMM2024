@@ -1,4 +1,4 @@
-#!/path/to/your/admm/bin/python
+#!/home/admm2024/admm/bin/python
 
 import time
 import board

@@ -4,16 +4,20 @@ import time
 import board
 import busio
 import adafruit_vl53l0x
+import RPi.GPIO as GPIO  # Import the GPIO module
 
+# Initialize I2C bus and sensor.
 try:
-    print("Initializing VL53L0X sensor...")
+    print("Initializing I2C bus...")
     i2c = busio.I2C(board.SCL, board.SDA)
     print("I2C bus initialized.")
+    
+    print("Initializing VL53L0X sensor...")
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
     print("VL53L0X sensor initialized.")
 
-    # Optionally adjust the measurement timing budget for speed and accuracy
-    vl53.measurement_timing_budget = 20000  # 20ms
+    # Optionally adjust the measurement timing budget for a faster response
+    vl53.measurement_timing_budget = 33000  # 33ms
 
     # Function to get a more stable reading by averaging multiple measurements
     def get_stable_reading(sensor, num_samples=5):
@@ -35,8 +39,8 @@ try:
         time.sleep(1.0)
 
 except Exception as e:
-    print(f"Error initializing VL53L0X sensor: {e}")
+    print(f"Error during initialization: {e}")
 
 finally:
-    # Cleanup GPIO resources
+    # Clean up GPIO resources
     GPIO.cleanup()

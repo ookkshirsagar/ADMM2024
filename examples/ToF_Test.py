@@ -8,11 +8,12 @@ import adafruit_vl53l0x
 try:
     print("Initializing VL53L0X sensor...")
     i2c = busio.I2C(board.SCL, board.SDA)
+    print("I2C bus initialized.")
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
     print("VL53L0X sensor initialized.")
 
-    # Adjust measurement timing budget
-    vl53.measurement_timing_budget = 33000  # 33ms
+    # Optionally adjust the measurement timing budget for speed and accuracy
+    vl53.measurement_timing_budget = 20000  # 20ms
 
     # Function to get a more stable reading by averaging multiple measurements
     def get_stable_reading(sensor, num_samples=5):

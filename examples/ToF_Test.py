@@ -1,3 +1,5 @@
+#!/home/admm2024/admm/bin/python
+
 import time
 import board
 import busio
@@ -13,7 +15,7 @@ except Exception as e:
     exit()
 
 # Adjust the measurement timing budget for a faster response
-vl53.measurement_timing_budget = 33000  # 33ms
+vl53.measurement_timing_budget = 20000# 33ms
 
 # Function to get a more stable reading by averaging multiple measurements
 def get_stable_reading(sensor, num_samples=5):

@@ -10,9 +10,8 @@ try:
     i2c = busio.I2C(board.SCL, board.SDA)
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
-    # Optionally adjust the measurement timing budget (in nanoseconds)
-    # Example: 200000 for 200ms budget (slower but more accurate)
-    vl53.measurement_timing_budget = 200000
+    # Set the sensor to short distance mode for closer measurements
+    vl53.set_distance_mode(adafruit_vl53l0x.MODE_SHORT)
 
     print("VL53L0X sensor initialized.")
 
@@ -20,7 +19,8 @@ try:
     def get_stable_reading(sensor):
         distances = []
         for _ in range(5):  # 5 samples for averaging
-            distances.append(sensor.range)
+            distance = sensor.range
+            distances.append(distance)
             time.sleep(0.01)  # Small delay between samples
         return sum(distances) / len(distances)
 

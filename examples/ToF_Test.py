@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
+=======
+#!/home/admm2024/admm/bin/python
+>>>>>>> 47732df5465d534f1f3d4931921bab0f8c6a349e
 
 import time
 import board

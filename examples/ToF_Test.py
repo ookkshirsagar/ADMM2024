@@ -37,9 +37,3 @@ try:
 except Exception as e:
     print(f"Error initializing VL53L0X sensor: {e}")
 
-finally:
-    # Clean up resources
-    if 'vl53' in globals():
-        vl53.deinit()  # Deinitialize the sensor if it was initialized
-
-    print("Program ended.")

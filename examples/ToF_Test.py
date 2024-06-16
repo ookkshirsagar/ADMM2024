@@ -1,3 +1,5 @@
+#!/home/admm2024/admm/bin/python
+
 import time
 import board
 import busio

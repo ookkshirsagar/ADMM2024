@@ -5,41 +5,36 @@ import board
 import busio
 import adafruit_vl53l0x
 
+# Initialize I2C bus and sensor.
 try:
-    # Initialize I2C bus and VL53L0X sensor
     i2c = busio.I2C(board.SCL, board.SDA)
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
-
-    # Set the sensor to short distance mode for closer measurements
-    vl53.set_distance_mode(adafruit_vl53l0x.MODE_SHORT)
-
     print("VL53L0X sensor initialized.")
-
-    # Function to get a stable reading by averaging multiple samples
-    def get_stable_reading(sensor):
-        distances = []
-        for _ in range(5):  # 5 samples for averaging
-            distance = sensor.range
-            distances.append(distance)
-            time.sleep(0.01)  # Small delay between samples
-        return sum(distances) / len(distances)
-
-    # Main loop to read and print distance every second
-    while True:
-        try:
-            distance = get_stable_reading(vl53)
-            print("Range: {:.2f}mm".format(distance))
-        except Exception as e:
-            print(f"Error reading sensor data: {e}")
-        
-        time.sleep(1.0)
-
 except Exception as e:
     print(f"Error initializing VL53L0X sensor: {e}")
+    exit()
 
-finally:
-    # Clean up resources
-    if 'vl53' in globals():
-        vl53.deinit()  # Deinitialize the sensor if it was initialized
+# Activate continuous mode
+vl53.continuous_mode()
 
-    print("Program ended.")
+# Optionally adjust the measurement timing budget for faster response.
+# This setting affects the speed and accuracy of distance measurements.
+# Lower values (e.g., 33000 microseconds) make measurements faster but less accurate.
+vl53.measurement_timing_budget = 33000  # 33ms, adjust as needed
+
+# Main loop to read the range and print it continuously.
+try:
+    while True:
+        try:
+            # Read the distance in millimeters
+            distance = vl53.range
+            print(f"Range: {distance} mm")
+        except RuntimeError as e:
+            print(f"Error reading distance: {e}")
+        time.sleep(0.1)  # Adjust the sleep time as needed for your application
+
+except KeyboardInterrupt:
+    print("\nExiting program.")
+
+# Clean up resources
+i2c.deinit()

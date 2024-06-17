@@ -5,27 +5,37 @@ import board
 import busio
 import adafruit_vl53l0x
 
-# Initialize I2C bus and sensor.
-try:
-    i2c = busio.I2C(board.SCL, board.SDA)
-    vl53 = adafruit_vl53l0x.VL53L0X(i2c)
-    print("VL53L0X sensor initialized.")
-except Exception as e:
-    print(f"Error initializing VL53L0X sensor: {e}")
-    exit()
+# Define an optional offset based on your calibration measurements
+OFFSET = 10  # Adjust this value based on your calibration measurements
 
-# Activate continuous mode
-vl53.continuous_mode()
+def initialize_sensor():
+    try:
+        i2c = busio.I2C(board.SCL, board.SDA)
+        sensor = adafruit_vl53l0x.VL53L0X(i2c)
+        print("VL53L0X sensor initialized.")
+        return sensor
+    except Exception as e:
+        print(f"Error initializing VL53L0X sensor: {e}")
+        exit()
 
-# Optionally adjust the measurement timing budget for faster response.
-vl53.measurement_timing_budget = 33000  # 33ms, adjust as needed
+def configure_sensor(sensor):
+    try:
+        # Set timing budget (higher values are more accurate but slower)
+        sensor.measurement_timing_budget = 33000  # 33ms
+        print("Measurement timing budget set to 33ms.")
+        
+        # Start continuous mode
+        sensor.start_continuous()
+        print("Continuous mode started.")
+    except Exception as e:
+        print(f"Error configuring VL53L0X sensor: {e}")
+        exit()
 
-def get_average_distance(sensor, num_samples=5):
-    """Get the average distance from the sensor over a number of samples."""
+def get_average_distance(sensor, num_samples=50, offset=OFFSET):
     distances = []
     for _ in range(num_samples):
         try:
-            distance = sensor.range
+            distance = sensor.range + offset
             distances.append(distance)
         except RuntimeError as e:
             print(f"Error reading distance: {e}")
@@ -36,18 +46,25 @@ def get_average_distance(sensor, num_samples=5):
     else:
         return None
 
-# Main loop to read the range and print it continuously.
-try:
-    while True:
-        average_distance = get_average_distance(vl53, num_samples=15)
-        if average_distance is not None:
-            print(f"Averaged Range: {average_distance:.2f} mm")
-        else:
-            print("No valid distance readings.")
-        time.sleep(0.1)  # Adjust the sleep time as needed for your application
+def main():
+    sensor = initialize_sensor()
+    configure_sensor(sensor)
+    
+    try:
+        while True:
+            average_distance = get_average_distance(sensor, num_samples=5)
+            if average_distance is not None:
+                print(f"Averaged Range: {average_distance:.2f} mm")
+            else:
+                print("No valid distance readings.")
+            time.sleep(1.0)  # Adjust the sleep time as needed for your application
 
-except KeyboardInterrupt:
-    print("\nExiting program.")
+    except KeyboardInterrupt:
+        print("\nExiting program.")
 
-# Clean up resources
-i2c.deinit()
+    finally:
+        sensor.stop_continuous()
+        print("Continuous mode stopped.")
+
+if __name__ == "__main__":
+    main()

@@ -5,8 +5,8 @@ import board
 import busio
 import adafruit_vl53l0x
 
-# EMA alpha value (smoothing factor)
-EMA_ALPHA = 0.1  # 0 < EMA_ALPHA < 1, higher values = less smoothing
+# Number of samples to average
+NUM_SAMPLES = 10
 
 def initialize_sensor():
     try:
@@ -23,50 +23,43 @@ def configure_sensor(sensor):
         # Set timing budget (higher values are more accurate but slower)
         sensor.measurement_timing_budget = 200000  # 200ms
         print("Measurement timing budget set to 200ms.")
-        
-        # Start continuous mode
-        sensor.start_continuous()
-        print("Continuous mode started.")
     except Exception as e:
         print(f"Error configuring VL53L0X sensor: {e}")
         exit()
 
-def get_distance(sensor):
-    try:
-        distance = sensor.range
-        return distance
-    except RuntimeError as e:
-        print(f"Error reading distance: {e}")
+def get_average_distance(sensor, num_samples=NUM_SAMPLES):
+    distances = []
+    for _ in range(num_samples):
+        try:
+            sensor.do_range_measurement()
+            distance = sensor.range
+            distances.append(distance)
+        except RuntimeError as e:
+            print(f"Error reading distance: {e}")
+        time.sleep(0.05)  # Small delay between samples to avoid I2C bus overflow
+
+    if distances:
+        # Use a simple moving average to smooth the readings
+        average_distance = sum(distances) / len(distances)
+        return average_distance
+    else:
         return None
 
 def main():
     sensor = initialize_sensor()
     configure_sensor(sensor)
-
-    # Initialize EMA with the first reading
-    initial_distance = get_distance(sensor)
-    if initial_distance is None:
-        print("Failed to get initial distance reading.")
-        exit()
-    ema_distance = initial_distance
-
+    
     try:
         while True:
-            distance = get_distance(sensor)
-            if distance is not None:
-                # Apply EMA filtering
-                ema_distance = EMA_ALPHA * distance + (1 - EMA_ALPHA) * ema_distance
-                print(f"Filtered Range: {ema_distance:.2f} mm")
+            average_distance = get_average_distance(sensor)
+            if average_distance is not None:
+                print(f"Averaged Range: {average_distance:.2f} mm")
             else:
-                print("No valid distance reading.")
-            time.sleep(0.1)  # Adjust the sleep time as needed for your application
+                print("No valid distance readings.")
+            time.sleep(1.0)  # Adjust the sleep time as needed for your application
 
     except KeyboardInterrupt:
         print("\nExiting program.")
-
-    finally:
-        sensor.stop_continuous()
-        print("Continuous mode stopped.")
 
 if __name__ == "__main__":
     main()

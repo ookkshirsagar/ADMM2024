@@ -6,7 +6,7 @@ import busio
 import adafruit_vl53l0x
 
 # Number of samples to average
-NUM_SAMPLES = 10
+NUM_SAMPLES = 5
 
 # Offset adjustment based on calibration (if needed)
 OFFSET = 0  # Adjust this value based on calibration measurements
@@ -61,7 +61,7 @@ def main():
                 print(f"Averaged Range: {adjusted_distance:.2f} mm")
             else:
                 print("No valid distance readings.")
-            time.sleep(0.1)  # Adjust the sleep time as needed for your application
+            time.sleep(0.01)  # Adjust the sleep time as needed for your application
 
     except KeyboardInterrupt:
         print("\nExiting program.")

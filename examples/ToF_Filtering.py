@@ -8,6 +8,9 @@ import adafruit_vl53l0x
 # Number of samples to average
 NUM_SAMPLES = 10
 
+# Offset adjustment based on calibration (if needed)
+OFFSET = 0  # Adjust this value based on calibration measurements
+
 def initialize_sensor():
     try:
         i2c = busio.I2C(board.SCL, board.SDA)
@@ -53,10 +56,12 @@ def main():
         while True:
             average_distance = get_average_distance(sensor)
             if average_distance is not None:
-                print(f"Averaged Range: {average_distance:.2f} mm")
+                # Apply offset adjustment
+                adjusted_distance = average_distance - OFFSET
+                print(f"Averaged Range: {adjusted_distance:.2f} mm")
             else:
                 print("No valid distance readings.")
-            time.sleep(1.0)  # Adjust the sleep time as needed for your application
+            time.sleep(0.1)  # Adjust the sleep time as needed for your application
 
     except KeyboardInterrupt:
         print("\nExiting program.")

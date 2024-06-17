@@ -21,8 +21,8 @@ def initialize_sensor():
 def configure_sensor(sensor):
     try:
         # Set timing budget (higher values are more accurate but slower)
-        sensor.measurement_timing_budget = 33000  # 33ms
-        print("Measurement timing budget set to 33ms.")
+        sensor.measurement_timing_budget = 200000  # 200ms
+        print("Measurement timing budget set to 200ms.")
         
         # Start continuous mode
         sensor.start_continuous()
@@ -52,7 +52,7 @@ def main():
     
     try:
         while True:
-            average_distance = get_average_distance(sensor, num_samples=5)
+            average_distance = get_average_distance(sensor, num_samples=50)
             if average_distance is not None:
                 print(f"Averaged Range: {average_distance:.2f} mm")
             else:

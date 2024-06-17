@@ -8,6 +8,9 @@ import adafruit_vl53l0x
 # Define an optional offset based on your calibration measurements
 OFFSET = 10  # Adjust this value based on your calibration measurements
 
+# EMA alpha value (smoothing factor)
+EMA_ALPHA = 0.1  # 0 < EMA_ALPHA < 1, higher values = less smoothing
+
 def initialize_sensor():
     try:
         i2c = busio.I2C(board.SCL, board.SDA)
@@ -31,37 +34,35 @@ def configure_sensor(sensor):
         print(f"Error configuring VL53L0X sensor: {e}")
         exit()
 
-def get_average_distance(sensor, num_samples=10, offset=OFFSET):
-    distances = []
-    for _ in range(num_samples):
-        try:
-            distance = sensor.range + offset
-            # Add bounds checking for the distance values
-            if 30 <= distance <= 1200:
-                distances.append(distance)
-            else:
-                print(f"Out of bounds distance reading: {distance} mm")
-        except RuntimeError as e:
-            print(f"Error reading distance: {e}")
-        time.sleep(0.01)  # Small delay between samples to avoid I2C bus overflow
-
-    if distances:
-        return sum(distances) / len(distances)
-    else:
+def get_distance(sensor, offset=OFFSET):
+    try:
+        distance = sensor.range + offset
+        return distance
+    except RuntimeError as e:
+        print(f"Error reading distance: {e}")
         return None
 
 def main():
     sensor = initialize_sensor()
     configure_sensor(sensor)
-    
+
+    # Initialize EMA with the first reading
+    initial_distance = get_distance(sensor)
+    if initial_distance is None:
+        print("Failed to get initial distance reading.")
+        exit()
+    ema_distance = initial_distance
+
     try:
         while True:
-            average_distance = get_average_distance(sensor, num_samples=10)
-            if average_distance is not None:
-                print(f"Averaged Range: {average_distance:.2f} mm")
+            distance = get_distance(sensor)
+            if distance is not None:
+                # Apply EMA filtering
+                ema_distance = EMA_ALPHA * distance + (1 - EMA_ALPHA) * ema_distance
+                print(f"Filtered Range: {ema_distance:.2f} mm")
             else:
-                print("No valid distance readings.")
-            time.sleep(1.0)  # Adjust the sleep time as needed for your application
+                print("No valid distance reading.")
+            time.sleep(0.1)  # Adjust the sleep time as needed for your application
 
     except KeyboardInterrupt:
         print("\nExiting program.")

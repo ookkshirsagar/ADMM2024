@@ -6,7 +6,7 @@ import busio
 import adafruit_vl53l0x
 
 # Number of samples to average
-NUM_SAMPLES = 15
+NUM_SAMPLES = 20
 
 # Offset adjustment based on calibration (if needed)
 OFFSET = 20  # Adjust this value based on calibration measurements
@@ -24,7 +24,7 @@ def initialize_sensor():
 def configure_sensor(sensor):
     try:
         # Set timing budget (higher values are more accurate but slower)
-        sensor.measurement_timing_budget = 100000  # 33ms
+        sensor.measurement_timing_budget = 50000  # 33ms
         print("Measurement timing budget set to 33ms.")
     except Exception as e:
         print(f"Error configuring VL53L0X sensor: {e}")

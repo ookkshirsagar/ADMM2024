@@ -18,20 +18,33 @@ except Exception as e:
 vl53.continuous_mode()
 
 # Optionally adjust the measurement timing budget for faster response.
-# This setting affects the speed and accuracy of distance measurements.
-# Lower values (e.g., 33000 microseconds) make measurements faster but less accurate.
 vl53.measurement_timing_budget = 33000  # 33ms, adjust as needed
+
+def get_average_distance(sensor, num_samples=5):
+    """Get the average distance from the sensor over a number of samples."""
+    distances = []
+    for _ in range(num_samples):
+        try:
+            distance = sensor.range
+            distances.append(distance)
+        except RuntimeError as e:
+            print(f"Error reading distance: {e}")
+        time.sleep(0.01)  # Small delay between samples to avoid I2C bus overflow
+
+    if distances:
+        return sum(distances) / len(distances)
+    else:
+        return None
 
 # Main loop to read the range and print it continuously.
 try:
     while True:
-        try:
-            # Read the distance in millimeters
-            distance = vl53.range
-            print(f"Range: {distance} mm")
-        except RuntimeError as e:
-            print(f"Error reading distance: {e}")
-        time.sleep(0.1)  # Adjust the sleep time as needed for your application
+        average_distance = get_average_distance(vl53, num_samples=5)
+        if average_distance is not None:
+            print(f"Averaged Range: {average_distance:.2f} mm")
+        else:
+            print("No valid distance readings.")
+        time.sleep(1.0)  # Adjust the sleep time as needed for your application
 
 except KeyboardInterrupt:
     print("\nExiting program.")

@@ -39,7 +39,7 @@ def get_average_distance(sensor, num_samples=NUM_SAMPLES):
             distances.append(distance)
         except RuntimeError as e:
             print(f"Error reading distance: {e}")
-        time.sleep(0.05)  # Small delay between samples to avoid I2C bus overflow
+        time.sleep(0.01)  # Small delay between samples to avoid I2C bus overflow
 
     if distances:
         # Use a simple moving average to smooth the readings

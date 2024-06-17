@@ -5,9 +5,6 @@ import board
 import busio
 import adafruit_vl53l0x
 
-# Define an optional offset based on your calibration measurements
-OFFSET = 10  # Adjust this value based on your calibration measurements
-
 # EMA alpha value (smoothing factor)
 EMA_ALPHA = 0.1  # 0 < EMA_ALPHA < 1, higher values = less smoothing
 
@@ -34,9 +31,9 @@ def configure_sensor(sensor):
         print(f"Error configuring VL53L0X sensor: {e}")
         exit()
 
-def get_distance(sensor, offset=OFFSET):
+def get_distance(sensor):
     try:
-        distance = sensor.range + offset
+        distance = sensor.range
         return distance
     except RuntimeError as e:
         print(f"Error reading distance: {e}")

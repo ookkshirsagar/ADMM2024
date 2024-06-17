@@ -39,12 +39,12 @@ def get_average_distance(sensor, num_samples=5):
 # Main loop to read the range and print it continuously.
 try:
     while True:
-        average_distance = get_average_distance(vl53, num_samples=5)
+        average_distance = get_average_distance(vl53, num_samples=15)
         if average_distance is not None:
             print(f"Averaged Range: {average_distance:.2f} mm")
         else:
             print("No valid distance readings.")
-        time.sleep(1.0)  # Adjust the sleep time as needed for your application
+        time.sleep(0.1)  # Adjust the sleep time as needed for your application
 
 except KeyboardInterrupt:
     print("\nExiting program.")

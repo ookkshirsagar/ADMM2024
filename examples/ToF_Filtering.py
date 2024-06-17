@@ -9,7 +9,7 @@ import adafruit_vl53l0x
 NUM_SAMPLES = 20
 
 # Offset adjustment based on calibration (if needed)
-OFFSET = 20  # Adjust this value based on calibration measurements
+OFFSET = 20        # Adjust this value based on calibration measurements
 
 def initialize_sensor():
     try:

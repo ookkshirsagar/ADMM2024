@@ -24,8 +24,8 @@ def initialize_sensor():
 def configure_sensor(sensor):
     try:
         # Set timing budget (higher values are more accurate but slower)
-        sensor.measurement_timing_budget = 200000  # 200ms
-        print("Measurement timing budget set to 200ms.")
+        sensor.measurement_timing_budget = 33000  # 33ms
+        print("Measurement timing budget set to 33ms.")
     except Exception as e:
         print(f"Error configuring VL53L0X sensor: {e}")
         exit()

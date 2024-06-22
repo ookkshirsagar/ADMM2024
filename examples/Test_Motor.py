@@ -1,141 +1,164 @@
-#!/home/admm2024/admm/bin/python
+#!/usr/bin/env python3
 
 import RPi.GPIO as GPIO
-from time import sleep
+import time
 
-# Define GPIO pins for motor control
-# Motor Driver 1 (Right Side)
-in1_motor1 = 23
-in2_motor1 = 24
-en_a_motor1 = 18
+# Motor Driver 1 Pins (Left Motors)
+left_front_in1 = 23
+left_front_in2 = 24
+left_front_en = 18
+left_rear_in1 = 25
+left_rear_in2 = 8
+left_rear_en = 12
 
-in3_motor1 = 25
-in4_motor1 = 8
-en_b_motor1 = 23
-
-# Motor Driver 2 (Left Side)
-in1_motor2 = 16
-in2_motor2 = 20
-en_a_motor2 = 13
-
-in3_motor2 = 21
-in4_motor2 = 26
-en_b_motor2 = 19
+# Motor Driver 2 Pins (Right Motors)
+right_front_in1 = 16
+right_front_in2 = 20
+right_front_en = 13
+right_rear_in1 = 21
+right_rear_in2 = 26
+right_rear_en = 19
 
 # GPIO setup
-GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
 
-# Motor Driver 1 GPIO setup
-GPIO.setup(in1_motor1, GPIO.OUT)
-GPIO.setup(in2_motor1, GPIO.OUT)
-GPIO.setup(en_a_motor1, GPIO.OUT)
-GPIO.setup(in3_motor1, GPIO.OUT)
-GPIO.setup(in4_motor1, GPIO.OUT)
-GPIO.setup(en_b_motor1, GPIO.OUT)
+# Set up Left Motors (Motor Driver 1)
+GPIO.setup(left_front_in1, GPIO.OUT)
+GPIO.setup(left_front_in2, GPIO.OUT)
+GPIO.setup(left_front_en, GPIO.OUT)
+GPIO.setup(left_rear_in1, GPIO.OUT)
+GPIO.setup(left_rear_in2, GPIO.OUT)
+GPIO.setup(left_rear_en, GPIO.OUT)
 
-# Motor Driver 2 GPIO setup
-GPIO.setup(in1_motor2, GPIO.OUT)
-GPIO.setup(in2_motor2, GPIO.OUT)
-GPIO.setup(en_a_motor2, GPIO.OUT)
-GPIO.setup(in3_motor2, GPIO.OUT)
-GPIO.setup(in4_motor2, GPIO.OUT)
-GPIO.setup(en_b_motor2, GPIO.OUT)
+# Set up Right Motors (Motor Driver 2)
+GPIO.setup(right_front_in1, GPIO.OUT)
+GPIO.setup(right_front_in2, GPIO.OUT)
+GPIO.setup(right_front_en, GPIO.OUT)
+GPIO.setup(right_rear_in1, GPIO.OUT)
+GPIO.setup(right_rear_in2, GPIO.OUT)
+GPIO.setup(right_rear_en, GPIO.OUT)
 
-# PWM setup
-pwm_motor1 = GPIO.PWM(en_a_motor1, 100)
-pwm_motor1.start(0)  # Initial PWM duty cycle (0%)
+# Set up PWM for motor speed control
+pwm_left_front = GPIO.PWM(left_front_en, 100)
+pwm_left_rear = GPIO.PWM(left_rear_en, 100)
+pwm_right_front = GPIO.PWM(right_front_en, 100)
+pwm_right_rear = GPIO.PWM(right_rear_en, 100)
 
-pwm_motor2 = GPIO.PWM(en_a_motor2, 100)
-pwm_motor2.start(0)  # Initial PWM duty cycle (0%)
+# Start PWM with a duty cycle of 0 (motors off)
+pwm_left_front.start(0)
+pwm_left_rear.start(0)
+pwm_right_front.start(0)
+pwm_right_rear.start(0)
 
-# Function to stop all motors
-def stop_motors():
-    GPIO.output(in1_motor1, GPIO.LOW)
-    GPIO.output(in2_motor1, GPIO.LOW)
-    GPIO.output(in3_motor1, GPIO.LOW)
-    GPIO.output(in4_motor1, GPIO.LOW)
-    GPIO.output(in1_motor2, GPIO.LOW)
-    GPIO.output(in2_motor2, GPIO.LOW)
-    GPIO.output(in3_motor2, GPIO.LOW)
-    GPIO.output(in4_motor2, GPIO.LOW)
+# Function to set motor speed
+def set_motor_speed(pwm, speed):
+    pwm.ChangeDutyCycle(speed)
 
 # Function to move motors forward
 def move_forward():
-    GPIO.output(in1_motor1, GPIO.HIGH)
-    GPIO.output(in2_motor1, GPIO.LOW)
-    GPIO.output(in3_motor1, GPIO.HIGH)
-    GPIO.output(in4_motor1, GPIO.LOW)
-    GPIO.output(in1_motor2, GPIO.HIGH)
-    GPIO.output(in2_motor2, GPIO.LOW)
-    GPIO.output(in3_motor2, GPIO.HIGH)
-    GPIO.output(in4_motor2, GPIO.LOW)
+    GPIO.output(left_front_in1, GPIO.HIGH)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.HIGH)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.HIGH)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.HIGH)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+    set_motor_speed(pwm_left_front, 100)
+    set_motor_speed(pwm_left_rear, 100)
+    set_motor_speed(pwm_right_front, 100)
+    set_motor_speed(pwm_right_rear, 100)
 
 # Function to move motors backward
 def move_backward():
-    GPIO.output(in1_motor1, GPIO.LOW)
-    GPIO.output(in2_motor1, GPIO.HIGH)
-    GPIO.output(in3_motor1, GPIO.LOW)
-    GPIO.output(in4_motor1, GPIO.HIGH)
-    GPIO.output(in1_motor2, GPIO.LOW)
-    GPIO.output(in2_motor2, GPIO.HIGH)
-    GPIO.output(in3_motor2, GPIO.LOW)
-    GPIO.output(in4_motor2, GPIO.HIGH)
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.HIGH)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.HIGH)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.HIGH)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.HIGH)
+    set_motor_speed(pwm_left_front, 100)
+    set_motor_speed(pwm_left_rear, 100)
+    set_motor_speed(pwm_right_front, 100)
+    set_motor_speed(pwm_right_rear, 100)
 
 # Function to turn left
 def turn_left():
-    GPIO.output(in1_motor1, GPIO.HIGH)
-    GPIO.output(in2_motor1, GPIO.LOW)
-    GPIO.output(in3_motor1, GPIO.LOW)
-    GPIO.output(in4_motor1, GPIO.LOW)
-    GPIO.output(in1_motor2, GPIO.LOW)
-    GPIO.output(in2_motor2, GPIO.LOW)
-    GPIO.output(in3_motor2, GPIO.HIGH)
-    GPIO.output(in4_motor2, GPIO.LOW)
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.HIGH)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.HIGH)
+    GPIO.output(right_front_in1, GPIO.HIGH)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.HIGH)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+    set_motor_speed(pwm_left_front, 100)
+    set_motor_speed(pwm_left_rear, 100)
+    set_motor_speed(pwm_right_front, 100)
+    set_motor_speed(pwm_right_rear, 100)
 
 # Function to turn right
 def turn_right():
-    GPIO.output(in1_motor1, GPIO.LOW)
-    GPIO.output(in2_motor1, GPIO.LOW)
-    GPIO.output(in3_motor1, GPIO.HIGH)
-    GPIO.output(in4_motor1, GPIO.LOW)
-    GPIO.output(in1_motor2, GPIO.HIGH)
-    GPIO.output(in2_motor2, GPIO.LOW)
-    GPIO.output(in3_motor2, GPIO.LOW)
-    GPIO.output(in4_motor2, GPIO.LOW)
+    GPIO.output(left_front_in1, GPIO.HIGH)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.HIGH)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.HIGH)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.HIGH)
+    set_motor_speed(pwm_left_front, 100)
+    set_motor_speed(pwm_left_rear, 100)
+    set_motor_speed(pwm_right_front, 100)
+    set_motor_speed(pwm_right_rear, 100)
+
+# Function to stop all motors
+def stop_motors():
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+    set_motor_speed(pwm_left_front, 0)
+    set_motor_speed(pwm_left_rear, 0)
+    set_motor_speed(pwm_right_front, 0)
+    set_motor_speed(pwm_right_rear, 0)
 
 try:
     while True:
-        user_input = input("Enter command (w: forward, s: backward, a: left, d: right, c: stop): ")
-
-        if user_input == 'w':
-            move_forward()
-            print("Moving forward")
-        
-        elif user_input == 's':
-            move_backward()
-            print("Moving backward")
-        
-        elif user_input == 'a':
-            turn_left()
-            print("Turning left")
-        
-        elif user_input == 'd':
-            turn_right()
-            print("Turning right")
-        
-        elif user_input == 'c':
-            stop_motors()
-            print("Motors stopped")
-        
-        else:
-            print("Invalid command. Please enter w, s, a, d, or c.")
+        # Example: Move forward for 2 seconds, then stop for 1 second
+        move_forward()
+        time.sleep(2)
+        stop_motors()
+        time.sleep(1)
+        # Example: Move backward for 2 seconds, then stop for 1 second
+        move_backward()
+        time.sleep(2)
+        stop_motors()
+        time.sleep(1)
+        # Example: Turn left for 2 seconds, then stop for 1 second
+        turn_left()
+        time.sleep(2)
+        stop_motors()
+        time.sleep(1)
+        # Example: Turn right for 2 seconds, then stop for 1 second
+        turn_right()
+        time.sleep(2)
+        stop_motors()
+        time.sleep(1)
 
 except KeyboardInterrupt:
     print("\nExiting program.")
-
 finally:
-    stop_motors()
-    pwm_motor1.stop()
-    pwm_motor2.stop()
+    # Clean up GPIO resources
+    pwm_left_front.stop()
+    pwm_left_rear.stop()
+    pwm_right_front.stop()
+    pwm_right_rear.stop()
     GPIO.cleanup()

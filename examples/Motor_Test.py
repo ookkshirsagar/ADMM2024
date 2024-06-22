@@ -1,147 +1,69 @@
-#!/home/admm2024/admm/bin/python
-
-import time
 import RPi.GPIO as GPIO
+import time
 
-# Define GPIO pins connected to Motor Driver 2 boards 
-motor1_enable_pin = 18
-motor1_input1_pin = 23
-motor1_input2_pin = 24
+# Motor Driver 1 Pins (Left Motors)
+left_front_in1 = 23
+left_front_in2 = 24
+left_front_en = 18
 
-motor2_enable_pin = 25
-motor2_input1_pin = 8
-motor2_input2_pin = 12
+# Motor Driver 2 Pins (Right Motors)
+right_front_in1 = 16
+right_front_in2 = 20
+right_front_en = 13
 
-motor3_enable_pin = 13
-motor3_input1_pin = 16
-motor3_input2_pin = 20
+def setup():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
 
-motor4_enable_pin = 19
-motor4_input1_pin = 21
-motor4_input2_pin = 26
+    # Set up Left Front Motor (Motor Driver 1)
+    GPIO.setup(left_front_in1, GPIO.OUT)
+    GPIO.setup(left_front_in2, GPIO.OUT)
+    GPIO.setup(left_front_en, GPIO.OUT)
 
-# GPIO setup
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(motor1_enable_pin, GPIO.OUT)
-GPIO.setup(motor1_input1_pin, GPIO.OUT)
-GPIO.setup(motor1_input2_pin, GPIO.OUT)
+    # Set up Right Front Motor (Motor Driver 2)
+    GPIO.setup(right_front_in1, GPIO.OUT)
+    GPIO.setup(right_front_in2, GPIO.OUT)
+    GPIO.setup(right_front_en, GPIO.OUT)
 
-GPIO.setup(motor2_enable_pin, GPIO.OUT)
-GPIO.setup(motor2_input1_pin, GPIO.OUT)
-GPIO.setup(motor2_input2_pin, GPIO.OUT)
+    # Set up PWM for motor speed control
+    global pwm_left_front, pwm_right_front
+    pwm_left_front = GPIO.PWM(left_front_en, 1000)
+    pwm_right_front = GPIO.PWM(right_front_en, 1000)
 
-GPIO.setup(motor3_enable_pin, GPIO.OUT)
-GPIO.setup(motor3_input1_pin, GPIO.OUT)
-GPIO.setup(motor3_input2_pin, GPIO.OUT)
+    # Start PWM with a duty cycle of 0 (motors off)
+    pwm_left_front.start(0)
+    pwm_right_front.start(0)
 
-GPIO.setup(motor4_enable_pin, GPIO.OUT)
-GPIO.setup(motor4_input1_pin, GPIO.OUT)
-GPIO.setup(motor4_input2_pin, GPIO.OUT)
+    print("GPIO setup complete.")
 
-# Function to control motor movements
-def move_forward():
-    GPIO.output(motor1_input1_pin, GPIO.HIGH)
-    GPIO.output(motor1_input2_pin, GPIO.LOW)
-    GPIO.output(motor1_enable_pin, GPIO.HIGH)
+def test_motor(motor_in1, motor_in2, pwm_motor):
+    GPIO.output(motor_in1, GPIO.HIGH)
+    GPIO.output(motor_in2, GPIO.LOW)
+    pwm_motor.ChangeDutyCycle(100)
+    time.sleep(2)
+    GPIO.output(motor_in1, GPIO.LOW)
+    GPIO.output(motor_in2, GPIO.LOW)
+    pwm_motor.ChangeDutyCycle(0)
 
-    GPIO.output(motor2_input1_pin, GPIO.HIGH)
-    GPIO.output(motor2_input2_pin, GPIO.LOW)
-    GPIO.output(motor2_enable_pin, GPIO.HIGH)
-
-    GPIO.output(motor3_input1_pin, GPIO.HIGH)
-    GPIO.output(motor3_input2_pin, GPIO.LOW)
-    GPIO.output(motor3_enable_pin, GPIO.HIGH)
-
-    GPIO.output(motor4_input1_pin, GPIO.HIGH)
-    GPIO.output(motor4_input2_pin, GPIO.LOW)
-    GPIO.output(motor4_enable_pin, GPIO.HIGH)
-
-def move_backward():
-    GPIO.output(motor1_input1_pin, GPIO.LOW)
-    GPIO.output(motor1_input2_pin, GPIO.HIGH)
-    GPIO.output(motor1_enable_pin, GPIO.HIGH)
-
-    GPIO.output(motor2_input1_pin, GPIO.LOW)
-    GPIO.output(motor2_input2_pin, GPIO.HIGH)
-    GPIO.output(motor2_enable_pin, GPIO.HIGH)
-
-    GPIO.output(motor3_input1_pin, GPIO.LOW)
-    GPIO.output(motor3_input2_pin, GPIO.HIGH)
-    GPIO.output(motor3_enable_pin, GPIO.HIGH)
-
-    GPIO.output(motor4_input1_pin, GPIO.LOW)
-    GPIO.output(motor4_input2_pin, GPIO.HIGH)
-    GPIO.output(motor4_enable_pin, GPIO.HIGH)
-
-def turn_left():
-    # Stop right motors, move left motors
-    GPIO.output(motor1_enable_pin, GPIO.LOW)
-    GPIO.output(motor2_enable_pin, GPIO.LOW)
-    
-    GPIO.output(motor3_input1_pin, GPIO.LOW)
-    GPIO.output(motor3_input2_pin, GPIO.HIGH)
-    GPIO.output(motor3_enable_pin, GPIO.HIGH)
-    
-    GPIO.output(motor4_input1_pin, GPIO.LOW)
-    GPIO.output(motor4_input2_pin, GPIO.HIGH)
-    GPIO.output(motor4_enable_pin, GPIO.HIGH)
-
-def turn_right():
-    # Stop left motors, move right motors
-    GPIO.output(motor3_enable_pin, GPIO.LOW)
-    GPIO.output(motor4_enable_pin, GPIO.LOW)
-    
-    GPIO.output(motor1_input1_pin, GPIO.LOW)
-    GPIO.output(motor1_input2_pin, GPIO.HIGH)
-    GPIO.output(motor1_enable_pin, GPIO.HIGH)
-    
-    GPIO.output(motor2_input1_pin, GPIO.LOW)
-    GPIO.output(motor2_input2_pin, GPIO.HIGH)
-    GPIO.output(motor2_enable_pin, GPIO.HIGH)
-
-def stop_motors():
-    GPIO.output(motor1_enable_pin, GPIO.LOW)
-    GPIO.output(motor2_enable_pin, GPIO.LOW)
-    GPIO.output(motor3_enable_pin, GPIO.LOW)
-    GPIO.output(motor4_enable_pin, GPIO.LOW)
-
-try:
-    while True:
-        # Move forward for 2 seconds
-        move_forward()
-        time.sleep(2)
-
-        # Stop for 1 second
-        stop_motors()
+def main():
+    setup()
+    try:
+        print("Testing Left Front Motor...")
+        test_motor(left_front_in1, left_front_in2, pwm_left_front)
         time.sleep(1)
 
-        # Move backward for 2 seconds
-        move_backward()
-        time.sleep(2)
-
-        # Stop for 1 second
-        stop_motors()
+        print("Testing Right Front Motor...")
+        test_motor(right_front_in1, right_front_in2, pwm_right_front)
         time.sleep(1)
 
-        # Turn  Left for 2 Seconds
-        turn_left()
-        time.sleep(2)
+    except KeyboardInterrupt:
+        print("\nExiting program.")
 
-        # Stop for 1 second
-        stop_motors()
-        time.sleep(1)
+    finally:
+        print("Cleaning up GPIO...")
+        pwm_left_front.stop()
+        pwm_right_front.stop()
+        GPIO.cleanup()
 
-         # Turn Right for 2 Seconds
-        turn_right()
-        time.sleep(2)
-
-        # Stop for 1 second
-        stop_motors()
-        time.sleep(1)
-
-
-except KeyboardInterrupt:
-    print("\nExiting program.")
-finally:
-    # Clean up GPIO resources
-    GPIO.cleanup()
+if __name__ == "__main__":
+    main()

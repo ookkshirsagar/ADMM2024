@@ -10,15 +10,15 @@ motor1_input2_pin = 24
 
 motor2_enable_pin = 25
 motor2_input1_pin = 8
-motor2_input2_pin = 7
+motor2_input2_pin = 12
 
-motor3_enable_pin = 12
+motor3_enable_pin = 13
 motor3_input1_pin = 16
 motor3_input2_pin = 20
 
-motor4_enable_pin = 21
-motor4_input1_pin = 26
-motor4_input2_pin = 19
+motor4_enable_pin = 19
+motor4_input1_pin = 21
+motor4_input2_pin = 26
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)

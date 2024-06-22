@@ -25,35 +25,30 @@ def setup():
     GPIO.setup(right_front_in2, GPIO.OUT)
     GPIO.setup(right_front_en, GPIO.OUT)
 
-    # Set up PWM for motor speed control
-    global pwm_left_front, pwm_right_front
-    pwm_left_front = GPIO.PWM(left_front_en, 1000)
-    pwm_right_front = GPIO.PWM(right_front_en, 1000)
+    # Enable the motors
+    GPIO.output(left_front_en, GPIO.HIGH)
+    GPIO.output(right_front_en, GPIO.HIGH)
 
-    # Start PWM with a duty cycle of 0 (motors off)
-    pwm_left_front.start(0)
-    pwm_right_front.start(0)
+    print("GPIO setup complete and motors enabled.")
 
-    print("GPIO setup complete.")
-
-def test_motor(motor_in1, motor_in2, pwm_motor):
+def test_motor(motor_in1, motor_in2):
+    # Set motor to move forward
     GPIO.output(motor_in1, GPIO.HIGH)
     GPIO.output(motor_in2, GPIO.LOW)
-    pwm_motor.ChangeDutyCycle(100)
     time.sleep(2)
+    # Stop motor
     GPIO.output(motor_in1, GPIO.LOW)
     GPIO.output(motor_in2, GPIO.LOW)
-    pwm_motor.ChangeDutyCycle(0)
 
 def main():
     setup()
     try:
         print("Testing Left Front Motor...")
-        test_motor(left_front_in1, left_front_in2, pwm_left_front)
+        test_motor(left_front_in1, left_front_in2)
         time.sleep(1)
 
         print("Testing Right Front Motor...")
-        test_motor(right_front_in1, right_front_in2, pwm_right_front)
+        test_motor(right_front_in1, right_front_in2)
         time.sleep(1)
 
     except KeyboardInterrupt:
@@ -61,8 +56,6 @@ def main():
 
     finally:
         print("Cleaning up GPIO...")
-        pwm_left_front.stop()
-        pwm_right_front.stop()
         GPIO.cleanup()
 
 if __name__ == "__main__":

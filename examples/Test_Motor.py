@@ -1,62 +1,141 @@
+#!/home/admm2024/admm/bin/python
+
 import RPi.GPIO as GPIO
-import time
+from time import sleep
 
-# Motor Driver 1 Pins (Left Motors)
-left_front_in1 = 23
-left_front_in2 = 24
-left_front_en = 18
+# Define GPIO pins for motor control
+# Motor Driver 1 (Right Side)
+in1_motor1 = 23
+in2_motor1 = 24
+en_a_motor1 = 18
 
-# Motor Driver 2 Pins (Right Motors)
-right_front_in1 = 16
-right_front_in2 = 20
-right_front_en = 13
+in3_motor1 = 25
+in4_motor1 = 8
+en_b_motor1 = 23
 
-def setup():
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
+# Motor Driver 2 (Left Side)
+in1_motor2 = 16
+in2_motor2 = 20
+en_a_motor2 = 13
 
-    # Set up Left Front Motor (Motor Driver 1)
-    GPIO.setup(left_front_in1, GPIO.OUT)
-    GPIO.setup(left_front_in2, GPIO.OUT)
-    GPIO.setup(left_front_en, GPIO.OUT)
+in3_motor2 = 21
+in4_motor2 = 26
+en_b_motor2 = 19
 
-    # Set up Right Front Motor (Motor Driver 2)
-    GPIO.setup(right_front_in1, GPIO.OUT)
-    GPIO.setup(right_front_in2, GPIO.OUT)
-    GPIO.setup(right_front_en, GPIO.OUT)
+# GPIO setup
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
 
-    # Enable the motors
-    GPIO.output(left_front_en, GPIO.HIGH)
-    GPIO.output(right_front_en, GPIO.HIGH)
+# Motor Driver 1 GPIO setup
+GPIO.setup(in1_motor1, GPIO.OUT)
+GPIO.setup(in2_motor1, GPIO.OUT)
+GPIO.setup(en_a_motor1, GPIO.OUT)
+GPIO.setup(in3_motor1, GPIO.OUT)
+GPIO.setup(in4_motor1, GPIO.OUT)
+GPIO.setup(en_b_motor1, GPIO.OUT)
 
-    print("GPIO setup complete and motors enabled.")
+# Motor Driver 2 GPIO setup
+GPIO.setup(in1_motor2, GPIO.OUT)
+GPIO.setup(in2_motor2, GPIO.OUT)
+GPIO.setup(en_a_motor2, GPIO.OUT)
+GPIO.setup(in3_motor2, GPIO.OUT)
+GPIO.setup(in4_motor2, GPIO.OUT)
+GPIO.setup(en_b_motor2, GPIO.OUT)
 
-def test_motor(motor_in1, motor_in2):
-    # Set motor to move forward
-    GPIO.output(motor_in1, GPIO.HIGH)
-    GPIO.output(motor_in2, GPIO.LOW)
-    time.sleep(2)
-    # Stop motor
-    GPIO.output(motor_in1, GPIO.LOW)
-    GPIO.output(motor_in2, GPIO.LOW)
+# PWM setup
+pwm_motor1 = GPIO.PWM(en_a_motor1, 100)
+pwm_motor1.start(0)  # Initial PWM duty cycle (0%)
 
-def main():
-    setup()
-    try:
-        print("Testing Left Front Motor...")
-        test_motor(left_front_in1, left_front_in2)
-        time.sleep(1)
+pwm_motor2 = GPIO.PWM(en_a_motor2, 100)
+pwm_motor2.start(0)  # Initial PWM duty cycle (0%)
 
-        print("Testing Right Front Motor...")
-        test_motor(right_front_in1, right_front_in2)
-        time.sleep(1)
+# Function to stop all motors
+def stop_motors():
+    GPIO.output(in1_motor1, GPIO.LOW)
+    GPIO.output(in2_motor1, GPIO.LOW)
+    GPIO.output(in3_motor1, GPIO.LOW)
+    GPIO.output(in4_motor1, GPIO.LOW)
+    GPIO.output(in1_motor2, GPIO.LOW)
+    GPIO.output(in2_motor2, GPIO.LOW)
+    GPIO.output(in3_motor2, GPIO.LOW)
+    GPIO.output(in4_motor2, GPIO.LOW)
 
-    except KeyboardInterrupt:
-        print("\nExiting program.")
+# Function to move motors forward
+def move_forward():
+    GPIO.output(in1_motor1, GPIO.HIGH)
+    GPIO.output(in2_motor1, GPIO.LOW)
+    GPIO.output(in3_motor1, GPIO.HIGH)
+    GPIO.output(in4_motor1, GPIO.LOW)
+    GPIO.output(in1_motor2, GPIO.HIGH)
+    GPIO.output(in2_motor2, GPIO.LOW)
+    GPIO.output(in3_motor2, GPIO.HIGH)
+    GPIO.output(in4_motor2, GPIO.LOW)
 
-    finally:
-        print("Cleaning up GPIO...")
-        GPIO.cleanup()
+# Function to move motors backward
+def move_backward():
+    GPIO.output(in1_motor1, GPIO.LOW)
+    GPIO.output(in2_motor1, GPIO.HIGH)
+    GPIO.output(in3_motor1, GPIO.LOW)
+    GPIO.output(in4_motor1, GPIO.HIGH)
+    GPIO.output(in1_motor2, GPIO.LOW)
+    GPIO.output(in2_motor2, GPIO.HIGH)
+    GPIO.output(in3_motor2, GPIO.LOW)
+    GPIO.output(in4_motor2, GPIO.HIGH)
 
-if __name__ == "__main__":
-    main()
+# Function to turn left
+def turn_left():
+    GPIO.output(in1_motor1, GPIO.HIGH)
+    GPIO.output(in2_motor1, GPIO.LOW)
+    GPIO.output(in3_motor1, GPIO.LOW)
+    GPIO.output(in4_motor1, GPIO.LOW)
+    GPIO.output(in1_motor2, GPIO.LOW)
+    GPIO.output(in2_motor2, GPIO.LOW)
+    GPIO.output(in3_motor2, GPIO.HIGH)
+    GPIO.output(in4_motor2, GPIO.LOW)
+
+# Function to turn right
+def turn_right():
+    GPIO.output(in1_motor1, GPIO.LOW)
+    GPIO.output(in2_motor1, GPIO.LOW)
+    GPIO.output(in3_motor1, GPIO.HIGH)
+    GPIO.output(in4_motor1, GPIO.LOW)
+    GPIO.output(in1_motor2, GPIO.HIGH)
+    GPIO.output(in2_motor2, GPIO.LOW)
+    GPIO.output(in3_motor2, GPIO.LOW)
+    GPIO.output(in4_motor2, GPIO.LOW)
+
+try:
+    while True:
+        user_input = input("Enter command (w: forward, s: backward, a: left, d: right, c: stop): ")
+
+        if user_input == 'w':
+            move_forward()
+            print("Moving forward")
+        
+        elif user_input == 's':
+            move_backward()
+            print("Moving backward")
+        
+        elif user_input == 'a':
+            turn_left()
+            print("Turning left")
+        
+        elif user_input == 'd':
+            turn_right()
+            print("Turning right")
+        
+        elif user_input == 'c':
+            stop_motors()
+            print("Motors stopped")
+        
+        else:
+            print("Invalid command. Please enter w, s, a, d, or c.")
+
+except KeyboardInterrupt:
+    print("\nExiting program.")
+
+finally:
+    stop_motors()
+    pwm_motor1.stop()
+    pwm_motor2.stop()
+    GPIO.cleanup()

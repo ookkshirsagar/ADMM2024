@@ -60,14 +60,14 @@ def move_forward():
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
-    GPIO.output(left_rear_in1, GPIO.HIGH)
-    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.HIGH)
     
     # Right motors move forward
     GPIO.output(right_front_in1, GPIO.HIGH)
     GPIO.output(right_front_in2, GPIO.LOW)
-    GPIO.output(right_rear_in1, GPIO.HIGH)
-    GPIO.output(right_rear_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.HIGH)
     
     set_motor_speed(pwm_left_front, 100)
     set_motor_speed(pwm_left_rear, 100)
@@ -79,14 +79,14 @@ def move_backward():
     # Left motors move backward
     GPIO.output(left_front_in1, GPIO.LOW)
     GPIO.output(left_front_in2, GPIO.HIGH)
-    GPIO.output(left_rear_in1, GPIO.LOW)
-    GPIO.output(left_rear_in2, GPIO.HIGH)
+    GPIO.output(left_rear_in1, GPIO.HIGH)
+    GPIO.output(left_rear_in2, GPIO.LOW)
     
     # Right motors move backward
     GPIO.output(right_front_in1, GPIO.LOW)
     GPIO.output(right_front_in2, GPIO.HIGH)
-    GPIO.output(right_rear_in1, GPIO.LOW)
-    GPIO.output(right_rear_in2, GPIO.HIGH)
+    GPIO.output(right_rear_in1, GPIO.HIGH)
+    GPIO.output(right_rear_in2, GPIO.LOW)
     
     set_motor_speed(pwm_left_front, 100)
     set_motor_speed(pwm_left_rear, 100)
@@ -104,8 +104,8 @@ def turn_left():
     # Right motors move forward
     GPIO.output(right_front_in1, GPIO.HIGH)
     GPIO.output(right_front_in2, GPIO.LOW)
-    GPIO.output(right_rear_in1, GPIO.HIGH)
-    GPIO.output(right_rear_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.HIGH)
     
     set_motor_speed(pwm_left_front, 0)
     set_motor_speed(pwm_left_rear, 0)
@@ -117,8 +117,8 @@ def turn_right():
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
-    GPIO.output(left_rear_in1, GPIO.HIGH)
-    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.HIGH)
     
     # Right motors stop
     GPIO.output(right_front_in1, GPIO.LOW)

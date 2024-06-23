@@ -19,12 +19,6 @@ right_rear_in1 = 21
 right_rear_in2 = 26
 right_rear_en = 19
 
-# PWM frequency
-PWM_FREQUENCY = 100
-
-# Turn duration for approximately 180-degree turn (adjust as needed)
-TURN_DURATION = 1.8
-
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -46,10 +40,10 @@ GPIO.setup(right_rear_in2, GPIO.OUT)
 GPIO.setup(right_rear_en, GPIO.OUT)
 
 # Set up PWM for motor speed control
-pwm_left_front = GPIO.PWM(left_front_en, PWM_FREQUENCY)
-pwm_left_rear = GPIO.PWM(left_rear_en, PWM_FREQUENCY)
-pwm_right_front = GPIO.PWM(right_front_en, PWM_FREQUENCY)
-pwm_right_rear = GPIO.PWM(right_rear_en, PWM_FREQUENCY)
+pwm_left_front = GPIO.PWM(left_front_en, 100)
+pwm_left_rear = GPIO.PWM(left_rear_en, 100)
+pwm_right_front = GPIO.PWM(right_front_en, 100)
+pwm_right_rear = GPIO.PWM(right_rear_en, 100)
 
 # Start PWM with a duty cycle of 0 (motors off)
 pwm_left_front.start(0)
@@ -99,17 +93,43 @@ def move_backward():
     set_motor_speed(pwm_right_front, 100)
     set_motor_speed(pwm_right_rear, 100)
 
-# Function to turn left approximately 180 degrees
+# Function to turn left
 def turn_left():
-    move_backward()
-    time.sleep(TURN_DURATION)
-    stop_motors()
+    # Left motors stop
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.HIGH)
+    GPIO.output(left_rear_in1, GPIO.HIGH)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    
+    # Right motors move forward
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.HIGH)
+    GPIO.output(right_rear_in1, GPIO.HIGH)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+    
+    set_motor_speed(pwm_left_front, 0)
+    set_motor_speed(pwm_left_rear, 0)
+    set_motor_speed(pwm_right_front, 100)
+    set_motor_speed(pwm_right_rear, 100)
 
-# Function to turn right approximately 180 degrees
+# Function to turn right
 def turn_right():
-    move_forward()
-    time.sleep(TURN_DURATION)
-    stop_motors()
+    # Left motors move forward
+    GPIO.output(left_front_in1, GPIO.HIGH)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.HIGH)
+    
+    # Right motors stop
+    GPIO.output(right_front_in1, GPIO.HIGH)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.HIGH)
+    
+    set_motor_speed(pwm_left_front, 100)
+    set_motor_speed(pwm_left_rear, 100)
+    set_motor_speed(pwm_right_front, 0)
+    set_motor_speed(pwm_right_rear, 0)
 
 # Function to stop all motors
 def stop_motors():
@@ -134,25 +154,22 @@ try:
         time.sleep(5)
         stop_motors()
         time.sleep(1)
-        
         # Move backward for 5 seconds, then stop for 1 second
         move_backward()
         print("Backward")
         time.sleep(5)
         stop_motors()
         time.sleep(1)
-        
-        # Turn left for approximately 180 degrees, then stop
+        # Turn left for 5 seconds, then stop for 1 second
         turn_left()
         print("Left")
-        time.sleep(1)  # Adjust delay after turn as needed
+        time.sleep(5)
         stop_motors()
         time.sleep(1)
-        
-        # Turn right for approximately 180 degrees, then stop
+        # Turn right for 5 seconds, then stop for 1 second
         turn_right()
         print("Right")
-        time.sleep(1)  # Adjust delay after turn as needed
+        time.sleep(5)
         stop_motors()
         time.sleep(1)
 

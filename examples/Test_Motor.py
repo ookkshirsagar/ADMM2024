@@ -134,24 +134,28 @@ try:
     while True:
         # Example: Move forward for 2 seconds, then stop for 1 second
         move_forward()
-        time.sleep(2)
+        print ("Forward")
+        time.sleep(5)
         stop_motors()
-        time.sleep(1)
+        time.sleep(10)
         # Example: Move backward for 2 seconds, then stop for 1 second
         move_backward()
-        time.sleep(2)
+        print ("Backward")
+        time.sleep(5)
         stop_motors()
-        time.sleep(1)
+        time.sleep(10)
         # Example: Turn left for 2 seconds, then stop for 1 second
         turn_left()
-        time.sleep(2)
+        print ("Left")
+        time.sleep(5)
         stop_motors()
-        time.sleep(1)
+        time.sleep(10)
         # Example: Turn right for 2 seconds, then stop for 1 second
         turn_right()
-        time.sleep(2)
+        print ("Right")
+        time.sleep(5)
         stop_motors()
-        time.sleep(1)
+        time.sleep(10)
 
 except KeyboardInterrupt:
     print("\nExiting program.")

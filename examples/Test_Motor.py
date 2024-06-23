@@ -132,25 +132,25 @@ def stop_motors():
 
 try:
     while True:
-        # Example: Move forward for 5 seconds, then stop for 1 second
+        # Move forward for 5 seconds, then stop for 1 second
         move_forward()
         print("Forward")
         time.sleep(5)
         stop_motors()
         time.sleep(1)
-        # Example: Move backward for 5 seconds, then stop for 1 second
+        # Move backward for 5 seconds, then stop for 1 second
         move_backward()
         print("Backward")
         time.sleep(5)
         stop_motors()
         time.sleep(1)
-        # Example: Turn left for 5 seconds, then stop for 1 second
+        # Turn left for 5 seconds, then stop for 1 second
         turn_left()
         print("Left")
         time.sleep(5)
         stop_motors()
         time.sleep(1)
-        # Example: Turn right for 5 seconds, then stop for 1 second
+        # Turn right for 5 seconds, then stop for 1 second
         turn_right()
         print("Right")
         time.sleep(5)

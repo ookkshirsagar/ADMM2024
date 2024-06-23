@@ -107,8 +107,8 @@ def turn_left():
     GPIO.output(right_rear_in1, GPIO.HIGH)
     GPIO.output(right_rear_in2, GPIO.LOW)
     
-    set_motor_speed(pwm_left_front, 0)
-    set_motor_speed(pwm_left_rear, 0)
+    set_motor_speed(pwm_left_front, 100)
+    set_motor_speed(pwm_left_rear, 100)
     set_motor_speed(pwm_right_front, 100)
     set_motor_speed(pwm_right_rear, 100)
 
@@ -128,8 +128,8 @@ def turn_right():
     
     set_motor_speed(pwm_left_front, 100)
     set_motor_speed(pwm_left_rear, 100)
-    set_motor_speed(pwm_right_front, 0)
-    set_motor_speed(pwm_right_rear, 0)
+    set_motor_speed(pwm_right_front, 100)
+    set_motor_speed(pwm_right_rear, 100)
 
 # Function to stop all motors
 def stop_motors():

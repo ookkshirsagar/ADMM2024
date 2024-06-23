@@ -57,12 +57,12 @@ def set_motor_speed(pwm, speed):
 
 # Function to move motors forward
 def move_forward():
-    GPIO.output(left_front_in1, GPIO.LOW)
-    GPIO.output(left_front_in2, GPIO.HIGH)
+    GPIO.output(left_front_in1, GPIO.HIGH)
+    GPIO.output(left_front_in2, GPIO.LOW)
     GPIO.output(left_rear_in1, GPIO.HIGH)
     GPIO.output(left_rear_in2, GPIO.LOW)
-    GPIO.output(right_front_in1, GPIO.LOW)
-    GPIO.output(right_front_in2, GPIO.HIGH)
+    GPIO.output(right_front_in1, GPIO.HIGH)
+    GPIO.output(right_front_in2, GPIO.LOW)
     GPIO.output(right_rear_in1, GPIO.HIGH)
     GPIO.output(right_rear_in2, GPIO.LOW)
     set_motor_speed(pwm_left_front, 100)
@@ -72,12 +72,12 @@ def move_forward():
 
 # Function to move motors backward
 def move_backward():
-    GPIO.output(left_front_in1, GPIO.HIGH)
-    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.HIGH)
     GPIO.output(left_rear_in1, GPIO.LOW)
     GPIO.output(left_rear_in2, GPIO.HIGH)
-    GPIO.output(right_front_in1, GPIO.HIGH)
-    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.HIGH)
     GPIO.output(right_rear_in1, GPIO.LOW)
     GPIO.output(right_rear_in2, GPIO.HIGH)
     set_motor_speed(pwm_left_front, 100)
@@ -87,12 +87,12 @@ def move_backward():
 
 # Function to turn left
 def turn_left():
-    GPIO.output(left_front_in1, GPIO.HIGH)
-    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.HIGH)
     GPIO.output(left_rear_in1, GPIO.LOW)
     GPIO.output(left_rear_in2, GPIO.HIGH)
-    GPIO.output(right_front_in1, GPIO.LOW)
-    GPIO.output(right_front_in2, GPIO.HIGH)
+    GPIO.output(right_front_in1, GPIO.HIGH)
+    GPIO.output(right_front_in2, GPIO.LOW)
     GPIO.output(right_rear_in1, GPIO.HIGH)
     GPIO.output(right_rear_in2, GPIO.LOW)
     set_motor_speed(pwm_left_front, 100)
@@ -102,12 +102,12 @@ def turn_left():
 
 # Function to turn right
 def turn_right():
-    GPIO.output(left_front_in1, GPIO.LOW)
-    GPIO.output(left_front_in2, GPIO.HIGH)
+    GPIO.output(left_front_in1, GPIO.HIGH)
+    GPIO.output(left_front_in2, GPIO.LOW)
     GPIO.output(left_rear_in1, GPIO.HIGH)
     GPIO.output(left_rear_in2, GPIO.LOW)
-    GPIO.output(right_front_in1, GPIO.HIGH)
-    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.HIGH)
     GPIO.output(right_rear_in1, GPIO.LOW)
     GPIO.output(right_rear_in2, GPIO.HIGH)
     set_motor_speed(pwm_left_front, 100)
@@ -132,30 +132,30 @@ def stop_motors():
 
 try:
     while True:
-        # Example: Move forward for 5 seconds, then stop for 10 seconds
+        # Example: Move forward for 5 seconds, then stop for 1 seconds
         move_forward()
         print("Forward")
         time.sleep(5)
         stop_motors()
-        time.sleep(10)
-        # Example: Move backward for 5 seconds, then stop for 10 seconds
+        time.sleep(1)
+        # Example: Move backward for 5 seconds, then stop for 1 seconds
         move_backward()
         print("Backward")
         time.sleep(5)
         stop_motors()
-        time.sleep(10)
-        # Example: Turn left for 5 seconds, then stop for 10 seconds
+        time.sleep(1)
+        # Example: Turn left for 5 seconds, then stop for 1 seconds
         turn_left()
         print("Left")
         time.sleep(5)
         stop_motors()
-        time.sleep(10)
-        # Example: Turn right for 5 seconds, then stop for 10 seconds
+        time.sleep(1)
+        # Example: Turn right for 5 seconds, then stop for 1 seconds
         turn_right()
         print("Right")
         time.sleep(5)
         stop_motors()
-        time.sleep(10)
+        time.sleep(1)
 
 except KeyboardInterrupt:
     print("\nExiting program.")

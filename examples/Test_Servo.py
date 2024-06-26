@@ -1,32 +1,45 @@
-from gpiozero import Servo
-from time import sleep
-from signal import pause
+import RPi.GPIO as GPIO
+import time
 
-# Define the GPIO pin connected to the servo signal wire
-servo_pin = 17
+# Set GPIO numbering mode
+GPIO.setmode(GPIO.BCM)
 
-# Initialize the servo object
-servo = Servo(servo_pin)
+# Set GPIO pin for the servo
+servo_pin = 17  # Change this to the pin you've connected your servo to
 
-# Function to set the servo angle
+# Set GPIO pin as an output
+GPIO.setup(servo_pin, GPIO.OUT)
+
+# Set PWM parameters
+pwm_frequency = 50  # Frequency in Hz (typical for servos)
+
+# Initialize PWM on the servo pin
+pwm = GPIO.PWM(servo_pin, pwm_frequency)
+pwm.start(0)  # Initial duty cycle
+
 def set_servo_angle(angle):
-    # Servo position ranges from -1 (0 degrees) to +1 (180 degrees)
-    servo.value = (angle / 90.0) - 1.0
+    duty_cycle = 2 + (angle / 18)  # Convert angle to duty cycle
+    GPIO.output(servo_pin, True)
+    pwm.ChangeDutyCycle(duty_cycle)
+    time.sleep(0.5)  # Allow time for the servo to move
+    GPIO.output(servo_pin, False)
+    pwm.ChangeDutyCycle(0)
 
 try:
-    print("Sweeping servo...")
     while True:
-        # Sweep from 0 to 180 degrees
-        for angle in range(0, 181, 1):
+        # Move servo from 0 to 30 degrees
+        for angle in range(0, 31, 1):
             set_servo_angle(angle)
-            sleep(0.01)
-        # Sweep back from 180 to 0 degrees
-        for angle in range(180, -1, -1):
+            time.sleep(0.05)  # Adjust as necessary for smooth motion
+
+        # Move servo from 30 to 0 degrees
+        for angle in range(30, -1, -1):
             set_servo_angle(angle)
-            sleep(0.01)
+            time.sleep(0.05)  # Adjust as necessary for smooth motion
 
 except KeyboardInterrupt:
-    print("\nExiting program.")
+    print("Program stopped")
+
 finally:
-    servo.detach()
-    print("Servo motor detached.")
+    pwm.stop()
+    GPIO.cleanup()

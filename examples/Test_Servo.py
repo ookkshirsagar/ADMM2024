@@ -8,7 +8,7 @@ GPIO.setmode(GPIO.BCM)
 servo_pin = 17  # Change this to the GPIO pin you're using
 
 # Set PWM parameters
-frequency = 50  # PWM frequency in Hz
+frequency = 1000  # PWM frequency in Hz
 period = 1.0 / frequency  # Period in seconds
 
 # Duty cycle constants for 0 and 180 degrees
@@ -30,11 +30,11 @@ def set_angle(angle):
 try:
     while True:
         # Move from 0 to 180 degrees
-        for angle in range(0, 181, 5):
+        for angle in range(0, 161, 5):
             set_angle(angle)
 
         # Move from 180 to 0 degrees
-        for angle in range(180, -1, -5):
+        for angle in range(160, -1, -5):
             set_angle(angle)
 
 except KeyboardInterrupt:

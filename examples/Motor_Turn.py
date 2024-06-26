@@ -163,13 +163,13 @@ try:
         # Turn left for 5 seconds, then stop for 1 second
         turn_left()
         print("Left")
-        time.sleep(5)
+        time.sleep(4)
         stop_motors()
         time.sleep(1)
         # Turn right for 5 seconds, then stop for 1 second
         turn_right()
         print("Right")
-        time.sleep(5)
+        time.sleep(4)
         stop_motors()
         time.sleep(1)
 

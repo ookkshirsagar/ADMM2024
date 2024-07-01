@@ -4,39 +4,46 @@ import time
 # Set GPIO numbering mode
 GPIO.setmode(GPIO.BCM)
 
-# Set GPIO pin for the servo
-servo1_pin = 17  # Change this to the GPIO pin you're using
-servo2_pin = 27
+# Set GPIO pins for the servos
+servo_pin_1 = 17  # Change this to the GPIO pin you're using for the first servo
+servo_pin_2 = 27  # Changed to GPIO pin 27 for the second servo
 
 # Set PWM parameters
-GPIO.setup(servo1_pin, GPIO.OUT)
-GPIO.setup(servo2_pin, GPIO.OUT)
-
-# PWM frequency set to 50 Hz (default)
-pwm1 = GPIO.PWM(servo1_pin, 50) 
-pwm2 = GPIO.PWM(servo2_pin, 50) 
+GPIO.setup(servo_pin_1, GPIO.OUT)
+GPIO.setup(servo_pin_2, GPIO.OUT)
+pwm_1 = GPIO.PWM(servo_pin_1, 50)  # PWM frequency set to 50 Hz for the first servo
+pwm_2 = GPIO.PWM(servo_pin_2, 50)  # PWM frequency set to 50 Hz for the second servo
 
 # Start PWM with 0% duty cycle
-pwm1.start(0)
-pwm2.start(0)
+pwm_1.start(0)
+pwm_2.start(0)
+
+# Function to set servo angle
+def set_servo_angle(pwm, angle):
+    duty_cycle = 2.5 + (angle / 18.0)  # Adjust the duty cycle calculation if needed
+    pwm.ChangeDutyCycle(duty_cycle)
+
+# Initial angle variable (change this value to set initial angle)
+initial_angle = 0
 
 try:
     while True:
-        # Move from 0 to 180 degrees
-        for angle in range(0, 181, 10):
-            pwm1.ChangeDutyCycle(2.5 + angle / 18)
-            pwm2.ChangeDutyCycle(2.5 + angle / 18)
-            time.sleep(0.3)  # Adjust delay as necessary for servo to reach position
+        # Move from initial angle to 160 degrees
+        for angle in range(initial_angle, 161, 10):
+            set_servo_angle(pwm_1, angle)
+            set_servo_angle(pwm_2, angle)
+            time.sleep(0.3)  # Adjust delay as necessary for servos to reach position
 
-        # Move from 180 to 0 degrees
-        for angle in range(180, -1, -10):
-            pwm1.ChangeDutyCycle(2.5 + angle / 18)
-            pwm2.ChangeDutyCycle(2.5 + angle / 18)
-            time.sleep(0.3)  # Adjust delay as necessary for servo to reach position
+        # Move from 160 to initial angle degrees
+        for angle in range(160, initial_angle - 1, -10):
+            set_servo_angle(pwm_1, angle)
+            set_servo_angle(pwm_2, angle)
+            time.sleep(0.3)  # Adjust delay as necessary for servos to reach position
 
 except KeyboardInterrupt:
     print("Program stopped by user")
 
 finally:
-    pwm.stop()
+    pwm_1.stop()
+    pwm_2.stop()
     GPIO.cleanup()

@@ -132,9 +132,9 @@ def get_calibrated_gyro_data(sensor):
 
 def turn_left(sensor):
     desired_angle = 90.0  # Desired angle to turn
-    kp = 5.0  # Moderate proportional gain
-    max_speed = 70.0  # Adjusted maximum speed for smoother turn
-    min_speed = 30.0  # Minimum speed adjusted for smooth operation
+    kp = 3.0  # Adjusted proportional gain for smoother correction
+    max_speed = 60.0  # Reduced maximum speed for more precise control
+    min_speed = 20.0  # Minimum speed adjusted for smooth operation
     dt = 0.01  # Sample time
 
     current_angle = 0.0
@@ -194,6 +194,7 @@ def turn_left(sensor):
 
     # Stop motors after completing the turn
     stop_motors()
+
 
 try:
     while True:

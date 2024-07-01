@@ -216,11 +216,22 @@ try:
     # Tare MPU6050 and get initial angle
     initial_angle = tare_mpu6050(sensor)
 
-    # Calculate current angle using gyro integration
-    calculate_current_angle(sensor, gyro_offsets, initial_angle)
+    while True:
+        # Move forward for 5 seconds
+        move_forward()
+        print("Moving forward...")
+        time.sleep(5)
 
-    # Example: Turn left using closed-loop control
-    turn_left(sensor, gyro_offsets)
+        # Stop motors and wait 1 second
+        stop_motors()
+        time.sleep(1)
+
+        # Turn left using closed-loop control with MPU6050
+        turn_left(sensor, gyro_offsets)
+
+        # Stop motors and wait 1 second
+        stop_motors()
+        time.sleep(1)
 
 except KeyboardInterrupt:
     print("\nExiting program.")

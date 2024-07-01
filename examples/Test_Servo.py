@@ -22,27 +22,27 @@ pwm_2.start(0)
 def set_servo_angle(pwm, angle):
     duty_cycle = 2.5 + (angle / 18.0)  # Adjust the duty cycle calculation if needed
     pwm.ChangeDutyCycle(duty_cycle)
-
+    time.sleep(0.3)  # Give time for the servo to reach the position
 
 # Initial angles
 initial_angle_1 = 180
 initial_angle_2 = 0
 
 try:
-    # Set the first servo to 160 degrees and the second to 0 degrees before starting the loop
+    # Set the initial positions for the servos
     set_servo_angle(pwm_1, initial_angle_1)
     set_servo_angle(pwm_2, initial_angle_2)
     time.sleep(1)  # Give time for servos to reach the initial positions
 
     while True:
-        # Move the first servo from 160 to 0 degrees and the second from 0 to 160 degrees
-        for angle_1, angle_2 in zip(range(180, 159, -10), range(0, 21, 10)):
+        # Move the first servo from 180 to 160 degrees and the second from 0 to 20 degrees
+        for angle_1, angle_2 in zip(range(180, 159, -20), range(0, 21, 20)):
             set_servo_angle(pwm_1, angle_1)
             set_servo_angle(pwm_2, angle_2)
             time.sleep(0.3)  # Adjust delay as necessary for servos to reach position
 
-        # Move the first servo from 0 to 160 degrees and the second from 160 to 0 degrees
-        for angle_1, angle_2 in zip(range(160, 181, 10), range(20, -1, -10)):
+        # Move the first servo from 160 to 180 degrees and the second from 20 to 0 degrees
+        for angle_1, angle_2 in zip(range(160, 181, 20), range(20, -1, -20)):
             set_servo_angle(pwm_1, angle_1)
             set_servo_angle(pwm_2, angle_2)
             time.sleep(0.3)  # Adjust delay as necessary for servos to reach position

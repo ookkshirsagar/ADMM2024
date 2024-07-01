@@ -79,11 +79,17 @@ def move_forward():
     set_motor_speed(pwm_right_front, 100)
     set_motor_speed(pwm_right_rear, 100)
 
-# Function to turn left using MPU6050 for angle control
+# Function to turn left using closed-loop control with MPU6050
 def turn_left(sensor, gyro_offsets):
     desired_angle = 90.0  # Desired angle to turn
-    current_angle = 0.0
+    kp = 1.0  # Proportional gain
+    max_speed = 100.0  # Maximum PWM duty cycle
+    min_speed = 30.0  # Minimum PWM duty cycle
     dt = 0.01  # Sample time
+
+    current_angle = 0.0
+    gyro_integrated_angle = 0.0
+    last_gyro_z = 0.0
 
     while current_angle < desired_angle:
         gyro_data = sensor.get_gyro_data()
@@ -91,11 +97,16 @@ def turn_left(sensor, gyro_offsets):
         gyro_y = gyro_data['y'] - gyro_offsets[1]
         gyro_z = gyro_data['z'] - gyro_offsets[2]
 
-        angle_x = gyro_x * dt
-        angle_y = gyro_y * dt
         angle_z = gyro_z * dt
+        gyro_integrated_angle += angle_z
 
-        current_angle += abs(angle_z)  # Turning based on z-axis gyro
+        # Apply closed-loop control
+        error = desired_angle - gyro_integrated_angle
+        correction = kp * error
+
+        # Adjust motor speeds
+        left_speed = max(min_speed, max_speed - correction)
+        right_speed = max(min_speed, max_speed + correction)
 
         # Left motors stop
         GPIO.output(left_front_in1, GPIO.LOW)
@@ -109,10 +120,16 @@ def turn_left(sensor, gyro_offsets):
         GPIO.output(right_rear_in1, GPIO.HIGH)
         GPIO.output(right_rear_in2, GPIO.LOW)
 
-        set_motor_speed(pwm_left_front, 100)
-        set_motor_speed(pwm_left_rear, 100)
-        set_motor_speed(pwm_right_front, 100)
-        set_motor_speed(pwm_right_rear, 100)
+        set_motor_speed(pwm_left_front, left_speed)
+        set_motor_speed(pwm_left_rear, left_speed)
+        set_motor_speed(pwm_right_front, right_speed)
+        set_motor_speed(pwm_right_rear, right_speed)
+
+        # Update current angle
+        current_angle = gyro_integrated_angle
+
+        # Print for debugging (optional)
+        print(f"Current Angle: {current_angle:.2f} deg")
 
         time.sleep(dt)
 
@@ -163,23 +180,7 @@ try:
         stop_motors()
         time.sleep(1)
 
-        # Turn left using MPU6050 for angle control
-        turn_left(sensor, gyro_offsets)
-
-        # Stop motors and wait 1 second
-        stop_motors()
-        time.sleep(1)
-
-        # Move forward a short distance (adjust as needed)
-        move_forward()
-        print("Moving forward a short distance...")
-        time.sleep(0.2)
-
-        # Stop motors and wait 1 second
-        stop_motors()
-        time.sleep(1)
-
-        # Turn left again using MPU6050 for angle control
+        # Turn left using closed-loop control with MPU6050
         turn_left(sensor, gyro_offsets)
 
         # Stop motors and wait 1 second

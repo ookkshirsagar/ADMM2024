@@ -1,78 +1,41 @@
-import time
 from mpu6050 import mpu6050
+from time import sleep
 
-# MPU6050 sensor address
-sensor_address = 0x68  # Check your MPU6050 address
-sensor = mpu6050(sensor_address)
+# Initialize sensor
+sensor = mpu6050(0x68)
 
-# Gyro calibration parameters
-calibration_samples = 100  # Number of samples for gyro calibration
+# Calibration constants
+SF_x = 1 / 10.20
+SF_y = 1 / 9.85
+SF_z = 1 / 8.25
 
-# Function for gyro calibration
-def calibrate_gyro(sensor):
-    print("Calibrating gyro... Keep the sensor still!")
-    gyro_offsets = [0, 0, 0]
+def get_calibrated_accel_data(sensor):
+    raw_data = sensor.get_accel_data()
+    calibrated_data = {
+        'x': raw_data['x'] * SF_x,
+        'y': raw_data['y'] * SF_y,
+        'z': raw_data['z'] * SF_z
+    }
+    return calibrated_data
 
-    for _ in range(calibration_samples):
-        gyro_data = sensor.get_gyro_data()
-        gyro_offsets[0] += gyro_data['x']
-        gyro_offsets[1] += gyro_data['y']
-        gyro_offsets[2] += gyro_data['z']
-        time.sleep(0.01)
+while True:
+    # Get raw sensor data
+    accel_data = sensor.get_accel_data()
+    gyro_data = sensor.get_gyro_data()
+    temp = sensor.get_temp()
 
-    gyro_offsets = [offset / calibration_samples for offset in gyro_offsets]
-    print(f"Gyro offsets: {gyro_offsets}")
+    # Get calibrated acceleration data
+    calibrated_accel_data = get_calibrated_accel_data(sensor)
 
-    return gyro_offsets
+    print("Raw Accelerometer data")
+    print(f"x: {accel_data['x']:.2f} y: {accel_data['y']:.2f} z: {accel_data['z']:.2f}")
+    
+    print("Calibrated Accelerometer data")
+    print(f"x: {calibrated_accel_data['x']:.2f} g y: {calibrated_accel_data['y']:.2f} g z: {calibrated_accel_data['z']:.2f} g")
 
-# Function to tare (zero) MPU6050 initial angle
-def tare_mpu6050(sensor):
-    print("Taring MPU6050... Keeping sensor still!")
-    initial_angle = 0.0
+    print("Gyroscope data")
+    print(f"x: {gyro_data['x']:.2f} y: {gyro_data['y']:.2f} z: {gyro_data['z']:.2f}")
 
-    for _ in range(calibration_samples):
-        gyro_data = sensor.get_gyro_data()
-        initial_angle += gyro_data['z']
-        time.sleep(0.01)
+    print("Temp: " + str(temp) + " C")
+    sleep(0.5)
 
-    initial_angle /= calibration_samples
-    print(f"Initial angle: {initial_angle:.2f} deg")
-
-    return initial_angle
-
-# Function to calculate current angle using gyro data
-def calculate_current_angle(sensor, gyro_offsets, initial_angle):
-    dt = 0.1  # Sample time
-    gyro_integrated_angle = initial_angle
-
-    try:
-        while True:
-            gyro_data = sensor.get_gyro_data()
-            gyro_x = gyro_data['x'] - gyro_offsets[0]
-            gyro_y = gyro_data['y'] - gyro_offsets[1]
-            gyro_z = gyro_data['z'] - gyro_offsets[2]
-
-            angle_z = gyro_z * dt
-            gyro_integrated_angle += angle_z
-
-            # Print current angle
-            print(f"Current Angle: {gyro_integrated_angle:.2f} deg")
-
-            time.sleep(dt)
-
-    except KeyboardInterrupt:
-        print("\nStopping angle calculation.")
-
-# Main program
-try:
-    # Calibrate gyro and get offsets
-    gyro_offsets = calibrate_gyro(sensor)
-
-    # Tare MPU6050 and get initial angle
-    initial_angle = tare_mpu6050(sensor)
-
-    # Calculate and print current angle continuously
-    calculate_current_angle(sensor, gyro_offsets, initial_angle)
-
-except KeyboardInterrupt:
-    print("\nExiting program.")

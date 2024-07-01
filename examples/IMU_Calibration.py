@@ -4,13 +4,13 @@ from time import sleep
 # Initialize sensor
 sensor = mpu6050(0x68)
 
-# Calibration constants for accelerometer
+# Calibration constants for accelerometer (if needed)
 SF_x = 1 / 10.20
 SF_y = 1 / 9.85
 SF_z = 1 / 8.25
 
 # Gyroscope calibration variables
-calibration_samples = 100  # Number of samples for calibration
+calibration_samples = 500  # Increased for better averaging
 
 def get_calibrated_accel_data(sensor):
     raw_data = sensor.get_accel_data()
@@ -64,7 +64,7 @@ while True:
     gyro_data = sensor.get_gyro_data()
     temp = sensor.get_temp()
 
-    # Get calibrated acceleration data
+    # Get calibrated acceleration data (if needed)
     calibrated_accel_data = get_calibrated_accel_data(sensor)
 
     # Get calibrated gyroscope data
@@ -73,8 +73,9 @@ while True:
     print("Raw Accelerometer data")
     print(f"x: {accel_data['x']:.2f} y: {accel_data['y']:.2f} z: {accel_data['z']:.2f}")
     
-    print("Calibrated Accelerometer data")
-    print(f"x: {calibrated_accel_data['x']:.2f} g y: {calibrated_accel_data['y']:.2f} g z: {calibrated_accel_data['z']:.2f} g")
+    if 'calibrated_accel_data' in locals():
+        print("Calibrated Accelerometer data")
+        print(f"x: {calibrated_accel_data['x']:.2f} g y: {calibrated_accel_data['y']:.2f} g z: {calibrated_accel_data['z']:.2f} g")
 
     print("Calibrated Gyroscope data")
     print(f"x: {calibrated_gyro_data['x']:.2f} y: {calibrated_gyro_data['y']:.2f} z: {calibrated_gyro_data['z']:.2f}")

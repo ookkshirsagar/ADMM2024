@@ -20,9 +20,10 @@ right_rear_en = 19
 
 # MPU6050 sensor address
 sensor_address = 0x68  # Check your MPU6050 address
-
-# Create MPU6050 instance
 sensor = mpu6050(sensor_address)
+
+# Gyro calibration parameters
+calibration_samples = 100  # Number of samples for gyro calibration
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
@@ -56,7 +57,7 @@ pwm_left_rear.start(0)
 pwm_right_front.start(0)
 pwm_right_rear.start(0)
 
-# Function to set motor speed (0 to 100)
+# Function to set motor speed
 def set_motor_speed(pwm, speed):
     if speed < 0:
         speed = 0
@@ -83,19 +84,83 @@ def move_forward():
     set_motor_speed(pwm_right_front, 100)
     set_motor_speed(pwm_right_rear, 100)
 
-# Function to turn left using PID control with MPU6050
+# Function to stop all motors
+def stop_motors():
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+    set_motor_speed(pwm_left_front, 0)
+    set_motor_speed(pwm_left_rear, 0)
+    set_motor_speed(pwm_right_front, 0)
+    set_motor_speed(pwm_right_rear, 0)
+
+# Function for gyro calibration
+def calibrate_gyro(sensor):
+    print("Calibrating gyro... Keep the sensor still!")
+    gyro_offsets = [0, 0, 0]
+
+    for _ in range(calibration_samples):
+        gyro_data = sensor.get_gyro_data()
+        gyro_offsets[0] += gyro_data['x']
+        gyro_offsets[1] += gyro_data['y']
+        gyro_offsets[2] += gyro_data['z']
+        time.sleep(0.01)
+
+    gyro_offsets = [offset / calibration_samples for offset in gyro_offsets]
+    print(f"Gyro offsets: {gyro_offsets}")
+
+    return gyro_offsets
+
+# Function to tare (zero) MPU6050 initial angle
+def tare_mpu6050(sensor):
+    print("Taring MPU6050... Keeping sensor still!")
+    initial_angle = 0.0
+
+    for _ in range(calibration_samples):
+        gyro_data = sensor.get_gyro_data()
+        initial_angle += gyro_data['z']
+        time.sleep(0.01)
+
+    initial_angle /= calibration_samples
+    print(f"Initial angle: {initial_angle:.2f} deg")
+
+    return initial_angle
+
+# Function to calculate current angle using gyro data
+def calculate_current_angle(sensor, gyro_offsets, initial_angle):
+    dt = 0.01  # Sample time
+    gyro_integrated_angle = initial_angle
+
+    while True:
+        gyro_data = sensor.get_gyro_data()
+        gyro_x = gyro_data['x'] - gyro_offsets[0]
+        gyro_y = gyro_data['y'] - gyro_offsets[1]
+        gyro_z = gyro_data['z'] - gyro_offsets[2]
+
+        angle_z = gyro_z * dt
+        gyro_integrated_angle += angle_z
+
+        # Print for debugging (optional)
+        print(f"Current Angle: {gyro_integrated_angle:.2f} deg")
+
+        time.sleep(dt)
+
+# Function to turn left using closed-loop control with MPU6050
 def turn_left(sensor, gyro_offsets):
     desired_angle = 90.0  # Desired angle to turn
-    kp = 0.1  # Proportional gain
-    ki = 0.1  # Integral gain
-    kd = 0.1  # Derivative gain
-    max_speed = 70.0  # Maximum PWM duty cycle
+    kp = 1.0  # Proportional gain
+    max_speed = 100.0  # Maximum PWM duty cycle
     min_speed = 30.0  # Minimum PWM duty cycle
     dt = 0.01  # Sample time
 
     current_angle = 0.0
-    integrated_error = 0.0
-    last_error = 0.0
+    gyro_integrated_angle = 0.0
+    last_gyro_z = 0.0
 
     while current_angle < desired_angle:
         gyro_data = sensor.get_gyro_data()
@@ -104,17 +169,13 @@ def turn_left(sensor, gyro_offsets):
         gyro_z = gyro_data['z'] - gyro_offsets[2]
 
         angle_z = gyro_z * dt
-        current_angle += angle_z
+        gyro_integrated_angle += angle_z
 
-        # PID calculations
-        error = desired_angle - current_angle
-        integrated_error += error * dt
-        derivative_error = (error - last_error) / dt
+        # Apply closed-loop control
+        error = desired_angle - gyro_integrated_angle
+        correction = kp * error
 
-        # PID output
-        correction = kp * error + ki * integrated_error + kd * derivative_error
-
-        # Adjust motor speeds based on correction
+        # Adjust motor speeds
         left_speed = max(min_speed, max_speed - correction)
         right_speed = max(min_speed, max_speed + correction)
 
@@ -139,67 +200,27 @@ def turn_left(sensor, gyro_offsets):
         set_motor_speed(pwm_right_front, right_speed)
         set_motor_speed(pwm_right_rear, right_speed)
 
-        # Update last error
-        last_error = error
+        # Update current angle
+        current_angle = gyro_integrated_angle
 
         # Print for debugging (optional)
         print(f"Current Angle: {current_angle:.2f} deg")
 
         time.sleep(dt)
 
-# Function to stop all motors
-def stop_motors():
-    GPIO.output(left_front_in1, GPIO.LOW)
-    GPIO.output(left_front_in2, GPIO.LOW)
-    GPIO.output(left_rear_in1, GPIO.LOW)
-    GPIO.output(left_rear_in2, GPIO.LOW)
-    GPIO.output(right_front_in1, GPIO.LOW)
-    GPIO.output(right_front_in2, GPIO.LOW)
-    GPIO.output(right_rear_in1, GPIO.LOW)
-    GPIO.output(right_rear_in2, GPIO.LOW)
-    set_motor_speed(pwm_left_front, 0)
-    set_motor_speed(pwm_left_rear, 0)
-    set_motor_speed(pwm_right_front, 0)
-    set_motor_speed(pwm_right_rear, 0)
-
-# Function for gyro calibration
-def calibrate_gyro(sensor):
-    print("Calibrating gyro... Keep the sensor still!")
-    gyro_offsets = [0, 0, 0]
-    num_samples = 100
-
-    for _ in range(num_samples):
-        gyro_data = sensor.get_gyro_data()
-        gyro_offsets[0] += gyro_data['x']
-        gyro_offsets[1] += gyro_data['y']
-        gyro_offsets[2] += gyro_data['z']
-        time.sleep(0.01)
-
-    gyro_offsets = [offset / num_samples for offset in gyro_offsets]
-    print(f"Gyro offsets: {gyro_offsets}")
-
-    return gyro_offsets
-
+# Main program loop
 try:
     # Calibrate gyro and get offsets
     gyro_offsets = calibrate_gyro(sensor)
 
-    while True:
-        # Move forward for 5 seconds
-        move_forward()
-        print("Moving forward...")
-        time.sleep(5)
+    # Tare MPU6050 and get initial angle
+    initial_angle = tare_mpu6050(sensor)
 
-        # Stop motors and wait 1 second
-        stop_motors()
-        time.sleep(1)
+    # Calculate current angle using gyro integration
+    calculate_current_angle(sensor, gyro_offsets, initial_angle)
 
-        # Turn left using PID control with MPU6050
-        turn_left(sensor, gyro_offsets)
-
-        # Stop motors and wait 1 second
-        stop_motors()
-        time.sleep(1)
+    # Example: Turn left using closed-loop control
+    turn_left(sensor, gyro_offsets)
 
 except KeyboardInterrupt:
     print("\nExiting program.")

@@ -152,7 +152,7 @@ def calculate_current_angle(sensor, gyro_offsets, initial_angle):
 
 # Function to turn left using closed-loop control with MPU6050
 def turn_left(sensor, gyro_offsets):
-    desired_angle = 90.0  # Desired angle to turn
+    desired_angle = 62.5  # Desired angle to turn
     kp = 1.0  # Proportional gain
     max_speed = 100.0  # Maximum PWM duty cycle
     min_speed = 30.0  # Minimum PWM duty cycle

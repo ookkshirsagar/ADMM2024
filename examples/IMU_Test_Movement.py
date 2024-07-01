@@ -83,8 +83,55 @@ def move_forward():
     set_motor_speed(pwm_right_front, 100)
     set_motor_speed(pwm_right_rear, 100)
 
+# Function to stop all motors
+def stop_motors():
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+    set_motor_speed(pwm_left_front, 0)
+    set_motor_speed(pwm_left_rear, 0)
+    set_motor_speed(pwm_right_front, 0)
+    set_motor_speed(pwm_right_rear, 0)
+
+# Function to get calibrated accelerometer data
+def get_calibrated_accel_data(sensor):
+    """Retrieve and calibrate accelerometer data."""
+    raw_data = sensor.get_accel_data()
+    accel_calib_factors = {
+        'x': 1 / 10.20,
+        'y': 1 / 9.85,
+        'z': 1 / 8.25
+    }
+    calibrated_data = {
+        'x': raw_data['x'] * accel_calib_factors['x'],
+        'y': raw_data['y'] * accel_calib_factors['y'],
+        'z': raw_data['z'] * accel_calib_factors['z']
+    }
+    return calibrated_data
+
+# Function to get calibrated gyroscope data
+def get_calibrated_gyro_data(sensor):
+    """Retrieve and calibrate gyroscope data."""
+    gyro_offsets = {
+        'x': -0.40,
+        'y': 0.50,
+        'z': -1.45
+    }
+    raw_data = sensor.get_gyro_data()
+    calibrated_data = {
+        'x': raw_data['x'] - gyro_offsets['x'],
+        'y': raw_data['y'] - gyro_offsets['y'],
+        'z': raw_data['z'] - gyro_offsets['z']
+    }
+    return calibrated_data
+
 # Function to turn left using closed-loop control with MPU6050
-def turn_left(sensor, gyro_offsets):
+def turn_left(sensor):
     desired_angle = 65.5  # Desired angle to turn
     kp = 1.0  # Proportional gain
     max_speed = 100.0  # Maximum PWM duty cycle
@@ -96,10 +143,8 @@ def turn_left(sensor, gyro_offsets):
     last_gyro_z = 0.0
 
     while current_angle < desired_angle:
-        gyro_data = sensor.get_gyro_data()
-        gyro_x = gyro_data['x'] - gyro_offsets[0]
-        gyro_y = gyro_data['y'] - gyro_offsets[1]
-        gyro_z = gyro_data['z'] - gyro_offsets[2]
+        calibrated_gyro = get_calibrated_gyro_data(sensor)
+        gyro_z = calibrated_gyro['z']
 
         angle_z = gyro_z * dt
         gyro_integrated_angle += angle_z
@@ -141,43 +186,7 @@ def turn_left(sensor, gyro_offsets):
 
         time.sleep(dt)
 
-# Function to stop all motors
-def stop_motors():
-    GPIO.output(left_front_in1, GPIO.LOW)
-    GPIO.output(left_front_in2, GPIO.LOW)
-    GPIO.output(left_rear_in1, GPIO.LOW)
-    GPIO.output(left_rear_in2, GPIO.LOW)
-    GPIO.output(right_front_in1, GPIO.LOW)
-    GPIO.output(right_front_in2, GPIO.LOW)
-    GPIO.output(right_rear_in1, GPIO.LOW)
-    GPIO.output(right_rear_in2, GPIO.LOW)
-    set_motor_speed(pwm_left_front, 0)
-    set_motor_speed(pwm_left_rear, 0)
-    set_motor_speed(pwm_right_front, 0)
-    set_motor_speed(pwm_right_rear, 0)
-
-# Function for gyro calibration
-def calibrate_gyro(sensor):
-    print("Calibrating gyro... Keep the sensor still!")
-    gyro_offsets = [0, 0, 0]
-    num_samples = 100
-
-    for _ in range(num_samples):
-        gyro_data = sensor.get_gyro_data()
-        gyro_offsets[0] += gyro_data['x']
-        gyro_offsets[1] += gyro_data['y']
-        gyro_offsets[2] += gyro_data['z']
-        time.sleep(0.01)
-
-    gyro_offsets = [offset / num_samples for offset in gyro_offsets]
-    print(f"Gyro offsets: {gyro_offsets}")
-
-    return gyro_offsets
-
 try:
-    # Calibrate gyro and get offsets
-    gyro_offsets = calibrate_gyro(sensor)
-
     while True:
         # Move forward for 5 seconds
         move_forward()
@@ -189,7 +198,7 @@ try:
         time.sleep(1)
 
         # Turn left using closed-loop control with MPU6050
-        turn_left(sensor, gyro_offsets)
+        turn_left(sensor)
 
         # Stop motors and wait 1 second
         stop_motors()

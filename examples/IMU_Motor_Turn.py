@@ -86,9 +86,9 @@ def move_forward():
 # Function to turn left using PID control with MPU6050
 def turn_left(sensor, gyro_offsets):
     desired_angle = 90.0  # Desired angle to turn
-    kp = 2.0  # Proportional gain
-    ki = 0.5  # Integral gain
-    kd = 0.8  # Derivative gain
+    kp = 0.1  # Proportional gain
+    ki = 0.1  # Integral gain
+    kd = 0.1  # Derivative gain
     max_speed = 70.0  # Maximum PWM duty cycle
     min_speed = 30.0  # Minimum PWM duty cycle
     dt = 0.01  # Sample time

@@ -111,7 +111,7 @@ try:
         # Move forward for 5 seconds
         move_forward()
         print("Moving forward...")
-        time.sleep(5)
+        time.sleep(2)
         
         # Stop motors and wait 1 second
         stop_motors()
@@ -120,7 +120,7 @@ try:
         # Turn left
         turn_left()
         print("Turning left...")
-        time.sleep(2)  # Adjust the time to turn 90 degrees
+        time.sleep(1.7)  # Adjust the time to turn 90 degrees
         
         # Stop motors and wait 1 second
         stop_motors()
@@ -129,7 +129,7 @@ try:
         # Move forward for a short distance
         move_forward()
         print("Moving forward a short distance...")
-        time.sleep(2)  # Adjust the time to move a short distance
+        time.sleep(0.2)  # Adjust the time to move a short distance
         
         # Stop motors and wait 1 second
         stop_motors()
@@ -138,7 +138,7 @@ try:
         # Turn left again
         turn_left()
         print("Turning left again...")
-        time.sleep(2)  # Adjust the time to turn 90 degrees
+        time.sleep(1.7)  # Adjust the time to turn 90 degrees
         
         # Stop motors and wait 1 second
         stop_motors()

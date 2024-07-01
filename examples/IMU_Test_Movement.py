@@ -58,6 +58,10 @@ pwm_right_rear.start(0)
 
 # Function to set motor speed
 def set_motor_speed(pwm, speed):
+    if speed < 0:
+        speed = 0
+    elif speed > 100:
+        speed = 100
     pwm.ChangeDutyCycle(speed)
 
 # Function to move motors forward
@@ -107,6 +111,10 @@ def turn_left(sensor, gyro_offsets):
         # Adjust motor speeds
         left_speed = max(min_speed, max_speed - correction)
         right_speed = max(min_speed, max_speed + correction)
+
+        # Ensure speed is within valid range (0 to 100)
+        left_speed = min(max(left_speed, 0), 100)
+        right_speed = min(max(right_speed, 0), 100)
 
         # Left motors stop
         GPIO.output(left_front_in1, GPIO.LOW)

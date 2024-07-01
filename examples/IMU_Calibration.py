@@ -5,9 +5,9 @@ from time import sleep
 sensor = mpu6050(0x68)
 
 # Calibration constants
-SF_x = 9.81 / 10.20
-SF_y = 9.81 / 9.85
-SF_z = 9.81 / 8.5
+SF_x = 1 / 10.20
+SF_y = 1 / 9.85
+SF_z = 1 / 8.5
 
 def get_calibrated_accel_data(sensor):
     raw_data = sensor.get_accel_data()
@@ -31,7 +31,7 @@ while True:
     print(f"x: {accel_data['x']:.2f} y: {accel_data['y']:.2f} z: {accel_data['z']:.2f}")
     
     print("Calibrated Accelerometer data")
-    print(f"x: {calibrated_accel_data['x']:.2f} m/s² y: {calibrated_accel_data['y']:.2f} m/s² z: {calibrated_accel_data['z']:.2f} m/s²")
+    print(f"x: {calibrated_accel_data['x']:.2f} g y: {calibrated_accel_data['y']:.2f} g z: {calibrated_accel_data['z']:.2f} g")
 
     print("Gyroscope data")
     print(f"x: {gyro_data['x']:.2f} y: {gyro_data['y']:.2f} z: {gyro_data['z']:.2f}")

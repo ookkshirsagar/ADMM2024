@@ -35,24 +35,16 @@ try:
     time.sleep(1)  # Give time for servos to reach the initial positions
 
     while True:
-        # Move the first servo from 160 to 0 degrees
-        for angle in range(160, -1, -10):
-            set_servo_angle(pwm_1, angle)
+        # Move the first servo from 160 to 0 degrees and the second from 0 to 160 degrees
+        for angle_1, angle_2 in zip(range(160, -1, -10), range(0, 161, 10)):
+            set_servo_angle(pwm_1, angle_1)
+            set_servo_angle(pwm_2, angle_2)
             time.sleep(0.3)  # Adjust delay as necessary for servos to reach position
 
-        # Move the second servo from 0 to 160 degrees
-        for angle in range(0, 161, 10):
-            set_servo_angle(pwm_2, angle)
-            time.sleep(0.3)  # Adjust delay as necessary for servos to reach position
-
-        # Move the first servo from 0 to 160 degrees
-        for angle in range(0, 161, 10):
-            set_servo_angle(pwm_1, angle)
-            time.sleep(0.3)  # Adjust delay as necessary for servos to reach position
-
-        # Move the second servo from 160 to 0 degrees
-        for angle in range(160, -1, -10):
-            set_servo_angle(pwm_2, angle)
+        # Move the first servo from 0 to 160 degrees and the second from 160 to 0 degrees
+        for angle_1, angle_2 in zip(range(0, 161, 10), range(160, -1, -10)):
+            set_servo_angle(pwm_1, angle_1)
+            set_servo_angle(pwm_2, angle_2)
             time.sleep(0.3)  # Adjust delay as necessary for servos to reach position
 
 except KeyboardInterrupt:

@@ -1,5 +1,4 @@
 import RPi.GPIO as GPIO
-import smbus
 import time
 from mpu6050 import mpu6050
 
@@ -19,14 +18,11 @@ right_rear_in1 = 21
 right_rear_in2 = 26
 right_rear_en = 19
 
-# Initialize I2C bus (assuming Raspberry Pi 4B)
-bus = smbus.SMBus(1)
-
 # MPU6050 sensor address
-sensor_address = 0x68
+sensor_address = 0x68  # Check your MPU6050 address
 
 # Create MPU6050 instance
-sensor = mpu6050(sensor_address, bus)
+sensor = mpu6050(sensor_address)
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)

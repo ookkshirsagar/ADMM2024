@@ -131,11 +131,11 @@ def get_calibrated_gyro_data(sensor):
     return calibrated_data
 
 def turn_left(sensor):
-    desired_angle = 90.0  # Desired angle to turn
-    kp = 3.0  # Adjusted proportional gain for smoother correction
+    desired_angle = 83.0  # Desired angle to turn
+    kp = 5.0  # Adjusted proportional gain for smoother correction
     max_speed = 60.0  # Reduced maximum speed for more precise control
     min_speed = 20.0  # Minimum speed adjusted for smooth operation
-    dt = 0.01  # Sample time
+    dt = 0.005  # Sample time
 
     current_angle = 0.0
     gyro_integrated_angle = 0.0

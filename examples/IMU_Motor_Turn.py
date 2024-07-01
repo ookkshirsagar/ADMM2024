@@ -133,7 +133,7 @@ def tare_mpu6050(sensor):
 
 # Function to calculate current angle using gyro data
 def calculate_current_angle(sensor, gyro_offsets, initial_angle):
-    dt = 0.01  # Sample time
+    dt = 0.0001  # Sample time
     gyro_integrated_angle = initial_angle
 
     while True:
@@ -152,11 +152,11 @@ def calculate_current_angle(sensor, gyro_offsets, initial_angle):
 
 # Function to turn left using closed-loop control with MPU6050
 def turn_left(sensor, gyro_offsets):
-    desired_angle = 62.5  # Desired angle to turn
-    kp = 1.0  # Proportional gain
-    max_speed = 100.0  # Maximum PWM duty cycle
+    desired_angle = 83.0  # Desired angle to turn
+    kp = 0.85  # Proportional gain
+    max_speed = 70.0  # Maximum PWM duty cycle
     min_speed = 30.0  # Minimum PWM duty cycle
-    dt = 0.01  # Sample time
+    dt = 0.065 # Sample time
 
     current_angle = 0.0
     gyro_integrated_angle = 0.0

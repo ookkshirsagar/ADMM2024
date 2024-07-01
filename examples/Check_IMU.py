@@ -42,7 +42,7 @@ def tare_mpu6050(sensor):
 
 # Function to calculate current angle using gyro data
 def calculate_current_angle(sensor, gyro_offsets, initial_angle):
-    dt = 0.01  # Sample time
+    dt = 0.1  # Sample time
     gyro_integrated_angle = initial_angle
 
     try:

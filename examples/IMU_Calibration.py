@@ -10,7 +10,7 @@ SF_y = 1 / 9.85
 SF_z = 1 / 8.25
 
 # Gyroscope calibration variables
-calibration_samples = 500  # Increased for better averaging
+calibration_samples = 100  # Increased for better averaging
 
 def get_calibrated_accel_data(sensor):
     raw_data = sensor.get_accel_data()

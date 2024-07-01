@@ -5,9 +5,9 @@ from time import sleep
 sensor = mpu6050(0x68)
 
 # Calibration constants for gyroscope (adjust these according to your calibration)
-gyro_offset_x = -0.55
-gyro_offset_y = 0.68
-gyro_offset_z = -1.60
+gyro_offset_x = -0.40
+gyro_offset_y = 0.50
+gyro_offset_z = -1.45
 
 def get_calibrated_accel_data(sensor):
     raw_data = sensor.get_accel_data()

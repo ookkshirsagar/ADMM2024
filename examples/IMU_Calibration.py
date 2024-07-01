@@ -7,17 +7,14 @@ sensor = mpu6050(0x68)
 # Calibration constants
 SF_x = 1 / 10.20
 SF_y = 1 / 9.85
-SF_z = 1 / 8.4
-
-# Offset calculation for z-axis
-z_offset = (SF_x + SF_y) / 2 - SF_z
+SF_z = 1 / 8.5
 
 def get_calibrated_accel_data(sensor):
     raw_data = sensor.get_accel_data()
     calibrated_data = {
         'x': raw_data['x'] * SF_x,
         'y': raw_data['y'] * SF_y,
-        'z': raw_data['z'] * SF_z + z_offset
+        'z': raw_data['z'] * SF_z
     }
     return calibrated_data
 

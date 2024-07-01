@@ -6,7 +6,7 @@ sensor_address = 0x68
 sensor = mpu6050(sensor_address)
 
 # Number of samples to collect for calibration
-calibration_samples = 1000
+calibration_samples = 100
 
 def calibrate_mpu6050(sensor, calibration_samples):
     print("Calibrating MPU6050... Keep the sensor still!")

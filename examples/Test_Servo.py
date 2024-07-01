@@ -5,8 +5,8 @@ import time
 GPIO.setmode(GPIO.BCM)
 
 # Set GPIO pins for the servos
-servo_pin_1 = 17  # Change this to the GPIO pin you're using for the first servo
-servo_pin_2 = 27  # Changed to GPIO pin 27 for the second servo
+servo_pin_1 = 17  # GPIO pin for the first servo
+servo_pin_2 = 27  # GPIO pin for the second servo
 
 # Set PWM parameters
 GPIO.setup(servo_pin_1, GPIO.OUT)
@@ -23,10 +23,15 @@ def set_servo_angle(pwm, angle):
     duty_cycle = 2.5 + (angle / 18.0)  # Adjust the duty cycle calculation if needed
     pwm.ChangeDutyCycle(duty_cycle)
 
-# Initial angle variable (change this value to set initial angle)
+# Initial angle variable
 initial_angle = 0
 
 try:
+    # Set both servos to the initial angle before starting the loop
+    set_servo_angle(pwm_1, initial_angle)
+    set_servo_angle(pwm_2, initial_angle)
+    time.sleep(1)  # Give time for servos to reach the initial position
+
     while True:
         # Move from initial angle to 160 degrees
         for angle in range(initial_angle, 161, 10):

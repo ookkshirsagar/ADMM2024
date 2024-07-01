@@ -81,39 +81,39 @@ def move_forward():
 
 # Function to turn left using MPU6050 for angle control
 def turn_left(sensor, gyro_offsets):
-    desired_angle = 90.0  # Desired angle to turn (adjust as needed)
+    desired_angle = 90.0  # Desired angle to turn
     current_angle = 0.0
-    dt = 0.01  # Sample time (adjust as needed)
-    
+    dt = 0.01  # Sample time
+
     while current_angle < desired_angle:
         gyro_data = sensor.get_gyro_data()
         gyro_x = gyro_data['x'] - gyro_offsets[0]
         gyro_y = gyro_data['y'] - gyro_offsets[1]
         gyro_z = gyro_data['z'] - gyro_offsets[2]
-        
+
         angle_x = gyro_x * dt
         angle_y = gyro_y * dt
         angle_z = gyro_z * dt
-        
-        current_angle += abs(angle_z)  # Assuming turning based on z-axis gyro
-        
+
+        current_angle += abs(angle_z)  # Turning based on z-axis gyro
+
         # Left motors stop
         GPIO.output(left_front_in1, GPIO.LOW)
         GPIO.output(left_front_in2, GPIO.HIGH)
         GPIO.output(left_rear_in1, GPIO.HIGH)
         GPIO.output(left_rear_in2, GPIO.LOW)
-        
+
         # Right motors move forward
         GPIO.output(right_front_in1, GPIO.LOW)
         GPIO.output(right_front_in2, GPIO.HIGH)
         GPIO.output(right_rear_in1, GPIO.HIGH)
         GPIO.output(right_rear_in2, GPIO.LOW)
-        
+
         set_motor_speed(pwm_left_front, 100)
         set_motor_speed(pwm_left_rear, 100)
         set_motor_speed(pwm_right_front, 100)
         set_motor_speed(pwm_right_rear, 100)
-        
+
         time.sleep(dt)
 
 # Function to stop all motors
@@ -136,45 +136,52 @@ def calibrate_gyro(sensor):
     print("Calibrating gyro... Keep the sensor still!")
     gyro_offsets = [0, 0, 0]
     num_samples = 100
-    
+
     for _ in range(num_samples):
         gyro_data = sensor.get_gyro_data()
         gyro_offsets[0] += gyro_data['x']
         gyro_offsets[1] += gyro_data['y']
         gyro_offsets[2] += gyro_data['z']
-        time.sleep(0.01)  # Adjust as needed
-        
+        time.sleep(0.01)
+
     gyro_offsets = [offset / num_samples for offset in gyro_offsets]
     print(f"Gyro offsets: {gyro_offsets}")
-    
+
     return gyro_offsets
 
 try:
     # Calibrate gyro and get offsets
     gyro_offsets = calibrate_gyro(sensor)
-    
+
     while True:
         # Move forward for 5 seconds
         move_forward()
         print("Moving forward...")
         time.sleep(5)
-        
+
         # Stop motors and wait 1 second
         stop_motors()
         time.sleep(1)
-        
+
         # Turn left using MPU6050 for angle control
         turn_left(sensor, gyro_offsets)
-        
+
         # Stop motors and wait 1 second
         stop_motors()
         time.sleep(1)
-        
+
         # Move forward a short distance (adjust as needed)
         move_forward()
         print("Moving forward a short distance...")
         time.sleep(0.2)
-        
+
+        # Stop motors and wait 1 second
+        stop_motors()
+        time.sleep(1)
+
+        # Turn left again using MPU6050 for angle control
+        turn_left(sensor, gyro_offsets)
+
         # Stop motors and wait 1 second
         stop_motors()
         time.sleep(1)

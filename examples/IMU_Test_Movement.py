@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
-from mpu6050 import mpu6050
 import smbus
 import time
+from mpu6050 import mpu6050
 
 # Motor Driver 1 Pins (Left Motors)
 left_front_in1 = 23
@@ -19,7 +19,7 @@ right_rear_in1 = 21
 right_rear_in2 = 26
 right_rear_en = 19
 
-# I2C bus 1 on a Raspberry Pi 4B
+# Initialize I2C bus (assuming Raspberry Pi 4B)
 bus = smbus.SMBus(1)
 
 # MPU6050 sensor address

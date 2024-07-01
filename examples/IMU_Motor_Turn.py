@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import RPi.GPIO as GPIO
 import time
 from mpu6050 import mpu6050
@@ -20,9 +18,11 @@ right_rear_in1 = 21
 right_rear_in2 = 26
 right_rear_en = 19
 
-# Initialize MPU6050 sensor
-mpu6050_address = 0x68  # Replace with your MPU6050 I2C address
-sensor = mpu6050(mpu6050_address)
+# MPU6050 sensor address
+sensor_address = 0x68  # Check your MPU6050 address
+
+# Create MPU6050 instance
+sensor = mpu6050(sensor_address)
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
@@ -56,8 +56,12 @@ pwm_left_rear.start(0)
 pwm_right_front.start(0)
 pwm_right_rear.start(0)
 
-# Function to set motor speed
+# Function to set motor speed (0 to 100)
 def set_motor_speed(pwm, speed):
+    if speed < 0:
+        speed = 0
+    elif speed > 100:
+        speed = 100
     pwm.ChangeDutyCycle(speed)
 
 # Function to move motors forward
@@ -79,110 +83,69 @@ def move_forward():
     set_motor_speed(pwm_right_front, 100)
     set_motor_speed(pwm_right_rear, 100)
 
-# Function to move motors backward
-def move_backward():
-    # Left motors move backward
-    GPIO.output(left_front_in1, GPIO.LOW)
-    GPIO.output(left_front_in2, GPIO.HIGH)
-    GPIO.output(left_rear_in1, GPIO.HIGH)
-    GPIO.output(left_rear_in2, GPIO.LOW)
-    
-    # Right motors move backward
-    GPIO.output(right_front_in1, GPIO.HIGH)
-    GPIO.output(right_front_in2, GPIO.LOW)
-    GPIO.output(right_rear_in1, GPIO.LOW)
-    GPIO.output(right_rear_in2, GPIO.HIGH)
-    
-    set_motor_speed(pwm_left_front, 100)
-    set_motor_speed(pwm_left_rear, 100)
-    set_motor_speed(pwm_right_front, 100)
-    set_motor_speed(pwm_right_rear, 100)
+# Function to turn left using PID control with MPU6050
+def turn_left(sensor, gyro_offsets):
+    desired_angle = 90.0  # Desired angle to turn
+    kp = 2.0  # Proportional gain
+    ki = 0.5  # Integral gain
+    kd = 0.1  # Derivative gain
+    max_speed = 100.0  # Maximum PWM duty cycle
+    min_speed = 30.0  # Minimum PWM duty cycle
+    dt = 0.01  # Sample time
 
-# Function to turn left (approximately 180 degrees)
-def turn_left():
-    target_angle = 180.0
-    kp = 2.0  # Proportional gain for angular velocity control
-    max_speed = 70  # Maximum PWM duty cycle for motors
-    min_speed = 30  # Minimum PWM duty cycle for motors
-    
-    initial_angle = sensor.get_angle()
-    current_angle = initial_angle
-    last_time = time.time()
-    
-    while current_angle - initial_angle < target_angle:
-        dt = time.time() - last_time
-        angular_velocity = sensor.get_gyro_data()['y']  # Adjust axis as per your setup
-        current_angle += angular_velocity * dt
-        
-        error = target_angle - (current_angle - initial_angle)
-        speed = kp * error
-        
-        # Adjust motor speeds based on error
-        left_speed = min(max_speed, max(min_speed, 50 + speed))
-        right_speed = min(max_speed, max(min_speed, 50 - speed))
-        
-        # Left motors move backward
+    current_angle = 0.0
+    integrated_error = 0.0
+    last_error = 0.0
+
+    while current_angle < desired_angle:
+        gyro_data = sensor.get_gyro_data()
+        gyro_x = gyro_data['x'] - gyro_offsets[0]
+        gyro_y = gyro_data['y'] - gyro_offsets[1]
+        gyro_z = gyro_data['z'] - gyro_offsets[2]
+
+        angle_z = gyro_z * dt
+        current_angle += angle_z
+
+        # PID calculations
+        error = desired_angle - current_angle
+        integrated_error += error * dt
+        derivative_error = (error - last_error) / dt
+
+        # PID output
+        correction = kp * error + ki * integrated_error + kd * derivative_error
+
+        # Adjust motor speeds based on correction
+        left_speed = max(min_speed, max_speed - correction)
+        right_speed = max(min_speed, max_speed + correction)
+
+        # Ensure speed is within valid range (0 to 100)
+        left_speed = min(max(left_speed, 0), 100)
+        right_speed = min(max(right_speed, 0), 100)
+
+        # Left motors stop
         GPIO.output(left_front_in1, GPIO.LOW)
         GPIO.output(left_front_in2, GPIO.HIGH)
         GPIO.output(left_rear_in1, GPIO.HIGH)
         GPIO.output(left_rear_in2, GPIO.LOW)
-        set_motor_speed(pwm_left_front, left_speed)
-        set_motor_speed(pwm_left_rear, left_speed)
-        
+
         # Right motors move forward
         GPIO.output(right_front_in1, GPIO.LOW)
         GPIO.output(right_front_in2, GPIO.HIGH)
         GPIO.output(right_rear_in1, GPIO.HIGH)
         GPIO.output(right_rear_in2, GPIO.LOW)
-        set_motor_speed(pwm_right_front, right_speed)
-        set_motor_speed(pwm_right_rear, right_speed)
-        
-        last_time = time.time()
-    
-    stop_motors()
 
-# Function to turn right (approximately 180 degrees)
-def turn_right():
-    target_angle = -180.0  # Negative because turning right
-    kp = 2.0  # Proportional gain for angular velocity control
-    max_speed = 70  # Maximum PWM duty cycle for motors
-    min_speed = 30  # Minimum PWM duty cycle for motors
-    
-    initial_angle = sensor.get_angle()
-    current_angle = initial_angle
-    last_time = time.time()
-    
-    while current_angle - initial_angle > target_angle:
-        dt = time.time() - last_time
-        angular_velocity = sensor.get_gyro_data()['y']  # Adjust axis as per your setup
-        current_angle += angular_velocity * dt
-        
-        error = target_angle - (current_angle - initial_angle)
-        speed = kp * error
-        
-        # Adjust motor speeds based on error
-        left_speed = min(max_speed, max(min_speed, 50 - speed))
-        right_speed = min(max_speed, max(min_speed, 50 + speed))
-        
-        # Left motors move forward
-        GPIO.output(left_front_in1, GPIO.HIGH)
-        GPIO.output(left_front_in2, GPIO.LOW)
-        GPIO.output(left_rear_in1, GPIO.LOW)
-        GPIO.output(left_rear_in2, GPIO.HIGH)
         set_motor_speed(pwm_left_front, left_speed)
         set_motor_speed(pwm_left_rear, left_speed)
-        
-        # Right motors move backward
-        GPIO.output(right_front_in1, GPIO.HIGH)
-        GPIO.output(right_front_in2, GPIO.LOW)
-        GPIO.output(right_rear_in1, GPIO.LOW)
-        GPIO.output(right_rear_in2, GPIO.HIGH)
         set_motor_speed(pwm_right_front, right_speed)
         set_motor_speed(pwm_right_rear, right_speed)
-        
-        last_time = time.time()
-    
-    stop_motors()
+
+        # Update last error
+        last_error = error
+
+        # Print for debugging (optional)
+        print(f"Current Angle: {current_angle:.2f} deg")
+
+        time.sleep(dt)
 
 # Function to stop all motors
 def stop_motors():
@@ -199,48 +162,48 @@ def stop_motors():
     set_motor_speed(pwm_right_front, 0)
     set_motor_speed(pwm_right_rear, 0)
 
-# Function to calibrate and tare MPU6050 sensor
-def calibrate_and_tare():
-    print("Calibrating and taring MPU6050 sensor...")
-    sensor.calibrate()
-    sensor.tare()
-    print("Calibration and taring completed.")
-    time.sleep(2)  # Adjust as needed
+# Function for gyro calibration
+def calibrate_gyro(sensor):
+    print("Calibrating gyro... Keep the sensor still!")
+    gyro_offsets = [0, 0, 0]
+    num_samples = 100
+
+    for _ in range(num_samples):
+        gyro_data = sensor.get_gyro_data()
+        gyro_offsets[0] += gyro_data['x']
+        gyro_offsets[1] += gyro_data['y']
+        gyro_offsets[2] += gyro_data['z']
+        time.sleep(0.01)
+
+    gyro_offsets = [offset / num_samples for offset in gyro_offsets]
+    print(f"Gyro offsets: {gyro_offsets}")
+
+    return gyro_offsets
 
 try:
-    calibrate_and_tare()
+    # Calibrate gyro and get offsets
+    gyro_offsets = calibrate_gyro(sensor)
 
     while True:
-        # Move forward for 5 seconds, then stop for 1 second
+        # Move forward for 5 seconds
         move_forward()
-        print("Forward")
+        print("Moving forward...")
         time.sleep(5)
+
+        # Stop motors and wait 1 second
         stop_motors()
         time.sleep(1)
-        
-        # Move backward for 5 seconds, then stop for 1 second
-        move_backward()
-        print("Backward")
-        time.sleep(5)
-        stop_motors()
-        time.sleep(1)
-        
-        # Turn left for approximately 180 degrees, then stop for 1 second
-        turn_left()
-        print("Left")
-        time.sleep(1)  # Adjust duration for precise turn
-        stop_motors()
-        time.sleep(1)
-        
-        # Turn right for approximately 180 degrees, then stop for 1 second
-        turn_right()
-        print("Right")
-        time.sleep(1)  # Adjust duration for precise turn
+
+        # Turn left using PID control with MPU6050
+        turn_left(sensor, gyro_offsets)
+
+        # Stop motors and wait 1 second
         stop_motors()
         time.sleep(1)
 
 except KeyboardInterrupt:
     print("\nExiting program.")
+
 finally:
     # Clean up GPIO resources
     pwm_left_front.stop()
@@ -248,4 +211,3 @@ finally:
     pwm_right_front.stop()
     pwm_right_rear.stop()
     GPIO.cleanup()
-

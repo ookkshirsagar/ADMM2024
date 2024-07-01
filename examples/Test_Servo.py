@@ -7,8 +7,8 @@ GPIO.setmode(GPIO.BCM)
 # Set GPIO pins for the servos
 servo_pin_1 = 17  # GPIO pin for the first servo
 servo_pin_2 = 27  # GPIO pin for the second servo
-servo_pin_3 = 4  # GPIO pin for the second servo
-servo_pin_4 = 22  # GPIO pin for the second servo
+servo_pin_3 = 22 # GPIO pin for the second servo
+servo_pin_4 = 4  # GPIO pin for the second servo
 
 # Set PWM parameters
 GPIO.setup(servo_pin_1, GPIO.OUT)

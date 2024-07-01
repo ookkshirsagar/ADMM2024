@@ -46,8 +46,8 @@ GPIO.setup(right_rear_en, GPIO.OUT)
 
 # Set up PWM for motor speed control
 pwm_left_front = GPIO.PWM(left_front_en, 100)
-pwm_left_rear = GPIO.PWM(left_rear_en, 100)
-pwm_right_front = GPIO.PWM(right_front_en, 100)
+pwm_left_rear = GPIO.PWM(left_rear_en, 70)
+pwm_right_front = GPIO.PWM(right_front_en, 70)
 pwm_right_rear = GPIO.PWM(right_rear_en, 100)
 
 # Start PWM with a duty cycle of 0 (motors off)
@@ -132,9 +132,9 @@ def get_calibrated_gyro_data(sensor):
 
 # Function to turn left using closed-loop control with MPU6050
 def turn_left(sensor):
-    desired_angle = 65.5  # Desired angle to turn
+    desired_angle = 90.0  # Desired angle to turn
     kp = 1.0  # Proportional gain
-    max_speed = 100.0  # Maximum PWM duty cycle
+    max_speed =50.0  # Maximum PWM duty cycle
     min_speed = 30.0  # Minimum PWM duty cycle
     dt = 0.01  # Sample time
 
@@ -191,7 +191,7 @@ try:
         # Move forward for 5 seconds
         move_forward()
         print("Moving forward...")
-        time.sleep(5)
+        time.sleep(2)
 
         # Stop motors and wait 1 second
         stop_motors()

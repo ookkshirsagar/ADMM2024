@@ -1,5 +1,7 @@
 import RPi.GPIO as GPIO
 import time
+# source /home/admm2024/admm/bin/activate
+
 
 # Test GPIO Pin
 test_pin = 18

@@ -57,9 +57,6 @@ def main():
         calibrated_gyro_data = get_calibrated_gyro_data(sensor)
 
         # Print sensor data
-        print("Raw Accelerometer data")
-        print(f"x: {accel_data['x']:.2f} y: {accel_data['y']:.2f} z: {accel_data['z']:.2f}")
-
         print("Calibrated Accelerometer data")
         print(f"x: {calibrated_accel_data['x']:.2f} y: {calibrated_accel_data['y']:.2f} z: {calibrated_accel_data['z']:.2f}")
 

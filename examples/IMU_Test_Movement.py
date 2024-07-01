@@ -130,26 +130,28 @@ def get_calibrated_gyro_data(sensor):
     }
     return calibrated_data
 
-# Function to turn left using closed-loop control with MPU6050
 def turn_left(sensor):
     desired_angle = 90.0  # Desired angle to turn
-    kp = 200.0  # Increased proportional gain for faster correction
-    max_speed = 100.0  # Increased maximum speed for sharper turn
+    kp = 5.0  # Moderate proportional gain
+    max_speed = 70.0  # Adjusted maximum speed for smoother turn
     min_speed = 30.0  # Minimum speed adjusted for smooth operation
     dt = 0.01  # Sample time
 
     current_angle = 0.0
     gyro_integrated_angle = 0.0
-    last_gyro_z = 0.0
 
     while current_angle < desired_angle:
+        start_time = time.time()
+
+        # Retrieve calibrated gyro data
         calibrated_gyro = get_calibrated_gyro_data(sensor)
         gyro_z = calibrated_gyro['z']
 
+        # Calculate angular change since last iteration
         angle_z = gyro_z * dt
         gyro_integrated_angle += angle_z
 
-        # Apply closed-loop control
+        # Compute error and correction
         error = desired_angle - gyro_integrated_angle
         correction = kp * error
 
@@ -161,13 +163,12 @@ def turn_left(sensor):
         left_speed = min(max(left_speed, 0), 100)
         right_speed = min(max(right_speed, 0), 100)
 
-        # Left motors stop
+        # Control motor direction and speed
         GPIO.output(left_front_in1, GPIO.LOW)
         GPIO.output(left_front_in2, GPIO.HIGH)
         GPIO.output(left_rear_in1, GPIO.HIGH)
         GPIO.output(left_rear_in2, GPIO.LOW)
 
-        # Right motors move forward
         GPIO.output(right_front_in1, GPIO.LOW)
         GPIO.output(right_front_in2, GPIO.HIGH)
         GPIO.output(right_rear_in1, GPIO.HIGH)
@@ -184,7 +185,15 @@ def turn_left(sensor):
         # Print for debugging (optional)
         print(f"Current Angle: {current_angle:.2f} deg")
 
-        time.sleep(dt)
+        # Ensure loop executes at consistent interval
+        elapsed_time = time.time() - start_time
+        if elapsed_time < dt:
+            time.sleep(dt - elapsed_time)
+        else:
+            print("Warning: Loop iteration took longer than dt")
+
+    # Stop motors after completing the turn
+    stop_motors()
 
 try:
     while True:

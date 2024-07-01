@@ -88,8 +88,8 @@ def turn_left(sensor, gyro_offsets):
     desired_angle = 90.0  # Desired angle to turn
     kp = 2.0  # Proportional gain
     ki = 0.5  # Integral gain
-    kd = 0.1  # Derivative gain
-    max_speed = 100.0  # Maximum PWM duty cycle
+    kd = 0.8  # Derivative gain
+    max_speed = 70.0  # Maximum PWM duty cycle
     min_speed = 30.0  # Minimum PWM duty cycle
     dt = 0.01  # Sample time
 

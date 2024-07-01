@@ -25,7 +25,7 @@ def set_servo_angle(pwm, angle):
     time.sleep(0.5)  # Give time for the servo to reach the position
 
 # Initial angles
-initial_angle_1 = 160
+initial_angle_1 = 180
 initial_angle_2 = 0
 
 try:

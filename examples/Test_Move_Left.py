@@ -120,7 +120,7 @@ try:
         # Turn left
         turn_left()
         print("Turning left...")
-        time.sleep(1.7)  # Adjust the time to turn 90 degrees
+        time.sleep(1.625)  # Adjust the time to turn 90 degrees
         
         # Stop motors and wait 1 second
         stop_motors()
@@ -138,7 +138,7 @@ try:
         # Turn left again
         turn_left()
         print("Turning left again...")
-        time.sleep(1.7)  # Adjust the time to turn 90 degrees
+        time.sleep(1.625)  # Adjust the time to turn 90 degrees
         
         # Stop motors and wait 1 second
         stop_motors()

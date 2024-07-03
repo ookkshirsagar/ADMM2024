@@ -196,7 +196,7 @@ def turn_left(sensor):
     stop_motors()
 
 def turn_right(sensor):
-    desired_angle = 83.0  # Desired angle to turn
+    desired_angle = 263.0  # Desired angle to turn
     kp = 5.0  # Adjusted proportional gain for smoother correction
     max_speed = 60.0  # Reduced maximum speed for more precise control
     min_speed = 20.0  # Minimum speed adjusted for smooth operation

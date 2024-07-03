@@ -157,12 +157,16 @@ def turn_left(sensor, angle=83.0, speed=50):
     stop_motors()
 
 # Function to turn right with gyro control
-def turn_right(sensor, angle=-83.0, speed=50):
+# Function to turn right with gyro control
+def turn_right(sensor, angle=83.0, speed=50):
     kp = 1.0
     current_angle = 0.0
     dt = 0.01
 
-    while current_angle < angle:
+    # Convert angle to negative for clockwise turn
+    angle = -abs(angle)
+
+    while current_angle > angle:  # We use > because angle is negative
         start_time = time.time()
 
         calibrated_gyro = get_calibrated_gyro_data(sensor)
@@ -195,6 +199,7 @@ def turn_right(sensor, angle=-83.0, speed=50):
             time.sleep(dt - elapsed_time)
 
     stop_motors()
+
 
 # Function to get calibrated gyroscope data
 def get_calibrated_gyro_data(sensor):

@@ -117,7 +117,7 @@ def move_backward(speed=50):
     set_motor_speed(pwm_right_rear, speed)
 
 # Function to turn left with gyro control
-def turn_left(sensor, angle=90.0, speed=50):
+def turn_left(sensor, angle=83.0, speed=50):
     kp = 1.0
     current_angle = 0.0
     dt = 0.01
@@ -157,7 +157,7 @@ def turn_left(sensor, angle=90.0, speed=50):
     stop_motors()
 
 # Function to turn right with gyro control
-def turn_right(sensor, angle=90.0, speed=50):
+def turn_right(sensor, angle=-83.0, speed=50):
     kp = 1.0
     current_angle = 0.0
     dt = 0.01

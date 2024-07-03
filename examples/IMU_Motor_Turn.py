@@ -44,7 +44,7 @@ GPIO.setup(right_rear_en, GPIO.OUT)
 
 # Set up PWM for motor speed control
 pwm_left_front = GPIO.PWM(left_front_en, 100)
-pwm_left_rear = GPIO.PWM(left_rear_en, 100)  
+pwm_left_rear = GPIO.PWM(left_rear_en, 100)
 pwm_right_front = GPIO.PWM(right_front_en, 100)
 pwm_right_rear = GPIO.PWM(right_rear_en, 100)
 
@@ -85,20 +85,20 @@ def move_forward():
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
-    GPIO.output(left_rear_in1, GPIO.LOW)
-    GPIO.output(left_rear_in2, GPIO.HIGH)
-    
+    GPIO.output(left_rear_in1, GPIO.HIGH)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+
     # Right motors move forward
-    GPIO.output(right_front_in1, GPIO.LOW)
-    GPIO.output(right_front_in2, GPIO.HIGH)
+    GPIO.output(right_front_in1, GPIO.HIGH)
+    GPIO.output(right_front_in2, GPIO.LOW)
     GPIO.output(right_rear_in1, GPIO.HIGH)
     GPIO.output(right_rear_in2, GPIO.LOW)
-    
+
     # Ramp up speed
-    ramp_up_speed(pwm_left_front, 100)
-    ramp_up_speed(pwm_left_rear, 100)
-    ramp_up_speed(pwm_right_front, 100)
-    ramp_up_speed(pwm_right_rear, 100)
+    ramp_up_speed(pwm_left_front, 50)
+    ramp_up_speed(pwm_left_rear, 50)
+    ramp_up_speed(pwm_right_front, 50)
+    ramp_up_speed(pwm_right_rear, 50)
 
 # Function to stop all motors with ramp down
 def stop_motors():
@@ -146,17 +146,17 @@ def turn_left(sensor, angle=90.0):
         current_angle += angle_z
 
         correction = kp * (angle - current_angle)
-        speed = min(max(20 + correction, 20), 60)
+        speed = min(max(30 + correction, 30), 60)
 
         # Left motors backward
         GPIO.output(left_front_in1, GPIO.LOW)
         GPIO.output(left_front_in2, GPIO.HIGH)
-        GPIO.output(left_rear_in1, GPIO.HIGH)
-        GPIO.output(left_rear_in2, GPIO.LOW)
+        GPIO.output(left_rear_in1, GPIO.LOW)
+        GPIO.output(left_rear_in2, GPIO.HIGH)
 
         # Right motors forward
-        GPIO.output(right_front_in1, GPIO.LOW)
-        GPIO.output(right_front_in2, GPIO.HIGH)
+        GPIO.output(right_front_in1, GPIO.HIGH)
+        GPIO.output(right_front_in2, GPIO.LOW)
         GPIO.output(right_rear_in1, GPIO.HIGH)
         GPIO.output(right_rear_in2, GPIO.LOW)
 
@@ -172,7 +172,7 @@ def turn_left(sensor, angle=90.0):
     stop_motors()
 
 # Function to turn right with gyro control
-def turn_right(sensor, angle=270.0):
+def turn_right(sensor, angle=90.0):
     kp = 1.0
     current_angle = 0.0
     dt = 0.01
@@ -186,17 +186,17 @@ def turn_right(sensor, angle=270.0):
         current_angle += angle_z
 
         correction = kp * (angle - current_angle)
-        speed = min(max(20 + correction, 20), 60)
+        speed = min(max(30 + correction, 30), 60)
 
         # Left motors forward
         GPIO.output(left_front_in1, GPIO.HIGH)
         GPIO.output(left_front_in2, GPIO.LOW)
-        GPIO.output(left_rear_in1, GPIO.LOW)
-        GPIO.output(left_rear_in2, GPIO.HIGH)
+        GPIO.output(left_rear_in1, GPIO.HIGH)
+        GPIO.output(left_rear_in2, GPIO.LOW)
 
         # Right motors backward
-        GPIO.output(right_front_in1, GPIO.HIGH)
-        GPIO.output(right_front_in2, GPIO.LOW)
+        GPIO.output(right_front_in1, GPIO.LOW)
+        GPIO.output(right_front_in2, GPIO.HIGH)
         GPIO.output(right_rear_in1, GPIO.LOW)
         GPIO.output(right_rear_in2, GPIO.HIGH)
 

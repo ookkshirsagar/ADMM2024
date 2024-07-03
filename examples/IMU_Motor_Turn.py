@@ -172,7 +172,7 @@ def turn_left(sensor, angle=90.0):
     stop_motors()
 
 # Function to turn right with gyro control
-def turn_right(sensor, angle=90.0):
+def turn_right(sensor, angle=270.0):
     kp = 1.0
     current_angle = 0.0
     dt = 0.01

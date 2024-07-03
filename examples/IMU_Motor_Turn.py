@@ -120,7 +120,7 @@ def move_backward(speed=50):
 def turn_left(sensor, angle=83.0, speed=50):
     kp = 1.0
     current_angle = 0.0
-    dt = 0.01
+    dt = 0.005
 
     while current_angle < angle:
         start_time = time.time()
@@ -156,12 +156,12 @@ def turn_left(sensor, angle=83.0, speed=50):
 
     stop_motors()
 
+
 # Function to turn right with gyro control
-# Function to turn right with gyro control
-def turn_right(sensor, angle=83.0, speed=50):
+def turn_right(sensor, angle=83.0, speed=80):
     kp = 1.0
     current_angle = 0.0
-    dt = 0.01
+    dt = 0.005
 
     # Convert angle to negative for clockwise turn
     angle = -abs(angle)
@@ -227,6 +227,13 @@ try:
 
         print("Turning left...")
         turn_left(sensor)
+
+        stop_motors()
+        time.sleep(1)
+        
+        move_forward()
+        print("Moving forward...")
+        time.sleep(2)
 
         stop_motors()
         time.sleep(1)

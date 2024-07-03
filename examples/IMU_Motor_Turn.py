@@ -116,21 +116,6 @@ def stop_motors():
     GPIO.output(right_rear_in1, GPIO.LOW)
     GPIO.output(right_rear_in2, GPIO.LOW)
 
-# Function to get calibrated accelerometer data
-def get_calibrated_accel_data(sensor):
-    raw_data = sensor.get_accel_data()
-    accel_calib_factors = {
-        'x': 1 / 10.20,
-        'y': 1 / 9.85,
-        'z': 1 / 8.25
-    }
-    calibrated_data = {
-        'x': raw_data['x'] * accel_calib_factors['x'],
-        'y': raw_data['y'] * accel_calib_factors['y'],
-        'z': raw_data['z'] * accel_calib_factors['z']
-    }
-    return calibrated_data
-
 # Function to get calibrated gyroscope data
 def get_calibrated_gyro_data(sensor):
     gyro_offsets = {
@@ -146,117 +131,83 @@ def get_calibrated_gyro_data(sensor):
     }
     return calibrated_data
 
-# PID control variables
-kp = 5.0  # Proportional gain
-ki = 0.0  # Integral gain (set to zero initially)
-kd = 0.0  # Derivative gain (set to zero initially)
-desired_angle = 90.0  # Desired angle to turn
-
-# Function to turn left with PID control
-def turn_left(sensor):
+# Function to turn left with gyro control
+def turn_left(sensor, angle=90.0):
+    kp = 1.0
     current_angle = 0.0
-    gyro_integrated_angle = 0.0
-    prev_error = 0.0
-    integral = 0.0
-    dt = 0.01  # Adjust as needed
+    dt = 0.01
 
-    while current_angle < desired_angle:
+    while current_angle < angle:
         start_time = time.time()
 
         calibrated_gyro = get_calibrated_gyro_data(sensor)
         gyro_z = calibrated_gyro['z']
         angle_z = gyro_z * dt
-        gyro_integrated_angle += angle_z
+        current_angle += angle_z
 
-        error = desired_angle - gyro_integrated_angle
-        integral += error * dt
-        derivative = (error - prev_error) / dt
-        prev_error = error
+        correction = kp * (angle - current_angle)
+        speed = min(max(20 + correction, 20), 60)
 
-        correction = kp * error + ki * integral + kd * derivative
-
-        left_speed = max(20, 60 - correction)
-        right_speed = max(20, 60 + correction)
-
-        left_speed = min(max(left_speed, 0), 100)
-        right_speed = min(max(right_speed, 0), 100)
-
+        # Left motors backward
         GPIO.output(left_front_in1, GPIO.LOW)
         GPIO.output(left_front_in2, GPIO.HIGH)
         GPIO.output(left_rear_in1, GPIO.HIGH)
         GPIO.output(left_rear_in2, GPIO.LOW)
 
+        # Right motors forward
         GPIO.output(right_front_in1, GPIO.LOW)
         GPIO.output(right_front_in2, GPIO.HIGH)
         GPIO.output(right_rear_in1, GPIO.HIGH)
         GPIO.output(right_rear_in2, GPIO.LOW)
 
-        set_motor_speed(pwm_left_front, left_speed)
-        set_motor_speed(pwm_left_rear, left_speed)
-        set_motor_speed(pwm_right_front, right_speed)
-        set_motor_speed(pwm_right_rear, right_speed)
-
-        current_angle = gyro_integrated_angle
+        set_motor_speed(pwm_left_front, speed)
+        set_motor_speed(pwm_left_rear, speed)
+        set_motor_speed(pwm_right_front, speed)
+        set_motor_speed(pwm_right_rear, speed)
 
         elapsed_time = time.time() - start_time
         if elapsed_time < dt:
             time.sleep(dt - elapsed_time)
-        else:
-            print("Warning: Loop iteration took longer than dt")
 
     stop_motors()
 
-# Function to turn right with PID control
-def turn_right(sensor):
+# Function to turn right with gyro control
+def turn_right(sensor, angle=90.0):
+    kp = 1.0
     current_angle = 0.0
-    gyro_integrated_angle = 0.0
-    prev_error = 0.0
-    integral = 0.0
-    dt = 0.01  # Adjust as needed
+    dt = 0.01
 
-    while current_angle < desired_angle:
+    while current_angle < angle:
         start_time = time.time()
 
         calibrated_gyro = get_calibrated_gyro_data(sensor)
         gyro_z = calibrated_gyro['z']
         angle_z = gyro_z * dt
-        gyro_integrated_angle += angle_z
+        current_angle += angle_z
 
-        error = desired_angle - gyro_integrated_angle
-        integral += error * dt
-        derivative = (error - prev_error) / dt
-        prev_error = error
+        correction = kp * (angle - current_angle)
+        speed = min(max(20 + correction, 20), 60)
 
-        correction = kp * error + ki * integral + kd * derivative
-
-        left_speed = max(20, 60 + correction)
-        right_speed = max(20, 60 - correction)
-
-        left_speed = min(max(left_speed, 0), 100)
-        right_speed = min(max(right_speed, 0), 100)
-
+        # Left motors forward
         GPIO.output(left_front_in1, GPIO.HIGH)
         GPIO.output(left_front_in2, GPIO.LOW)
         GPIO.output(left_rear_in1, GPIO.LOW)
         GPIO.output(left_rear_in2, GPIO.HIGH)
 
+        # Right motors backward
         GPIO.output(right_front_in1, GPIO.HIGH)
         GPIO.output(right_front_in2, GPIO.LOW)
         GPIO.output(right_rear_in1, GPIO.LOW)
         GPIO.output(right_rear_in2, GPIO.HIGH)
 
-        set_motor_speed(pwm_left_front, left_speed)
-        set_motor_speed(pwm_left_rear, left_speed)
-        set_motor_speed(pwm_right_front, right_speed)
-        set_motor_speed(pwm_right_rear, right_speed)
-
-        current_angle = gyro_integrated_angle
+        set_motor_speed(pwm_left_front, speed)
+        set_motor_speed(pwm_left_rear, speed)
+        set_motor_speed(pwm_right_front, speed)
+        set_motor_speed(pwm_right_rear, speed)
 
         elapsed_time = time.time() - start_time
         if elapsed_time < dt:
             time.sleep(dt - elapsed_time)
-        else:
-            print("Warning: Loop iteration took longer than dt")
 
     stop_motors()
 
@@ -269,11 +220,13 @@ try:
         stop_motors()
         time.sleep(1)
 
+        print("Turning left...")
         turn_left(sensor)
 
         stop_motors()
         time.sleep(1)
 
+        print("Turning right...")
         turn_right(sensor)
 
         stop_motors()

@@ -62,26 +62,24 @@ def set_motor_speed(pwm, speed):
         speed = 100
     pwm.ChangeDutyCycle(speed)
 
-# Function to ramp up motor speed
-def ramp_up_speed(pwm, target_speed, step=5, delay=0.05):
-    current_speed = 0
-    while current_speed < target_speed:
-        current_speed += step
-        set_motor_speed(pwm, current_speed)
-        time.sleep(delay)
-    set_motor_speed(pwm, target_speed)
+# Function to stop all motors
+def stop_motors():
+    set_motor_speed(pwm_left_front, 0)
+    set_motor_speed(pwm_left_rear, 0)
+    set_motor_speed(pwm_right_front, 0)
+    set_motor_speed(pwm_right_rear, 0)
 
-# Function to ramp down motor speed
-def ramp_down_speed(pwm, step=5, delay=0.05):
-    current_speed = 100
-    while current_speed > 0:
-        current_speed -= step
-        set_motor_speed(pwm, current_speed)
-        time.sleep(delay)
-    set_motor_speed(pwm, 0)
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.LOW)
 
-# Function to move motors forward with ramp up
-def move_forward():
+# Function to move forward
+def move_forward(speed=50):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -94,27 +92,109 @@ def move_forward():
     GPIO.output(right_rear_in1, GPIO.HIGH)
     GPIO.output(right_rear_in2, GPIO.LOW)
 
-    # Ramp up speed
-    ramp_up_speed(pwm_left_front, 50)
-    ramp_up_speed(pwm_left_rear, 50)
-    ramp_up_speed(pwm_right_front, 50)
-    ramp_up_speed(pwm_right_rear, 50)
+    set_motor_speed(pwm_left_front, speed)
+    set_motor_speed(pwm_left_rear, speed)
+    set_motor_speed(pwm_right_front, speed)
+    set_motor_speed(pwm_right_rear, speed)
 
-# Function to stop all motors with ramp down
-def stop_motors():
-    ramp_down_speed(pwm_left_front)
-    ramp_down_speed(pwm_left_rear)
-    ramp_down_speed(pwm_right_front)
-    ramp_down_speed(pwm_right_rear)
-
+# Function to move backward
+def move_backward(speed=50):
+    # Left motors move backward
     GPIO.output(left_front_in1, GPIO.LOW)
-    GPIO.output(left_front_in2, GPIO.LOW)
-    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.HIGH)
+    GPIO.output(left_rear_in1, GPIO.HIGH)
     GPIO.output(left_rear_in2, GPIO.LOW)
-    GPIO.output(right_front_in1, GPIO.LOW)
+
+    # Right motors move backward
+    GPIO.output(right_front_in1, GPIO.HIGH)
     GPIO.output(right_front_in2, GPIO.LOW)
     GPIO.output(right_rear_in1, GPIO.LOW)
-    GPIO.output(right_rear_in2, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.HIGH)
+
+    set_motor_speed(pwm_left_front, speed)
+    set_motor_speed(pwm_left_rear, speed)
+    set_motor_speed(pwm_right_front, speed)
+    set_motor_speed(pwm_right_rear, speed)
+
+# Function to turn left with gyro control
+def turn_left(sensor, angle=90.0, speed=50):
+    kp = 1.0
+    current_angle = 0.0
+    dt = 0.01
+
+    while current_angle < angle:
+        start_time = time.time()
+
+        calibrated_gyro = get_calibrated_gyro_data(sensor)
+        gyro_z = calibrated_gyro['z']
+        angle_z = gyro_z * dt
+        current_angle += angle_z
+
+        correction = kp * (angle - current_angle)
+        turn_speed = min(max(speed + correction, 30), 100)
+
+        # Left motors backward
+        GPIO.output(left_front_in1, GPIO.LOW)
+        GPIO.output(left_front_in2, GPIO.HIGH)
+        GPIO.output(left_rear_in1, GPIO.HIGH)
+        GPIO.output(left_rear_in2, GPIO.LOW)
+
+        # Right motors forward
+        GPIO.output(right_front_in1, GPIO.LOW)
+        GPIO.output(right_front_in2, GPIO.HIGH)
+        GPIO.output(right_rear_in1, GPIO.HIGH)
+        GPIO.output(right_rear_in2, GPIO.LOW)
+
+        set_motor_speed(pwm_left_front, turn_speed)
+        set_motor_speed(pwm_left_rear, turn_speed)
+        set_motor_speed(pwm_right_front, turn_speed)
+        set_motor_speed(pwm_right_rear, turn_speed)
+
+        elapsed_time = time.time() - start_time
+        if elapsed_time < dt:
+            time.sleep(dt - elapsed_time)
+
+    stop_motors()
+
+# Function to turn right with gyro control
+def turn_right(sensor, angle=90.0, speed=50):
+    kp = 1.0
+    current_angle = 0.0
+    dt = 0.01
+
+    while current_angle < angle:
+        start_time = time.time()
+
+        calibrated_gyro = get_calibrated_gyro_data(sensor)
+        gyro_z = calibrated_gyro['z']
+        angle_z = gyro_z * dt
+        current_angle += angle_z
+
+        correction = kp * (angle - current_angle)
+        turn_speed = min(max(speed + correction, 30), 100)
+
+        # Left motors forward
+        GPIO.output(left_front_in1, GPIO.HIGH)
+        GPIO.output(left_front_in2, GPIO.LOW)
+        GPIO.output(left_rear_in1, GPIO.LOW)
+        GPIO.output(left_rear_in2, GPIO.HIGH)
+
+        # Right motors backward
+        GPIO.output(right_front_in1, GPIO.HIGH)
+        GPIO.output(right_front_in2, GPIO.LOW)
+        GPIO.output(right_rear_in1, GPIO.LOW)
+        GPIO.output(right_rear_in2, GPIO.HIGH)
+
+        set_motor_speed(pwm_left_front, turn_speed)
+        set_motor_speed(pwm_left_rear, turn_speed)
+        set_motor_speed(pwm_right_front, turn_speed)
+        set_motor_speed(pwm_right_rear, turn_speed)
+
+        elapsed_time = time.time() - start_time
+        if elapsed_time < dt:
+            time.sleep(dt - elapsed_time)
+
+    stop_motors()
 
 # Function to get calibrated gyroscope data
 def get_calibrated_gyro_data(sensor):
@@ -130,86 +210,6 @@ def get_calibrated_gyro_data(sensor):
         'z': raw_data['z'] - gyro_offsets['z']
     }
     return calibrated_data
-
-# Function to turn left with gyro control
-def turn_left(sensor, angle=90.0):
-    kp = 1.0
-    current_angle = 0.0
-    dt = 0.01
-
-    while current_angle < angle:
-        start_time = time.time()
-
-        calibrated_gyro = get_calibrated_gyro_data(sensor)
-        gyro_z = calibrated_gyro['z']
-        angle_z = gyro_z * dt
-        current_angle += angle_z
-
-        correction = kp * (angle - current_angle)
-        speed = min(max(30 + correction, 30), 60)
-
-        # Left motors backward
-        GPIO.output(left_front_in1, GPIO.LOW)
-        GPIO.output(left_front_in2, GPIO.HIGH)
-        GPIO.output(left_rear_in1, GPIO.HIGH)
-        GPIO.output(left_rear_in2, GPIO.LOW)
-
-        # Right motors forward
-        GPIO.output(right_front_in1, GPIO.LOW)
-        GPIO.output(right_front_in2, GPIO.HIGH)
-        GPIO.output(right_rear_in1, GPIO.HIGH)
-        GPIO.output(right_rear_in2, GPIO.LOW)
-
-        set_motor_speed(pwm_left_front, speed)
-        set_motor_speed(pwm_left_rear, speed)
-        set_motor_speed(pwm_right_front, speed)
-        set_motor_speed(pwm_right_rear, speed)
-
-        elapsed_time = time.time() - start_time
-        if elapsed_time < dt:
-            time.sleep(dt - elapsed_time)
-
-    stop_motors()
-
-# Function to turn right with gyro control
-def turn_right(sensor, angle=90.0):
-    kp = 1.0
-    current_angle = 0.0
-    dt = 0.01
-
-    while current_angle < angle:
-        start_time = time.time()
-
-        calibrated_gyro = get_calibrated_gyro_data(sensor)
-        gyro_z = calibrated_gyro['z']
-        angle_z = gyro_z * dt
-        current_angle += angle_z
-
-        correction = kp * (angle - current_angle)
-        speed = min(max(30 + correction, 30), 60)
-
-        # Left motors forward
-        GPIO.output(left_front_in1, GPIO.HIGH)
-        GPIO.output(left_front_in2, GPIO.LOW)
-        GPIO.output(left_rear_in1, GPIO.HIGH)
-        GPIO.output(left_rear_in2, GPIO.LOW)
-
-        # Right motors backward
-        GPIO.output(right_front_in1, GPIO.LOW)
-        GPIO.output(right_front_in2, GPIO.HIGH)
-        GPIO.output(right_rear_in1, GPIO.LOW)
-        GPIO.output(right_rear_in2, GPIO.HIGH)
-
-        set_motor_speed(pwm_left_front, speed)
-        set_motor_speed(pwm_left_rear, speed)
-        set_motor_speed(pwm_right_front, speed)
-        set_motor_speed(pwm_right_rear, speed)
-
-        elapsed_time = time.time() - start_time
-        if elapsed_time < dt:
-            time.sleep(dt - elapsed_time)
-
-    stop_motors()
 
 try:
     while True:

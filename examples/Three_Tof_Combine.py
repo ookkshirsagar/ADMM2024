@@ -4,6 +4,7 @@ import time
 import board
 import busio
 import adafruit_vl53l0x
+import digitalio
 
 # Number of samples to average for stability
 NUM_SAMPLES = 20
@@ -11,13 +12,21 @@ NUM_SAMPLES = 20
 # Offset adjustment based on calibration (if needed)
 OFFSET = 20  # Adjust this value based on calibration measurements
 
-# New addresses for each sensor
-NEW_ADDRESS_1 = 0x30
-NEW_ADDRESS_2 = 0x31
-NEW_ADDRESS_3 = 0x32
+# Define the XSHUT pins for each sensor
+XSHUT_PINS = [board.D5, board.D6, board.D13]
 
-def initialize_sensor(i2c, new_address):
+# New addresses for each sensor
+NEW_ADDRESSES = [0x30, 0x31, 0x32]
+
+def initialize_sensor(i2c, xshut_pin, new_address):
     try:
+        xshut = digitalio.DigitalInOut(xshut_pin)
+        xshut.direction = digitalio.Direction.OUTPUT
+        xshut.value = False  # Keep the sensor in reset state
+
+        time.sleep(0.1)
+        xshut.value = True  # Bring the sensor out of reset
+
         sensor = adafruit_vl53l0x.VL53L0X(i2c)
         sensor.set_address(new_address)
         print(f"VL53L0X sensor initialized and set to address {hex(new_address)}.")
@@ -58,41 +67,25 @@ def main():
     i2c = busio.I2C(board.SCL, board.SDA)
     
     # Initialize sensors with new addresses
-    sensor1 = initialize_sensor(i2c, NEW_ADDRESS_1)
-    time.sleep(1)  # Small delay to ensure the address change takes effect
-    sensor2 = initialize_sensor(i2c, NEW_ADDRESS_2)
-    time.sleep(1)
-    sensor3 = initialize_sensor(i2c, NEW_ADDRESS_3)
-    time.sleep(1)
-    
+    sensors = []
+    for i, xshut_pin in enumerate(XSHUT_PINS):
+        sensors.append(initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[i]))
+        time.sleep(1)  # Small delay to ensure the address change takes effect
+
     # Configure each sensor
-    configure_sensor(sensor1)
-    configure_sensor(sensor2)
-    configure_sensor(sensor3)
+    for sensor in sensors:
+        configure_sensor(sensor)
     
     try:
         while True:
-            average_distance1 = get_average_distance(sensor1)
-            average_distance2 = get_average_distance(sensor2)
-            average_distance3 = get_average_distance(sensor3)
-            
-            if average_distance1 is not None:
-                adjusted_distance1 = average_distance1 - OFFSET
-                print(f"Sensor 1 Averaged Range: {adjusted_distance1:.2f} mm")
-            else:
-                print("Sensor 1: No valid distance readings.")
+            for i, sensor in enumerate(sensors):
+                average_distance = get_average_distance(sensor)
                 
-            if average_distance2 is not None:
-                adjusted_distance2 = average_distance2 - OFFSET
-                print(f"Sensor 2 Averaged Range: {adjusted_distance2:.2f} mm")
-            else:
-                print("Sensor 2: No valid distance readings.")
-                
-            if average_distance3 is not None:
-                adjusted_distance3 = average_distance3 - OFFSET
-                print(f"Sensor 3 Averaged Range: {adjusted_distance3:.2f} mm")
-            else:
-                print("Sensor 3: No valid distance readings.")
+                if average_distance is not None:
+                    adjusted_distance = average_distance - OFFSET
+                    print(f"Sensor {i+1} Averaged Range: {adjusted_distance:.2f} mm")
+                else:
+                    print(f"Sensor {i+1}: No valid distance readings.")
                 
             time.sleep(1)  # Adjust the sleep time as needed for your application
 

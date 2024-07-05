@@ -1,4 +1,4 @@
-#!/home/admm2024/admm/bin/python
+#!/usr/bin/env python3
 
 import time
 import board
@@ -13,10 +13,18 @@ NUM_SAMPLES = 20
 OFFSET = 20  # Adjust this value based on calibration measurements
 
 # Define the XSHUT pins for each sensor
-XSHUT_PINS = [board.D5, board.D6, board.D13]
+XSHUT_PINS = {
+    'front': board.D5,
+    'left': board.D6,
+    'right': board.D7
+}
 
 # New addresses for each sensor
-NEW_ADDRESSES = [0x30, 0x31, 0x32]
+NEW_ADDRESSES = {
+    'front': 0x30,
+    'left': 0x31,
+    'right': 0x32
+}
 
 def initialize_sensor(i2c, xshut_pin, new_address):
     try:
@@ -48,10 +56,8 @@ def get_average_distance(sensor, num_samples=NUM_SAMPLES):
     distances = []
     for _ in range(num_samples):
         try:
-            sensor.start_continuous()  # Start continuous mode
             distance = sensor.range
             distances.append(distance)
-            sensor.stop_continuous()  # Stop continuous mode after reading
         except RuntimeError as e:
             print(f"Error reading distance: {e}")
         time.sleep(0.01)  # Small delay between samples to avoid I2C bus overflow
@@ -67,25 +73,25 @@ def main():
     i2c = busio.I2C(board.SCL, board.SDA)
     
     # Initialize sensors with new addresses
-    sensors = []
-    for i, xshut_pin in enumerate(XSHUT_PINS):
-        sensors.append(initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[i]))
+    sensors = {}
+    for key, xshut_pin in XSHUT_PINS.items():
+        sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
         time.sleep(1)  # Small delay to ensure the address change takes effect
 
     # Configure each sensor
-    for sensor in sensors:
+    for sensor in sensors.values():
         configure_sensor(sensor)
     
     try:
         while True:
-            for i, sensor in enumerate(sensors):
+            for key, sensor in sensors.items():
                 average_distance = get_average_distance(sensor)
                 
                 if average_distance is not None:
                     adjusted_distance = average_distance - OFFSET
-                    print(f"Sensor {i+1} Averaged Range: {adjusted_distance:.2f} mm")
+                    print(f"Sensor {key.capitalize()} Averaged Range: {adjusted_distance:.2f} mm")
                 else:
-                    print(f"Sensor {i+1}: No valid distance readings.")
+                    print(f"Sensor {key.capitalize()}: No valid distance readings.")
                 
             time.sleep(1)  # Adjust the sleep time as needed for your application
 

@@ -27,14 +27,22 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         time.sleep(0.1)
         xshut.value = True  # Bring the sensor out of reset
 
-        # Try to initialize sensor at the new address
+        # Try to initialize sensor at the default address
         sensor = adafruit_vl53l0x.VL53L0X(i2c)
-        if sensor.sensor_address == new_address:
-            print(f"VL53L0X sensor already initialized at address {hex(new_address)}.")
+        
+        if sensor.sensor_address in [0x29, 0x30, 0x31, 0x32]:
+            if sensor.sensor_address == new_address:
+                print(f"VL53L0X sensor for sensor at address {hex(sensor.sensor_address)} already initialized.")
+            else:
+                sensor.set_address(new_address)
+                print(f"VL53L0X sensor initialized and set to address {hex(new_address)}.")
         else:
+            print(f"No VL53L0X sensor found at default address 0x29 for sensor {new_address}. Setting new address...")
             sensor.set_address(new_address)
             print(f"VL53L0X sensor initialized and set to address {hex(new_address)}.")
+
         return sensor
+
     except Exception as e:
         print(f"Error initializing VL53L0X sensor: {e}")
         exit()

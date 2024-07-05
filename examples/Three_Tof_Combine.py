@@ -84,6 +84,9 @@ def main():
     
     try:
         while True:
+            # Clear the screen before printing new readings
+            print("\033[H\033[J")
+            
             for key, sensor in sensors.items():
                 average_distance = get_average_distance(sensor)
                 
@@ -92,7 +95,8 @@ def main():
                     print(f"Sensor {key.capitalize()} Averaged Range: {adjusted_distance:.2f} mm")
                 else:
                     print(f"Sensor {key.capitalize()}: No valid distance readings.")
-                
+            
+            # Sleep for a short time before refreshing the readings
             time.sleep(1)  # Adjust the sleep time as needed for your application
 
     except KeyboardInterrupt:

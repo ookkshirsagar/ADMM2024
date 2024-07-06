@@ -287,7 +287,7 @@ def main():
                     print(f"Sensor {key} distance: {ema_distances[key]:.2f} mm")
 
                     # Logic to stop and check distances
-                    if ema_distances['sensor_front'] <= 100:
+                    if ema_distances['sensor_front'] <= 60:
                         print("Stopping motors...")
                         stop_motors()
                         time.sleep(0.1)  # Short stop
@@ -295,17 +295,15 @@ def main():
                         left_distance = ema_distances['sensor_left']
                         right_distance = ema_distances['sensor_right']
 
-                        if right_distance <= 50:
+                        if right_distance < 40:
                             print("Turning left...")
                             turn_left(sensor)
-                        elif left_distance <= 50:
+                        elif left_distance < 40:
                             print("Turning right...")
                             turn_right(sensor)
                         else:
                             print("Moving forward...")
                             move_forward()
-
-                        time.sleep(0.1)  # Adjust as needed
 
                     else:
                         print("Moving forward...")

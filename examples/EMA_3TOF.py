@@ -27,7 +27,7 @@ NEW_ADDRESSES = {
 }
 
 # Exponential Moving Average (EMA) alpha
-EMA_ALPHA = 0.1
+EMA_ALPHA = 0.5
 
 def initialize_sensor(i2c, xshut_pin, new_address):
     try:
@@ -93,7 +93,7 @@ def main():
                 except RuntimeError as e:
                     print(f"Error reading distance from {key}: {e}")
 
-            time.sleep(0.1)  # Adjust refresh rate as needed
+            time.sleep(0.5)  # Adjust refresh rate as needed
 
     except KeyboardInterrupt:
         print("\nExiting program.")

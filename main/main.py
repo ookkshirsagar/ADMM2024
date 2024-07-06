@@ -173,12 +173,15 @@ def move_servos():
     set_servo_angle(pwm_2, 30)
     set_servo_angle(pwm_3, 140)
     set_servo_angle(pwm_4, 30)
+    time.sleep(1)  # Allow time for servos to move down
+    print("Waiting for 15 seconds")
     time.sleep(15)
     print("Moving servos up")
     set_servo_angle(pwm_1, 170)
     set_servo_angle(pwm_2, 0)
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
+    time.sleep(1)  # Allow time for servos to move up
 
 # Function to move servos up initially
 def move_initial_servos():
@@ -368,12 +371,12 @@ def main():
             move_initial_servos()
 
             # Move forward for 2 seconds, then stop for 20 seconds
-            move_forward_for_duration(2)
+            move_forward_for_duration(1)
             stop_motors()
             
             # Move servos during the 20-second stop period
             move_servos()
-            
+            time.sleep(20)
 
             # Check TOF sensor readings
             front_distance = sensors['sensor_front'].range
@@ -393,11 +396,12 @@ def main():
                 else:
                     turn_left(sensor)
 
-            move_forward_for_duration(2)
+            move_forward_for_duration(1)
             stop_motors()
 
             # Move servos during the 20-second stop period
             move_servos()
+            time.sleep(20)
             
 
             if ema_distances['sensor_right'] >= 200:

@@ -70,6 +70,24 @@ def set_motor_speed(pwm, speed):
         speed = 100
     pwm.ChangeDutyCycle(speed)
 
+# Function to move forward
+def move_forward(speed=20):
+    # Left motors move forward
+    GPIO.output(left_front_in1, GPIO.HIGH)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.HIGH)
+
+    # Right motors move forward
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.HIGH)
+    GPIO.output(right_rear_in1, GPIO.HIGH)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+
+    set_motor_speed(pwm_left_front, speed)
+    set_motor_speed(pwm_left_rear, speed)
+    set_motor_speed(pwm_right_front, speed)
+    set_motor_speed(pwm_right_rear, speed)
 # Function to stop all motors
 def stop_motors():
     set_motor_speed(pwm_left_front, 0)
@@ -89,7 +107,7 @@ def stop_motors():
 # Function to move forward with stop after 2 seconds
 def move_forward_with_stop():
     move_forward()
-    time.sleep(2)
+    time.sleep(5)
     stop_motors()
 
 # Function to turn left with gyro control
@@ -426,10 +444,17 @@ def main():
         # Start the MQTT client loop
         mqtt_client.loop_start()
 
-        # Initialize and configure TOF sensors
+    # Initialize sensors with new addresses
         sensors = {}
-        for sensor_name, xshut_pin in XSHUT_PINS.items():
-            sensors[sensor_name] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[sensor_name])
+        ema_distances = {}
+        for key, xshut_pin in XSHUT_PINS.items():
+            if not check_sensor(i2c, NEW_ADDRESSES[key]):
+                sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
+            else:
+                sensors[key] = adafruit_vl53l0x.VL53L0X(i2c, address=NEW_ADDRESSES[key])
+            print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
+            ema_distances[key] = None
+            time.sleep(1)  # Small delay to ensure the address change takes effect
 
         # Main loop to read sensor data and control motors
         while True:
@@ -452,7 +477,7 @@ def main():
                 turn_left(sensor)  # Adjust turn as needed
             else:
                 # No obstacle, continue moving forward
-                move_forward()
+                move_forward_with_stop()
 
             # Read and process serial data
             read_and_process_serial_data(ser)

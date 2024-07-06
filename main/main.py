@@ -1,11 +1,35 @@
+#!/home/admm2024/admm/bin/python
+
 import time
 import board
 import busio
+import adafruit_vl53l0x
 import digitalio
 import RPi.GPIO as GPIO
 from mpu6050 import mpu6050
-import paho.mqtt.client as mqtt
-import adafruit_vl53l0x
+
+# Number of samples to average for stability
+NUM_SAMPLES = 20
+
+# Offset adjustment based on calibration (if needed)
+OFFSET = 20  # Adjust this value based on calibration measurements
+
+# Define the XSHUT pins for each sensor
+XSHUT_PINS = {
+    'sensor_front': board.D5,
+    'sensor_left': board.D6,
+    'sensor_right': board.D7
+}
+
+# New addresses for each sensor
+NEW_ADDRESSES = {
+    'sensor_front': 0x30,
+    'sensor_left': 0x31,
+    'sensor_right': 0x32
+}
+
+# Exponential Moving Average (EMA) alpha
+EMA_ALPHA = 1.0
 
 # Motor Driver Pins (Left Motors)
 left_front_in1 = 23
@@ -28,18 +52,6 @@ servo_pin_1 = 17
 servo_pin_2 = 27
 servo_pin_3 = 22
 servo_pin_4 = 4
-
-# TOF Sensor Addresses and Pins
-XSHUT_PINS = {
-    'sensor_front': board.D5,
-    'sensor_left': board.D6,
-    'sensor_right': board.D7
-}
-NEW_ADDRESSES = {
-    'sensor_front': 0x30,
-    'sensor_left': 0x31,
-    'sensor_right': 0x32
-}
 
 # Initialize GPIO
 GPIO.setmode(GPIO.BCM)
@@ -286,11 +298,49 @@ def get_calibrated_gyro_data(sensor):
     }
     return calibrated_data
 
+# Apply Exponential Moving Average (EMA) filter
+def apply_ema_filter(ema, new_value, alpha=EMA_ALPHA):
+    if ema is None:
+        return new_value
+    return alpha * new_value + (1 - alpha) * ema
+
+# Check if sensor is initialized
+def check_sensor(i2c, address):
+    try:
+        sensor = adafruit_vl53l0x.VL53L0X(i2c, address=address)
+        # Perform a read to confirm sensor is responsive
+        sensor.range
+        return True
+    except Exception:
+        return False
+
+# Initialize a sensor
+def initialize_sensor(i2c, xshut_pin, new_address):
+    xshut = digitalio.DigitalInOut(xshut_pin)
+    xshut.direction = digitalio.Direction.OUTPUT
+    xshut.value = True
+    time.sleep(1)
+    sensor = adafruit_vl53l0x.VL53L0X(i2c)
+    sensor.set_address(new_address)
+    return sensor
+
 # Main function
 def main():
     # Initialize TOF and IMU sensors
     tof_sensors = init_tof_sensors(i2c, XSHUT_PINS, NEW_ADDRESSES)
     sensor = mpu6050(sensor_address)
+
+    # Initialize sensors with new addresses
+    sensors = {}
+    ema_distances = {}
+    for key, xshut_pin in XSHUT_PINS.items():
+        if not check_sensor(i2c, NEW_ADDRESSES[key]):
+            sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
+        else:
+            sensors[key] = adafruit_vl53l0x.VL53L0X(i2c, address=NEW_ADDRESSES[key])
+            print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
+        ema_distances[key] = None
+        time.sleep(1)  # Small delay to ensure the address change takes effect
 
     # Set the initial positions for the servos
     set_servo_angle(pwm_1, initial_angle_1)
@@ -316,8 +366,13 @@ def main():
         left_distance = tof_sensors['sensor_left'].range
         right_distance = tof_sensors['sensor_right'].range
 
-        if front_distance <= 100:
-            if left_distance <= 60:
+        # Apply EMA filter to sensor readings
+        ema_distances['sensor_front'] = apply_ema_filter(ema_distances['sensor_front'], front_distance)
+        ema_distances['sensor_left'] = apply_ema_filter(ema_distances['sensor_left'], left_distance)
+        ema_distances['sensor_right'] = apply_ema_filter(ema_distances['sensor_right'], right_distance)
+
+        if ema_distances['sensor_front'] <= 100:
+            if ema_distances['sensor_left'] <= 60:
                 turn_right(sensor)
             else:
                 turn_left(sensor)
@@ -329,7 +384,7 @@ def main():
         move_servos()
         time.sleep(20)
 
-        if right_distance >= 200:
+        if ema_distances['sensor_right'] >= 200:
             turn_left(sensor)
 
 if __name__ == "__main__":

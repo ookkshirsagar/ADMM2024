@@ -105,11 +105,6 @@ pwm_4.start(0)
 sensor_address = 0x68  # Check your MPU6050 address
 sensor = mpu6050(sensor_address)
 
-# Initial angles
-initial_angle_1 = 170
-initial_angle_2 = 0
-initial_angle_3 = 170
-initial_angle_4 = 0
 
 # Function to set motor speed
 def set_motor_speed(pwm, speed):
@@ -330,7 +325,13 @@ def main():
             print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
-
+        
+        # Initial angles
+        initial_angle_1 = 170
+        initial_angle_2 = 0
+        initial_angle_3 = 170
+        initial_angle_4 = 0
+        
         # Set the initial positions for the servos
         set_servo_angle(pwm_1, initial_angle_1)
         set_servo_angle(pwm_2, initial_angle_2)
@@ -380,6 +381,13 @@ def main():
     
     except KeyboardInterrupt:
         print("\nExiting program.")
+        
+    finally:
+        pwm_1.stop()
+        pwm_2.stop()
+        pwm_3.stop()
+        pwm_4.stop()
+        GPIO.cleanup()
 
 if __name__ == "__main__":
     main()

@@ -304,8 +304,6 @@ def main():
                             print("Moving forward...")
                             move_forward()
 
-                        time.sleep(0.1)  # Adjust as needed
-
                     else:
                         print("Moving forward...")
                         move_forward()

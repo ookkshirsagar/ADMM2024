@@ -518,10 +518,11 @@ def main():
         # Main loop
         while True:
             # Move forward for 2 seconds
-            move_forward_for_duration(2)
-
-            # Stop motors and move servo motors down
-            stop_motors()
+            move_forward_with_stop()
+            
+        
+            #move servo motors down
+            
             set_servo_angle(pwm_1, 30)  # Adjust servo angles as needed
             set_servo_angle(pwm_2, 150)
             set_servo_angle(pwm_3, 30)

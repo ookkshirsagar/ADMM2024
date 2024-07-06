@@ -5,6 +5,7 @@ import adafruit_vl53l0x
 import digitalio
 import RPi.GPIO as GPIO
 from mpu6050 import mpu6050
+import threading
 
 # Motor Driver Pins (Left Motors)
 left_front_in1 = 23
@@ -224,6 +225,7 @@ NEW_ADDRESSES = {
 # Exponential Moving Average (EMA) alpha
 EMA_ALPHA = 0.5
 
+# Function to initialize sensor with specified address
 def initialize_sensor(i2c, xshut_pin, new_address):
     try:
         xshut = digitalio.DigitalInOut(xshut_pin)
@@ -246,6 +248,7 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         print(f"Error initializing VL53L0X sensor: {e}")
         exit()
 
+# Function to check if sensor is responsive at a given address
 def check_sensor(i2c, address):
     try:
         sensor = adafruit_vl53l0x.VL53L0X(i2c, address=address)
@@ -255,17 +258,37 @@ def check_sensor(i2c, address):
     except Exception:
         return False
 
+# Function to apply exponential moving average filter
 def apply_ema_filter(ema, new_value, alpha=EMA_ALPHA):
     if ema is None:
         return new_value
     return alpha * new_value + (1 - alpha) * ema
 
+# Function to read distance from sensors and control motors
+def sensor_thread(sensor, ema_distances, key):
+    try:
+        while True:
+            distance_mm = sensor.range
+            # Apply offset adjustment
+            distance_mm -= OFFSET
+            # Apply EMA filter
+            ema_distances[key] = apply_ema_filter(ema_distances[key], distance_mm)
+            print(f"Sensor {key} distance: {ema_distances[key]:.2f} mm")
+
+            time.sleep(0.1)  # Adjust refresh rate as needed
+
+    except RuntimeError as e:
+        print(f"Error reading distance from {key}: {e}")
+
+# Main function to control the robot
 def main():
     i2c = busio.I2C(board.SCL, board.SDA)
     
     # Initialize sensors with new addresses
     sensors = {}
     ema_distances = {}
+    sensor_threads = []
+    
     for key, xshut_pin in XSHUT_PINS.items():
         if not check_sensor(i2c, NEW_ADDRESSES[key]):
             sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
@@ -275,42 +298,35 @@ def main():
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
 
+        # Create and start a thread for each sensor
+        thread = threading.Thread(target=sensor_thread, args=(sensors[key], ema_distances, key))
+        thread.start()
+        sensor_threads.append(thread)
+
     try:
         while True:
-            for key, sensor in sensors.items():
-                try:
-                    distance_mm = sensor.range
-                    # Apply offset adjustment
-                    distance_mm -= OFFSET
-                    # Apply EMA filter
-                    ema_distances[key] = apply_ema_filter(ema_distances[key], distance_mm)
-                    print(f"Sensor {key} distance: {ema_distances[key]:.2f} mm")
+            # Logic to stop and check distances
+            if ema_distances['sensor_front'] <= 60:
+                print("Stopping motors...")
+                stop_motors()
+                time.sleep(0.1)  # Short stop
 
-                    # Logic to stop and check distances
-                    if ema_distances['sensor_front'] <= 60:
-                        print("Stopping motors...")
-                        stop_motors()
-                        time.sleep(0.1)  # Short stop
+                left_distance = ema_distances['sensor_left']
+                right_distance = ema_distances['sensor_right']
 
-                        left_distance = ema_distances['sensor_left']
-                        right_distance = ema_distances['sensor_right']
+                if right_distance < 40:
+                    print("Turning left...")
+                    turn_left(sensor)
+                elif left_distance < 40:
+                    print("Turning right...")
+                    turn_right(sensor)
+                else:
+                    print("Moving forward...")
+                    move_forward()
 
-                        if right_distance < 40:
-                            print("Turning left...")
-                            turn_left(sensor)
-                        elif left_distance < 40:
-                            print("Turning right...")
-                            turn_right(sensor)
-                        else:
-                            print("Moving forward...")
-                            move_forward()
-
-                    else:
-                        print("Moving forward...")
-                        move_forward()
-
-                except RuntimeError as e:
-                    print(f"Error reading distance from {key}: {e}")
+            else:
+                print("Moving forward...")
+                move_forward()
 
             time.sleep(0.1)  # Adjust refresh rate as needed
 
@@ -318,6 +334,10 @@ def main():
         print("\nExiting program.")
 
     finally:
+        # Cleanup
+        for thread in sensor_threads:
+            thread.join()
+        
         pwm_left_front.stop()
         pwm_left_rear.stop()
         pwm_right_front.stop()

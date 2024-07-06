@@ -192,6 +192,29 @@ def turn_right(sensor, angle=86, speed=100):
             time.sleep(dt - elapsed_time)
 
     stop_motors()
+# Function to move forward for a specified duration
+def move_forward_for_duration(duration=2, speed=20):
+    move_forward(speed)
+    time.sleep(duration)
+    stop_motors()
+
+# Function to handle obstacle avoidance
+def avoid_obstacle(sensor):
+    stop_motors()
+    mqtt_client.publish("robot/status", "Obstacle detected. Stopping and avoiding.")
+
+    # Read TOF sensor distances
+    front_distance = sensor['sensor_front'].range
+    left_distance = sensor['sensor_left'].range
+    right_distance = sensor['sensor_right'].range
+
+    if right_distance < 200:  # If right distance is less than 200mm, turn left
+        turn_left(sensor)
+    elif left_distance < 200:  # If left distance is less than 200mm, turn right
+        turn_right(sensor)
+    else:
+        # Default behavior if no clear direction to turn
+        turn_left(sensor)  # Adjust as needed
 
 # Function to get calibrated gyroscope data
 def get_calibrated_gyro_data(sensor):
@@ -456,34 +479,35 @@ def main():
             ema_distances[key] = None
             time.sleep(1)  # Small delay to ensure the address change takes effect
 
-        # Main loop to read sensor data and control motors
+        # Main loop
         while True:
-            distances = {}
-            for sensor_name, sensor in sensors.items():
-                distance = sensor.range
-                distances[sensor_name] = distance
+            # Move forward for 2 seconds
+            move_forward_for_duration(2)
 
-            # Calculate average distance for each sensor
-            avg_distance_front = sum(distances.values()) / len(distances)
+            # Stop motors and move servo motors down
+            stop_motors()
+            set_servo_angle(pwm_1, 30)  # Adjust servo angles as needed
+            set_servo_angle(pwm_2, 150)
+            set_servo_angle(pwm_3, 30)
+            set_servo_angle(pwm_4, 150)
 
-            # Apply exponential moving average filter to the distance
-            avg_distance_front = apply_ema_filter(avg_distance_front, distances['sensor_front'])
-
-            # Control motors based on the averaged distance
-            if avg_distance_front < OFFSET:
-                # Obstacle detected, stop and avoid obstacle
-                stop_motors()
-                mqtt_client.publish("robot/status", "Obstacle detected. Stopping and avoiding.")
-                turn_left(sensor)  # Adjust turn as needed
-            else:
-                # No obstacle, continue moving forward
-                move_forward_with_stop()
-
-            # Read and process serial data
+            # Read average voltage from serial and publish to MQTT
             read_and_process_serial_data(ser)
+            mqtt_client.publish("robot/status", "Published average voltage to MQTT.")
 
-            # Sleep for a short time to control the loop frequency
-            time.sleep(0.1)
+            # Move servo motors up
+            set_servo_angle(pwm_1, 170)  # Return servos to initial positions
+            set_servo_angle(pwm_2, 0)
+            set_servo_angle(pwm_3, 170)
+            set_servo_angle(pwm_4, 0)
+
+            # Check front TOF sensor distance
+            front_distance = sensors['sensor_front'].range
+            if front_distance <= 100:
+                stop_motors()
+                avoid_obstacle(sensors)
+
+            time.sleep(0.1)  # Adjust loop frequency as needed
 
     except KeyboardInterrupt:
         print("Program stopped by user.")

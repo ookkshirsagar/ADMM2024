@@ -175,7 +175,7 @@ def turn_right(sensor, angle=83.0, speed=100):
         current_angle += angle_z
 
         correction = kp * (angle - current_angle)
-        turn_speed = min(max(speed + correction, 30), 100)
+        turn_speed = min(max(speed + correction, 70), 100)
 
         # Left motors forward
         GPIO.output(left_front_in1, GPIO.HIGH)

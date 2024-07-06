@@ -3,6 +3,7 @@
 import time
 import board
 import busio
+import RPi.GPIO as GPIO
 import adafruit_vl53l0x
 
 # Number of samples to average for stability

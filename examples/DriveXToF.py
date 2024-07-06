@@ -209,16 +209,16 @@ OFFSET = 20  # Adjust this value based on calibration measurements
 
 # Define the XSHUT pins for each sensor
 XSHUT_PINS = {
-    'sensor1': board.D5,
-    'sensor2': board.D6,
-    'sensor3': board.D7
+    'sensor_front': board.D5,
+    'sensor_left': board.D6,
+    'sensor_right': board.D7
 }
 
 # New addresses for each sensor
 NEW_ADDRESSES = {
-    'sensor1': 0x30,
-    'sensor2': 0x31,
-    'sensor3': 0x32
+    'sensor_front': 0x30,
+    'sensor_left': 0x31,
+    'sensor_right': 0x32
 }
 
 # Exponential Moving Average (EMA) alpha
@@ -287,17 +287,18 @@ def main():
                     print(f"Sensor {key} distance: {ema_distances[key]:.2f} mm")
 
                     # Logic to stop and check distances
-                    if ema_distances['sensor1'] <= 60:
+                    if ema_distances['sensor_front'] <= 100:
+                        print("Stopping motors...")
                         stop_motors()
                         time.sleep(0.1)  # Short stop
 
-                        left_distance = ema_distances['sensor2']
-                        right_distance = ema_distances['sensor3']
+                        left_distance = ema_distances['sensor_left']
+                        right_distance = ema_distances['sensor_right']
 
-                        if right_distance < 40:
+                        if right_distance <= 50:
                             print("Turning left...")
                             turn_left(sensor)
-                        elif left_distance < 40:
+                        elif left_distance <= 50:
                             print("Turning right...")
                             turn_right(sensor)
                         else:

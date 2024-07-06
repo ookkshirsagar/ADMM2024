@@ -306,6 +306,10 @@ def main():
 
                         time.sleep(0.5)  # Adjust as needed
 
+                    else:
+                        print("Moving forward...")
+                        move_forward()
+
                 except RuntimeError as e:
                     print(f"Error reading distance from {key}: {e}")
 
@@ -313,6 +317,13 @@ def main():
 
     except KeyboardInterrupt:
         print("\nExiting program.")
+
+    finally:
+        pwm_left_front.stop()
+        pwm_left_rear.stop()
+        pwm_right_front.stop()
+        pwm_right_rear.stop()
+        GPIO.cleanup()
 
 if __name__ == "__main__":
     main()

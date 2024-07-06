@@ -84,7 +84,7 @@ def stop_motors():
     GPIO.output(right_rear_in2, GPIO.LOW)
 
 # Function to move forward
-def move_forward(speed=50):
+def move_forward(speed=20):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -103,7 +103,7 @@ def move_forward(speed=50):
     set_motor_speed(pwm_right_rear, speed)
 
 # Function to turn left with gyro control
-def turn_left(sensor, angle=80.0, speed=100):
+def turn_left(sensor, angle=82.0, speed=100):
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -143,7 +143,7 @@ def turn_left(sensor, angle=80.0, speed=100):
     stop_motors()
 
 # Function to turn right with gyro control
-def turn_right(sensor, angle=83.0, speed=100):
+def turn_right(sensor, angle=86, speed=100):
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -309,15 +309,15 @@ def main():
             if ema_distances['sensor_front'] <= 60:
                 print("Stopping motors...")
                 stop_motors()
-                time.sleep(0.1)  # Short stop
+                time.sleep(1)  # Short stop
 
                 left_distance = ema_distances['sensor_left']
                 right_distance = ema_distances['sensor_right']
 
-                if right_distance < 40:
+                if right_distance <=200:
                     print("Turning left...")
                     turn_left(sensor)
-                elif left_distance < 40:
+                elif left_distance <=200:
                     print("Turning right...")
                     turn_right(sensor)
                 else:
@@ -328,7 +328,7 @@ def main():
                 print("Moving forward...")
                 move_forward()
 
-            time.sleep(0.1)  # Adjust refresh rate as needed
+            time.sleep(0.01)  # Adjust refresh rate as needed
 
     except KeyboardInterrupt:
         print("\nExiting program.")

@@ -27,7 +27,7 @@ NEW_ADDRESSES = {
 }
 
 # Exponential Moving Average (EMA) alpha
-EMA_ALPHA = 0.5
+EMA_ALPHA = 1.0
 
 def initialize_sensor(i2c, xshut_pin, new_address):
     try:

@@ -260,31 +260,6 @@ def move_forward_for_duration(duration, speed=20):
     time.sleep(duration)
     stop_motors()
 
-# Initialize TOF Sensors
-i2c = busio.I2C(board.SCL, board.SDA)
-
-def init_tof_sensors(i2c, xshut_pins, new_addresses):
-    tof_sensors = {}
-    xshut = {key: digitalio.DigitalInOut(pin) for key, pin in xshut_pins.items()}
-
-    # Disable all TOF sensors
-    for pin in xshut.values():
-        pin.direction = digitalio.Direction.OUTPUT
-        pin.value = False
-
-    time.sleep(1)
-
-    # Initialize each TOF sensor
-    for key, pin in xshut.items():
-        pin.value = True
-        time.sleep(1)
-        tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
-        tof_sensor.set_address(new_addresses[key])
-        tof_sensors[key] = tof_sensor
-        time.sleep(1)
-
-    return tof_sensors
-
 # Get calibrated gyro data
 def get_calibrated_gyro_data(sensor):
     gyro_data = sensor.get_gyro_data()
@@ -311,6 +286,7 @@ def check_sensor(i2c, address):
         return True
     except Exception:
         return False
+
     
 def initialize_sensor(i2c, xshut_pin, new_address):
     try:
@@ -337,10 +313,12 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         
 # Main function
 def main():
-    # Initialize TOF and IMU sensors
-    tof_sensors = init_tof_sensors(i2c, XSHUT_PINS, NEW_ADDRESSES)
+    # Initialize IMU sensors
+    
     sensor = mpu6050(sensor_address)
 
+    i2c = busio.I2C(board.SCL, board.SDA)
+    
     # Initialize sensors with new addresses
     sensors = {}
     ema_distances = {}

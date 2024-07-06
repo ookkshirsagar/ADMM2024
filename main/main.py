@@ -52,10 +52,12 @@ servo_pin_3 = 22
 servo_pin_4 = 4
 
 # Initialize GPIO
+print("Initializing GPIO...")
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
 # Set up Left Motors
+print("Setting up Left Motors...")
 GPIO.setup(left_front_in1, GPIO.OUT)
 GPIO.setup(left_front_in2, GPIO.OUT)
 GPIO.setup(left_front_en, GPIO.OUT)
@@ -64,6 +66,7 @@ GPIO.setup(left_rear_in2, GPIO.OUT)
 GPIO.setup(left_rear_en, GPIO.OUT)
 
 # Set up Right Motors
+print("Setting up Right Motors...")
 GPIO.setup(right_front_in1, GPIO.OUT)
 GPIO.setup(right_front_in2, GPIO.OUT)
 GPIO.setup(right_front_en, GPIO.OUT)
@@ -72,6 +75,7 @@ GPIO.setup(right_rear_in2, GPIO.OUT)
 GPIO.setup(right_rear_en, GPIO.OUT)
 
 # Set up PWM for motor speed control
+print("Setting up PWM for motor speed control...")
 pwm_left_front = GPIO.PWM(left_front_en, 100)
 pwm_left_rear = GPIO.PWM(left_rear_en, 100)
 pwm_right_front = GPIO.PWM(right_front_en, 100)
@@ -84,12 +88,13 @@ pwm_right_front.start(0)
 pwm_right_rear.start(0)
 
 # Set up Servo Motors
+print("Setting up Servo Motors...")
 GPIO.setup(servo_pin_1, GPIO.OUT)
 GPIO.setup(servo_pin_2, GPIO.OUT)
 GPIO.setup(servo_pin_3, GPIO.OUT)
 GPIO.setup(servo_pin_4, GPIO.OUT)
 
-# PWM frequency set to 50 Hz for all motors
+# PWM frequency set to 50 Hz for all servos
 pwm_1 = GPIO.PWM(servo_pin_1, 50)
 pwm_2 = GPIO.PWM(servo_pin_2, 50)
 pwm_3 = GPIO.PWM(servo_pin_3, 50)
@@ -105,7 +110,6 @@ pwm_4.start(0)
 sensor_address = 0x68  # Check your MPU6050 address
 sensor = mpu6050(sensor_address)
 
-
 # Function to set motor speed
 def set_motor_speed(pwm, speed):
     if speed < 0:
@@ -116,6 +120,7 @@ def set_motor_speed(pwm, speed):
 
 # Function to move forward
 def move_forward(speed=20):
+    print(f"Moving forward with speed: {speed}")
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -135,6 +140,7 @@ def move_forward(speed=20):
 
 # Function to stop all motors
 def stop_motors():
+    print("Stopping all motors")
     set_motor_speed(pwm_left_front, 0)
     set_motor_speed(pwm_left_rear, 0)
     set_motor_speed(pwm_right_front, 0)
@@ -151,16 +157,19 @@ def stop_motors():
 
 # Function to set servo angle
 def set_servo_angle(pwm, angle):
+    print(f"Setting servo angle to {angle} degrees")
     duty_cycle = 2.5 + (angle / 18.0)
     pwm.ChangeDutyCycle(duty_cycle)
 
 # Function to move servos down and up
 def move_servos():
+    print("Moving servos down")
     set_servo_angle(pwm_1, 140)
     set_servo_angle(pwm_2, 30)
     set_servo_angle(pwm_3, 140)
     set_servo_angle(pwm_4, 30)
     time.sleep(15)
+    print("Moving servos up")
     set_servo_angle(pwm_1, 170)
     set_servo_angle(pwm_2, 0)
     set_servo_angle(pwm_3, 170)
@@ -168,6 +177,7 @@ def move_servos():
 
 # Function to turn left with gyro control
 def turn_left(sensor, angle=82.0, speed=100):
+    print(f"Turning left by {angle} degrees")
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -208,6 +218,7 @@ def turn_left(sensor, angle=82.0, speed=100):
 
 # Function to turn right with gyro control
 def turn_right(sensor, angle=86, speed=100):
+    print(f"Turning right by {angle} degrees")
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -251,12 +262,14 @@ def turn_right(sensor, angle=86, speed=100):
 
 # Function to move forward for a specified duration
 def move_forward_for_duration(duration, speed=20):
+    print(f"Moving forward for {duration} seconds with speed: {speed}")
     move_forward(speed)
     time.sleep(duration)
     stop_motors()
 
 # Get calibrated gyro data
 def get_calibrated_gyro_data(sensor):
+    print("Getting calibrated gyro data")
     gyro_data = sensor.get_gyro_data()
     calibration = sensor.get_calibration()
     calibrated_data = {
@@ -268,12 +281,14 @@ def get_calibrated_gyro_data(sensor):
 
 # Apply Exponential Moving Average (EMA) filter
 def apply_ema_filter(ema, new_value, alpha=EMA_ALPHA):
+    print(f"Applying EMA filter with alpha={alpha}")
     if ema is None:
         return new_value
     return alpha * new_value + (1 - alpha) * ema
 
 # Check if sensor is initialized
 def check_sensor(i2c, address):
+    print(f"Checking sensor at address {hex(address)}")
     try:
         sensor = adafruit_vl53l0x.VL53L0X(i2c, address=address)
         # Perform a read to confirm sensor is responsive
@@ -284,6 +299,7 @@ def check_sensor(i2c, address):
 
     
 def initialize_sensor(i2c, xshut_pin, new_address):
+    print(f"Initializing sensor with XSHUT pin {xshut_pin} and new address {hex(new_address)}")
     try:
         xshut = digitalio.DigitalInOut(xshut_pin)
         xshut.direction = digitalio.Direction.OUTPUT
@@ -308,6 +324,7 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         
 # Main function
 def main():
+    print("Starting main program...")
     # Initialize IMU sensors
     
     sensor = mpu6050(sensor_address)
@@ -342,6 +359,7 @@ def main():
     
     try:
         while True:
+            print("Looping in main program...")
             # Move servos down, wait for 15 seconds, then up
             move_servos()
 
@@ -357,6 +375,8 @@ def main():
             front_distance = tof_sensors['sensor_front'].range
             left_distance = tof_sensors['sensor_left'].range
             right_distance = tof_sensors['sensor_right'].range
+
+            print(f"TOF Sensor Readings - Front: {front_distance}, Left: {left_distance}, Right: {right_distance}")
 
             # Apply EMA filter to sensor readings
             ema_distances['sensor_front'] = apply_ema_filter(ema_distances['sensor_front'], front_distance)

@@ -447,6 +447,11 @@ def read_and_process_serial_data(ser):
     except Exception as e:
         print(f"Error reading serial data: {e}")
 
+# Function to set servo angle
+def set_servo_angle(pwm, angle):
+    duty_cycle = 2.5 + (angle / 18.0)
+    pwm.ChangeDutyCycle(duty_cycle)
+    
 def main():
     try:
         # Initialize I2C bus for TOF sensors
@@ -521,6 +526,11 @@ def main():
         ser.close()
         mqtt_client.loop_stop()
         mqtt_client.disconnect()
+        pwm_1.stop()
+        pwm_2.stop()
+        pwm_3.stop()
+        pwm_4.stop()
+        GPIO.cleanup()
 
 # Entry point of the script
 if __name__ == "__main__":

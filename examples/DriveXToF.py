@@ -304,7 +304,7 @@ def main():
                             print("Moving forward...")
                             move_forward()
 
-                        time.sleep(0.5)  # Adjust as needed
+                        time.sleep(0.1)  # Adjust as needed
 
                     else:
                         print("Moving forward...")
@@ -313,7 +313,7 @@ def main():
                 except RuntimeError as e:
                     print(f"Error reading distance from {key}: {e}")
 
-            time.sleep(0.5)  # Adjust refresh rate as needed
+            time.sleep(0.1)  # Adjust refresh rate as needed
 
     except KeyboardInterrupt:
         print("\nExiting program.")

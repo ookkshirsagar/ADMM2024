@@ -313,17 +313,30 @@ def check_sensor(i2c, address):
         return True
     except Exception:
         return False
-
-# Initialize a sensor
+    
 def initialize_sensor(i2c, xshut_pin, new_address):
-    xshut = digitalio.DigitalInOut(xshut_pin)
-    xshut.direction = digitalio.Direction.OUTPUT
-    xshut.value = True
-    time.sleep(1)
-    sensor = adafruit_vl53l0x.VL53L0X(i2c)
-    sensor.set_address(new_address)
-    return sensor
+    try:
+        xshut = digitalio.DigitalInOut(xshut_pin)
+        xshut.direction = digitalio.Direction.OUTPUT
+        xshut.value = False  # Keep the sensor in reset state
 
+        time.sleep(0.1)
+        xshut.value = True  # Bring the sensor out of reset
+
+        # Try to initialize sensor at the default address
+        sensor = adafruit_vl53l0x.VL53L0X(i2c)
+        
+        # Attempt to change the sensor address
+        sensor.set_address(new_address)
+        print(f"VL53L0X sensor initialized and set to address {hex(new_address)}.")
+
+        return sensor
+
+    except Exception as e:
+        print(f"Error initializing VL53L0X sensor: {e}")
+        exit()
+
+        
 # Main function
 def main():
     # Initialize TOF and IMU sensors

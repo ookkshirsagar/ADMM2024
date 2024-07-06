@@ -6,9 +6,9 @@ import digitalio
 
 # Define the XSHUT pins for each sensor
 XSHUT_PINS = {
-    'sensor1': board.D5,  # Example GPIO pin for sensor 1
-    'sensor2': board.D6,  # Example GPIO pin for sensor 2
-    'sensor3': board.D7   # Example GPIO pin for sensor 3
+    'sensor1': board.D5,
+    'sensor2': board.D6,
+    'sensor3': board.D7
 }
 
 # New addresses for each sensor
@@ -30,16 +30,9 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         # Try to initialize sensor at the default address
         sensor = adafruit_vl53l0x.VL53L0X(i2c)
         
-        if sensor.sensor_address in [0x29, 0x30, 0x31, 0x32]:
-            if sensor.sensor_address == new_address:
-                print(f"VL53L0X sensor for sensor at address {hex(sensor.sensor_address)} already initialized.")
-            else:
-                sensor.set_address(new_address)
-                print(f"VL53L0X sensor initialized and set to address {hex(new_address)}.")
-        else:
-            print(f"No VL53L0X sensor found at default address 0x29 for sensor {new_address}. Setting new address...")
-            sensor.set_address(new_address)
-            print(f"VL53L0X sensor initialized and set to address {hex(new_address)}.")
+        # Attempt to change the sensor address
+        sensor.set_address(new_address)
+        print(f"VL53L0X sensor initialized and set to address {hex(new_address)}.")
 
         return sensor
 
@@ -47,13 +40,26 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         print(f"Error initializing VL53L0X sensor: {e}")
         exit()
 
+def check_sensor(i2c, address):
+    try:
+        sensor = adafruit_vl53l0x.VL53L0X(i2c, address=address)
+        # Perform a read to confirm sensor is responsive
+        sensor.range
+        return True
+    except Exception:
+        return False
+
 def main():
     i2c = busio.I2C(board.SCL, board.SDA)
     
     # Initialize sensors with new addresses
     sensors = {}
     for key, xshut_pin in XSHUT_PINS.items():
-        sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
+        if not check_sensor(i2c, NEW_ADDRESSES[key]):
+            sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
+        else:
+            sensors[key] = adafruit_vl53l0x.VL53L0X(i2c, address=NEW_ADDRESSES[key])
+            print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
         time.sleep(1)  # Small delay to ensure the address change takes effect
 
     try:

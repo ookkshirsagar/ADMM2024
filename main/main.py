@@ -426,10 +426,39 @@ def main():
         # Start the MQTT client loop
         mqtt_client.loop_start()
 
+        # Initialize and configure TOF sensors
+        sensors = {}
+        for sensor_name, xshut_pin in XSHUT_PINS.items():
+            sensors[sensor_name] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[sensor_name])
+
         # Main loop to read sensor data and control motors
         while True:
-            read_distance_and_control_motors(i2c, mqtt_client, ser)
-            time.sleep(0.1)  # Adjust as needed based on your loop frequency
+            distances = {}
+            for sensor_name, sensor in sensors.items():
+                distance = sensor.range
+                distances[sensor_name] = distance
+
+            # Calculate average distance for each sensor
+            avg_distance_front = sum(distances.values()) / len(distances)
+
+            # Apply exponential moving average filter to the distance
+            avg_distance_front = apply_ema_filter(avg_distance_front, distances['sensor_front'])
+
+            # Control motors based on the averaged distance
+            if avg_distance_front < OFFSET:
+                # Obstacle detected, stop and avoid obstacle
+                stop_motors()
+                mqtt_client.publish("robot/status", "Obstacle detected. Stopping and avoiding.")
+                turn_left(sensor)  # Adjust turn as needed
+            else:
+                # No obstacle, continue moving forward
+                move_forward()
+
+            # Read and process serial data
+            read_and_process_serial_data(ser)
+
+            # Sleep for a short time to control the loop frequency
+            time.sleep(0.1)
 
     except KeyboardInterrupt:
         print("Program stopped by user.")

@@ -331,20 +331,50 @@ def main():
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
 
-    try:
-        while True:
-            for key, sensor in sensors.items():
-                try:
-                    distance_mm = sensor.range
-                    # Apply offset adjustment
-                    distance_mm -= OFFSET
-                    # Apply EMA filter
-                    ema_distances[key] = apply_ema_filter(ema_distances[key], distance_mm)
-                    print(f"Sensor {key} distance: {ema_distances[key]:.2f} mm")
-                except RuntimeError as e:
-                    print(f"Error reading distance from {key}: {e}")
+    # Set the initial positions for the servos
+        set_servo_angle(pwm_1, initial_angle_1)
+        set_servo_angle(pwm_2, initial_angle_2)
+        set_servo_angle(pwm_3, initial_angle_3)
+        set_servo_angle(pwm_4, initial_angle_4)
+        time.sleep(1)  # Give time for servos to reach the initial positions
 
-            time.sleep(0.5)  # Adjust refresh rate as needed
+        while True:
+            # Move servos down, wait for 15 seconds, then up
+            move_servos()
+
+            # Move forward for 2 seconds, then stop for 20 seconds
+            move_forward_for_duration(2)
+            stop_motors()
+            
+            # Move servos during the 20-second stop period
+            move_servos()
+            time.sleep(20)
+
+            # Check TOF sensor readings
+            front_distance = tof_sensors['sensor_front'].range
+            left_distance = tof_sensors['sensor_left'].range
+            right_distance = tof_sensors['sensor_right'].range
+
+            # Apply EMA filter to sensor readings
+            ema_distances['sensor_front'] = apply_ema_filter(ema_distances['sensor_front'], front_distance)
+            ema_distances['sensor_left'] = apply_ema_filter(ema_distances['sensor_left'], left_distance)
+            ema_distances['sensor_right'] = apply_ema_filter(ema_distances['sensor_right'], right_distance)
+
+            if ema_distances['sensor_front'] <= 100:
+                if ema_distances['sensor_left'] <= 60:
+                    turn_right(sensor)
+                else:
+                    turn_left(sensor)
+
+            move_forward_for_duration(2)
+            stop_motors()
+
+            # Move servos during the 20-second stop period
+            move_servos()
+            time.sleep(20)
+
+            if ema_distances['sensor_right'] >= 200:
+                turn_left(sensor)
 
     except KeyboardInterrupt:
         print("\nExiting program.")

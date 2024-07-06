@@ -51,6 +51,12 @@ servo_pin_2 = 27
 servo_pin_3 = 22
 servo_pin_4 = 4
 
+# Initial angles
+initial_angle_1 = 170
+initial_angle_2 = 0
+initial_angle_3 = 170
+initial_angle_4 = 0
+        
 # Initialize GPIO
 print("Initializing GPIO...")
 GPIO.setmode(GPIO.BCM)
@@ -343,11 +349,7 @@ def main():
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
         
-        # Initial angles
-        initial_angle_1 = 170
-        initial_angle_2 = 0
-        initial_angle_3 = 170
-        initial_angle_4 = 0
+
         
         # Set the initial positions for the servos
         set_servo_angle(pwm_1, initial_angle_1)

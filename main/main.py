@@ -27,7 +27,7 @@ NEW_ADDRESSES = {
 }
 
 # Exponential Moving Average (EMA) alpha
-EMA_ALPHA = 1.0
+EMA_ALPHA = 0.2
 
 # Motor Driver Pins (Left Motors)
 left_front_in1 = 23
@@ -56,7 +56,7 @@ initial_angle_1 = 170
 initial_angle_2 = 0
 initial_angle_3 = 170
 initial_angle_4 = 0
-        
+
 # Initialize GPIO
 print("Initializing GPIO...")
 GPIO.setmode(GPIO.BCM)
@@ -114,7 +114,6 @@ pwm_4.start(0)
 
 # MPU6050 sensor address
 sensor_address = 0x68  # Check your MPU6050 address
-sensor = mpu6050(sensor_address)
 
 # Function to set motor speed
 def set_motor_speed(pwm, speed):
@@ -303,7 +302,7 @@ def check_sensor(i2c, address):
     except Exception:
         return False
 
-    
+# Initialize sensor with XSHUT pin and new address
 def initialize_sensor(i2c, xshut_pin, new_address):
     print(f"Initializing sensor with XSHUT pin {xshut_pin} and new address {hex(new_address)}")
     try:
@@ -327,14 +326,10 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         print(f"Error initializing VL53L0X sensor: {e}")
         exit()
 
-        
 # Main function
 def main():
     print("Starting main program...")
-    # Initialize IMU sensors
     
-    sensor = mpu6050(sensor_address)
-
     i2c = busio.I2C(board.SCL, board.SDA)
     
     # Initialize sensors with new addresses
@@ -348,16 +343,8 @@ def main():
             print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
-        
 
-        
-        # Set the initial positions for the servos
-        set_servo_angle(pwm_1, initial_angle_1)
-        set_servo_angle(pwm_2, initial_angle_2)
-        set_servo_angle(pwm_3, initial_angle_3)
-        set_servo_angle(pwm_4, initial_angle_4)
-        time.sleep(1)  # Give time for servos to reach the initial positions
-    
+    sensor = mpu6050(sensor_address)
     
     try:
         while True:
@@ -374,9 +361,9 @@ def main():
             time.sleep(20)
 
             # Check TOF sensor readings
-            front_distance = tof_sensors['sensor_front'].range
-            left_distance = tof_sensors['sensor_left'].range
-            right_distance = tof_sensors['sensor_right'].range
+            front_distance = sensors['sensor_front'].range
+            left_distance = sensors['sensor_left'].range
+            right_distance = sensors['sensor_right'].range
 
             print(f"TOF Sensor Readings - Front: {front_distance}, Left: {left_distance}, Right: {right_distance}")
 

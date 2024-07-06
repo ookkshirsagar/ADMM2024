@@ -179,6 +179,16 @@ def move_servos():
     set_servo_angle(pwm_2, 0)
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
+    
+    
+# Function to move servos up initially
+def move_initial_servos():
+    print("Moving servos down")
+    set_servo_angle(pwm_1, 140)
+    set_servo_angle(pwm_2, 30)
+    set_servo_angle(pwm_3, 140)
+    set_servo_angle(pwm_4, 30)
+
 
 # Function to turn left with gyro control
 def turn_left(sensor, angle=82.0, speed=100):
@@ -355,8 +365,8 @@ def main():
     try:
         while True:
             print("Looping in main program...")
-            # Move servos down, wait for 15 seconds, then up
-            move_servos()
+            # Move servos up
+            move_initial_servos()
 
             # Move forward for 2 seconds, then stop for 20 seconds
             move_forward_for_duration(2)

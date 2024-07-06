@@ -192,25 +192,19 @@ def turn_right(sensor, angle=86, speed=100):
             time.sleep(dt - elapsed_time)
 
     stop_motors()
-# Function to move forward for a specified duration
-def move_forward_for_duration(duration=2, speed=20):
-    move_forward(speed)
-    time.sleep(duration)
-    stop_motors()
 
 # Function to handle obstacle avoidance
 def avoid_obstacle(sensor):
     stop_motors()
-    mqtt_client.publish("robot/status", "Obstacle detected. Stopping and avoiding.")
 
     # Read TOF sensor distances
     front_distance = sensor['sensor_front'].range
     left_distance = sensor['sensor_left'].range
     right_distance = sensor['sensor_right'].range
 
-    if right_distance < 200:  # If right distance is less than 200mm, turn left
+    if right_distance <=200:  # If right distance is less than 200mm, turn left
         turn_left(sensor)
-    elif left_distance < 200:  # If left distance is less than 200mm, turn right
+    elif left_distance <= 200:  # If left distance is less than 200mm, turn right
         turn_right(sensor)
     else:
         # Default behavior if no clear direction to turn
@@ -319,7 +313,6 @@ def read_distance_and_control_motors(i2c, mqtt_client, ser):
             if avg_distance_front < OFFSET:
                 # Obstacle detected, stop and avoid obstacle
                 stop_motors()
-                mqtt_client.publish("robot/status", "Obstacle detected. Stopping and avoiding.")
                 turn_left(sensor)  # Adjust turn as needed
             else:
                 # No obstacle, continue moving forward
@@ -349,18 +342,6 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"Failed to connect, return code {rc}")
 
-def on_message(client, userdata, msg):
-    message = msg.payload.decode()
-    print(f"Received message: {message}")
-    
-    if message == "move_forward":
-        move_forward_with_stop()
-    elif message == "turn_left":
-        turn_left(sensor)
-    elif message == "turn_right":
-        turn_right(sensor)
-    else:
-        print("Unknown command received.")
 
 def initialize_mqtt():
     client = mqtt.Client()
@@ -482,6 +463,15 @@ initial_angle_2 = 0
 initial_angle_3 = 170
 initial_angle_4 = 0
 
+# Initialize MQTT client
+mqtt_client = mqtt.Client()
+mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+mqtt_client.tls_set()
+mqtt_client.on_connect = on_connect
+mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
+
+# Start the MQTT client loop
+mqtt_client.loop_start()
 
 def main():
     try:
@@ -493,15 +483,6 @@ def main():
         if ser is None:
             return
 
-        # Initialize MQTT client
-        mqtt_client = mqtt.Client()
-        mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
-        mqtt_client.tls_set()
-        mqtt_client.on_connect = on_connect
-        mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
-
-        # Start the MQTT client loop
-        mqtt_client.loop_start()
 
     # Initialize sensors with new addresses
         sensors = {}

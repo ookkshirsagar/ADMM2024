@@ -331,13 +331,15 @@ def main():
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
 
-    # Set the initial positions for the servos
+        # Set the initial positions for the servos
         set_servo_angle(pwm_1, initial_angle_1)
         set_servo_angle(pwm_2, initial_angle_2)
         set_servo_angle(pwm_3, initial_angle_3)
         set_servo_angle(pwm_4, initial_angle_4)
         time.sleep(1)  # Give time for servos to reach the initial positions
-
+    
+    
+    try:
         while True:
             # Move servos down, wait for 15 seconds, then up
             move_servos()
@@ -375,7 +377,7 @@ def main():
 
             if ema_distances['sensor_right'] >= 200:
                 turn_left(sensor)
-
+    
     except KeyboardInterrupt:
         print("\nExiting program.")
 

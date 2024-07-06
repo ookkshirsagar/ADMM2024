@@ -451,7 +451,38 @@ def read_and_process_serial_data(ser):
 def set_servo_angle(pwm, angle):
     duty_cycle = 2.5 + (angle / 18.0)
     pwm.ChangeDutyCycle(duty_cycle)
-    
+
+# Set GPIO pins for the servos
+servo_pin_1 = 17  # GPIO pin for the first servo
+servo_pin_2 = 27  # GPIO pin for the second servo
+servo_pin_3 = 22 # GPIO pin for the second servo
+servo_pin_4 = 4  # GPIO pin for the second servo
+
+# Set PWM parameters
+GPIO.setup(servo_pin_1, GPIO.OUT)
+GPIO.setup(servo_pin_2, GPIO.OUT)
+GPIO.setup(servo_pin_3, GPIO.OUT)
+GPIO.setup(servo_pin_4, GPIO.OUT)
+
+#PWM frequency set to 50 Hz for all motors
+pwm_1 = GPIO.PWM(servo_pin_1, 50)  
+pwm_2 = GPIO.PWM(servo_pin_2, 50) 
+pwm_3 = GPIO.PWM(servo_pin_3, 50) 
+pwm_4 = GPIO.PWM(servo_pin_4, 50) 
+
+# Start PWM with 0% duty cycle
+pwm_1.start(0)
+pwm_2.start(0)
+pwm_3.start(0)
+pwm_4.start(0)
+
+# Initial angles
+initial_angle_1 = 170
+initial_angle_2 = 0
+initial_angle_3 = 170
+initial_angle_4 = 0
+
+
 def main():
     try:
         # Initialize I2C bus for TOF sensors

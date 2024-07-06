@@ -332,6 +332,12 @@ def main():
     
     i2c = busio.I2C(board.SCL, board.SDA)
     
+    #Set Initial Servo Angles
+    # Set initial angles for servos
+    set_servo_angle(pwm_1, initial_angle_1)
+    set_servo_angle(pwm_2, initial_angle_2)
+    set_servo_angle(pwm_3, initial_angle_3)
+    set_servo_angle(pwm_4, initial_angle_4)
     # Initialize sensors with new addresses
     sensors = {}
     ema_distances = {}

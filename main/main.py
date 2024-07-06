@@ -179,11 +179,10 @@ def move_servos():
     set_servo_angle(pwm_2, 0)
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
-    
-    
+
 # Function to move servos up initially
 def move_initial_servos():
-    print("Moving servos down")
+    print("Moving servos UP ")
     set_servo_angle(pwm_1, 140)
     set_servo_angle(pwm_2, 30)
     set_servo_angle(pwm_3, 140)
@@ -342,12 +341,12 @@ def main():
     
     i2c = busio.I2C(board.SCL, board.SDA)
     
-    #Set Initial Servo Angles
     # Set initial angles for servos
     set_servo_angle(pwm_1, initial_angle_1)
     set_servo_angle(pwm_2, initial_angle_2)
     set_servo_angle(pwm_3, initial_angle_3)
     set_servo_angle(pwm_4, initial_angle_4)
+
     # Initialize sensors with new addresses
     sensors = {}
     ema_distances = {}
@@ -365,7 +364,7 @@ def main():
     try:
         while True:
             print("Looping in main program...")
-            # Move servos up
+            # Move servos up initially.
             move_initial_servos()
 
             # Move forward for 2 seconds, then stop for 20 seconds
@@ -374,7 +373,7 @@ def main():
             
             # Move servos during the 20-second stop period
             move_servos()
-            time.sleep(20)
+            
 
             # Check TOF sensor readings
             front_distance = sensors['sensor_front'].range
@@ -399,7 +398,7 @@ def main():
 
             # Move servos during the 20-second stop period
             move_servos()
-            time.sleep(20)
+            
 
             if ema_distances['sensor_right'] >= 200:
                 turn_left(sensor)

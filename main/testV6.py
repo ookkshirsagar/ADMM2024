@@ -179,7 +179,7 @@ def move_forward_for_1_second(speed=20):
     set_motor_speed(pwm_right_rear, speed)
 
     time.sleep(1)  # Move forward for 1 second
-    move_servos_down_and_publish_voltage(ser, mqtt_client)
+    move_servos_down_and_publish_voltage()
     move_servos_up()
     stop_motors_for_20sec()
 

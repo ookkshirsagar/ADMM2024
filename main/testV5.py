@@ -291,11 +291,6 @@ def main():
 
             time.sleep(0.5)  # Adjust refresh rate as needed
 
-            # Example usage of turning left and right
-            turn_left(sensor)
-            time.sleep(1)  # Assuming a pause after turn for illustration
-            turn_right(sensor)
-            time.sleep(1)  # Assuming a pause after turn for illustration
 
     except KeyboardInterrupt:
         print("\nExiting program.")

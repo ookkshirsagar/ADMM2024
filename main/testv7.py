@@ -406,6 +406,12 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
         print("Failed to read initial voltage.")
 
 def measure_and_publish_voltage(ser, mqtt_client):
+    global initial_voltage
+    set_servo_angle(pwm_1, 170)
+    set_servo_angle(pwm_2, 0)
+    set_servo_angle(pwm_3, 170)
+    set_servo_angle(pwm_4, 0)
+    print("Servos are down")
     ser.reset_input_buffer()
     ser.write(bytes([CMD_GET_IMPEDANCE]))
     resp = ser.read(MSG_LEN)

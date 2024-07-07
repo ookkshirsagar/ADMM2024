@@ -537,8 +537,6 @@ def main():
 
             time.sleep(0.5)  # Adjust refresh rate as needed
                     # Set Frequency and Current
-            print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
-            print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 150)[1])
 
 
     except KeyboardInterrupt:

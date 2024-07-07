@@ -105,6 +105,24 @@ def stop_motors():
     GPIO.output(right_rear_in1, GPIO.LOW)
     GPIO.output(right_rear_in2, GPIO.LOW)
 
+# Function to stop all motors
+def stop_motors_for_20sec():
+    set_motor_speed(pwm_left_front, 0)
+    set_motor_speed(pwm_left_rear, 0)
+    set_motor_speed(pwm_right_front, 0)
+    set_motor_speed(pwm_right_rear, 0)
+
+    GPIO.output(left_front_in1, GPIO.LOW)
+    GPIO.output(left_front_in2, GPIO.LOW)
+    GPIO.output(left_rear_in1, GPIO.LOW)
+    GPIO.output(left_rear_in2, GPIO.LOW)
+    GPIO.output(right_front_in1, GPIO.LOW)
+    GPIO.output(right_front_in2, GPIO.LOW)
+    GPIO.output(right_rear_in1, GPIO.LOW)
+    GPIO.output(right_rear_in2, GPIO.LOW)
+
+    time.sleep(20)
+
 # Function to move forward for 1 second
 def move_forward_for_1_second(speed=20):
     # Left motors move forward
@@ -125,7 +143,7 @@ def move_forward_for_1_second(speed=20):
     set_motor_speed(pwm_right_rear, speed)
 
     time.sleep(1)  # Move forward for 1 second
-    stop_motors()
+    stop_motors_for_20sec()
 
 # Function to turn left with gyro control
 def turn_left(sensor, angle=82.0, speed=100):

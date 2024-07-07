@@ -564,8 +564,6 @@ def main():
         mqtt_client.loop_stop()
         mqtt_client.disconnect()
         ser.close()
-        for key in sensors:
-            sensors[key].deinit()
 
 if __name__ == "__main__":
     main()

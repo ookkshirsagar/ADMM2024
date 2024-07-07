@@ -19,10 +19,10 @@ class ServoControl:
         GPIO.setup(self.servo_pin_4, GPIO.OUT)
 
         # PWM frequency set to 50 Hz for all servos
-        self.pwm_1 = GPIO.PWM(self.servo_pin_1, 50)
-        self.pwm_2 = GPIO.PWM(self.servo_pin_2, 50)
-        self.pwm_3 = GPIO.PWM(self.servo_pin_3, 50)
-        self.pwm_4 = GPIO.PWM(self.servo_pin_4, 50)
+        self.pwm_1 = GPIO.PWM(self.servo_pin_1, 100)
+        self.pwm_2 = GPIO.PWM(self.servo_pin_2, 100)
+        self.pwm_3 = GPIO.PWM(self.servo_pin_3, 100)
+        self.pwm_4 = GPIO.PWM(self.servo_pin_4, 100)
 
         # Start PWM with 0% duty cycle
         self.pwm_1.start(0)
@@ -39,19 +39,13 @@ class ServoControl:
     def move_to_initial_positions(self):
         try:
             while True:
-                # Initial angles for the servos
-                self.initial_angle_1 = 170
-                self.initial_angle_2 = 0
-                self.initial_angle_3 = 170
-                self.initial_angle_4 = 0
+                # Move the servos to specific angles
+                self.set_servo_angle(self.pwm_1, 140)
+                self.set_servo_angle(self.pwm_2, 30)
+                self.set_servo_angle(self.pwm_3, 140)
+                self.set_servo_angle(self.pwm_4, 30)
+                time.sleep(1)  # Adjust delay as necessary for servos to reach position
 
-                # Set initial positions for the servos
-                self.set_servo_angle(self.pwm_1, self.initial_angle_1)
-                self.set_servo_angle(self.pwm_2, self.initial_angle_2)
-                self.set_servo_angle(self.pwm_3, self.initial_angle_3)
-                self.set_servo_angle(self.pwm_4, self.initial_angle_4)
-                time.sleep(1)  # Give time for servos to reach the initial positions
-                
         except KeyboardInterrupt:
             print("Program stopped by user")
 

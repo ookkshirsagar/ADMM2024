@@ -19,7 +19,6 @@ class MainControl:
         print("Initializing components...")
         # Initialize all components and wait for stabilization
         self.servo.move_to_initial_positions()
-        time.sleep(5)  # Allow components to stabilize
         print("Components initialized.")
 
     def move_servos_upward(self):
@@ -86,9 +85,10 @@ class MainControl:
     def run(self):
         try:
             print("Starting MainControl run...")
-            self.initialize_components()
+
 
             while True:
+                self.initialize_components()
                 self.servo.move_servos_upward()
                 self.move_forward_and_stop()
                 self.move_servos_downward()

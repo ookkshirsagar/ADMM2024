@@ -376,7 +376,7 @@ def main():
             
             # Move servos during the 20-second stop period
             move_servos()
-            time.sleep(20)
+            time.sleep(1)
 
             # Check TOF sensor readings
             front_distance = sensors['sensor_front'].range

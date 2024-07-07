@@ -35,10 +35,10 @@ def set_servo_angle(pwm, angle):
     
 
 # Initial angles
-initial_angle_1 = 170
-initial_angle_2 = 0
-initial_angle_3 = 170
-initial_angle_4 = 0
+initial_angle_1 = 140
+initial_angle_2 = 30
+initial_angle_3 = 140
+initial_angle_4 = 30
 
 try:
     # Set the initial positions for the servos
@@ -50,17 +50,17 @@ try:
 
     while True:
         # Move the first servo from 180 to 160 degrees and the second from 0 to 20 degrees
-        set_servo_angle(pwm_1, 140)
-        set_servo_angle(pwm_2, 30)
-        set_servo_angle(pwm_3, 140)
-        set_servo_angle(pwm_4, 30)
-        time.sleep(1)  # Adjust delay as necessary for servos to reach position
-
-        # Move the first servo from 160 to 180 degrees and the second from 20 to 0 degrees
         set_servo_angle(pwm_1, 170)
         set_servo_angle(pwm_2, 0)
         set_servo_angle(pwm_3, 170)
         set_servo_angle(pwm_4, 0)
+        time.sleep(15)  # Adjust delay as necessary for servos to reach position
+
+        # Move the first servo from 160 to 180 degrees and the second from 20 to 0 degrees
+        set_servo_angle(pwm_1, 140)
+        set_servo_angle(pwm_2, 30)
+        set_servo_angle(pwm_3, 140)
+        set_servo_angle(pwm_4, 30)
         time.sleep(1)  # Adjust delay as necessary for servos to reach position
 
 except KeyboardInterrupt:

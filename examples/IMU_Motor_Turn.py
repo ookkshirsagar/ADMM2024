@@ -78,8 +78,8 @@ def stop_motors():
     GPIO.output(right_rear_in1, GPIO.LOW)
     GPIO.output(right_rear_in2, GPIO.LOW)
 
-# Function to move forward
-def move_forward(speed=20):
+# Function to move forward for 1 second
+def move_forward_for_1_second(speed=20):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -97,8 +97,11 @@ def move_forward(speed=20):
     set_motor_speed(pwm_right_front, speed)
     set_motor_speed(pwm_right_rear, speed)
 
+    time.sleep(1)  # Move forward for 1 second
+    stop_motors()
+
 # Function to turn left with gyro control
-def turn_left(sensor, angle=83.0, speed=100):
+def turn_left(sensor, angle=82.0, speed=100):
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -139,7 +142,7 @@ def turn_left(sensor, angle=83.0, speed=100):
 
 
 # Function to turn right with gyro control
-def turn_right(sensor, angle=85.0, speed=100):
+def turn_right(sensor, angle=86.0, speed=100):
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -199,7 +202,7 @@ def get_calibrated_gyro_data(sensor):
 
 try:
     while True:
-        move_forward()
+        move_forward_for_1_second()
         print("Moving forward...")
         time.sleep(2)
 
@@ -212,7 +215,7 @@ try:
         stop_motors()
         time.sleep(1)
         
-        move_forward()
+        move_forward_for_1_second()
         print("Moving forward...")
         time.sleep(2)
 

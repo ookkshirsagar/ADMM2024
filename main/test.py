@@ -47,39 +47,31 @@ def move_servos_to_initial_positions():
     set_servo_angle(pwm_2, initial_angle_2)
     set_servo_angle(pwm_3, initial_angle_3)
     set_servo_angle(pwm_4, initial_angle_4)
-    time.sleep(1)  # Give time for servos to reach the initial positions
+    print("Servo are UP")
+    time.sleep(5)  # Give time for servos to reach the initial positions
 
 def move_servos_down():
-    try:
-        while True:
-            # Move the first servo from 180 to 160 degrees and the second from 0 to 20 degrees
-            set_servo_angle(pwm_1, 170)
-            set_servo_angle(pwm_2, 0)
-            set_servo_angle(pwm_3, 170)
-            set_servo_angle(pwm_4, 0)
-            time.sleep(15)  # Adjust delay as necessary for servos to reach position
 
-    except KeyboardInterrupt:
-        print("Program stopped by user")
+    # Move the first servo from 180 to 160 degrees and the second from 0 to 20 degrees
+    set_servo_angle(pwm_1, 170)
+    set_servo_angle(pwm_2, 0)
+    set_servo_angle(pwm_3, 170)
+    set_servo_angle(pwm_4, 0)
+    print("Servo are down")
+    time.sleep(15)  # Adjust delay as necessary for servos to reach position
 
-    finally:
-        cleanup()
 
 def move_servos_up():
-    try:
-        while True:
-            # Move the first servo from 160 to 180 degrees and the second from 20 to 0 degrees
-            set_servo_angle(pwm_1, 140)
-            set_servo_angle(pwm_2, 30)
-            set_servo_angle(pwm_3, 140)
-            set_servo_angle(pwm_4, 30)
-            time.sleep(1)  # Adjust delay as necessary for servos to reach position
 
-    except KeyboardInterrupt:
-        print("Program stopped by user")
+    # Move the first servo from 160 to 180 degrees and the second from 20 to 0 degrees
+    set_servo_angle(pwm_1, 140)
+    set_servo_angle(pwm_2, 30)
+    set_servo_angle(pwm_3, 140)
+    set_servo_angle(pwm_4, 30)
+    print("Servo are Up again")
+    time.sleep(1)  # Adjust delay as necessary for servos to reach position
 
-    finally:
-        cleanup()
+
 
 def cleanup():
     pwm_1.stop()

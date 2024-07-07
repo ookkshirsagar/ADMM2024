@@ -79,7 +79,7 @@ def stop_motors():
     GPIO.output(right_rear_in2, GPIO.LOW)
 
 # Function to move forward
-def move_forward(speed=50):
+def move_forward(speed=20):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -91,25 +91,6 @@ def move_forward(speed=50):
     GPIO.output(right_front_in2, GPIO.HIGH)
     GPIO.output(right_rear_in1, GPIO.HIGH)
     GPIO.output(right_rear_in2, GPIO.LOW)
-
-    set_motor_speed(pwm_left_front, speed)
-    set_motor_speed(pwm_left_rear, speed)
-    set_motor_speed(pwm_right_front, speed)
-    set_motor_speed(pwm_right_rear, speed)
-
-# Function to move backward
-def move_backward(speed=50):
-    # Left motors move backward
-    GPIO.output(left_front_in1, GPIO.LOW)
-    GPIO.output(left_front_in2, GPIO.HIGH)
-    GPIO.output(left_rear_in1, GPIO.HIGH)
-    GPIO.output(left_rear_in2, GPIO.LOW)
-
-    # Right motors move backward
-    GPIO.output(right_front_in1, GPIO.HIGH)
-    GPIO.output(right_front_in2, GPIO.LOW)
-    GPIO.output(right_rear_in1, GPIO.LOW)
-    GPIO.output(right_rear_in2, GPIO.HIGH)
 
     set_motor_speed(pwm_left_front, speed)
     set_motor_speed(pwm_left_rear, speed)

@@ -169,27 +169,33 @@ def set_servo_angle(pwm, angle):
 # Function to move servos down and up
 def move_servos():
     print("Moving servos down")
-    set_servo_angle(pwm_1, 140)
-    set_servo_angle(pwm_2, 30)
-    set_servo_angle(pwm_3, 140)
-    set_servo_angle(pwm_4, 30)
-    time.sleep(1)  # Allow time for servos to move down
-    print("Waiting for 15 seconds")
-    time.sleep(15)
-    print("Moving servos up")
     set_servo_angle(pwm_1, 170)
     set_servo_angle(pwm_2, 0)
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
+    time.sleep(1)  # Allow time for servos to move down
+    print("Waiting for 15 seconds")
+    time.sleep(15)
+    print("Moving servos up")
+    set_servo_angle(pwm_1, 140)
+    set_servo_angle(pwm_2, 30)
+    set_servo_angle(pwm_3, 140)
+    set_servo_angle(pwm_4, 30)
     time.sleep(1)  # Allow time for servos to move up
 
 # Function to move servos up initially
 def move_initial_servos():
     print("Moving servos UP ")
-    set_servo_angle(pwm_1, 140)
-    set_servo_angle(pwm_2, 30)
-    set_servo_angle(pwm_3, 140)
-    set_servo_angle(pwm_4, 30)
+    set_servo_angle(pwm_1, 170)
+    set_servo_angle(pwm_2, 0)
+    set_servo_angle(pwm_3, 170)
+    set_servo_angle(pwm_4, 0)
+    
+    # Set initial angles for servos
+    set_servo_angle(pwm_1, initial_angle_1)
+    set_servo_angle(pwm_2, initial_angle_2)
+    set_servo_angle(pwm_3, initial_angle_3)
+    set_servo_angle(pwm_4, initial_angle_4)
 
 
 # Function to turn left with gyro control
@@ -344,11 +350,7 @@ def main():
     
     i2c = busio.I2C(board.SCL, board.SDA)
     
-    # Set initial angles for servos
-    set_servo_angle(pwm_1, initial_angle_1)
-    set_servo_angle(pwm_2, initial_angle_2)
-    set_servo_angle(pwm_3, initial_angle_3)
-    set_servo_angle(pwm_4, initial_angle_4)
+
 
     # Initialize sensors with new addresses
     sensors = {}

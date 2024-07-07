@@ -86,7 +86,7 @@ class TOFControl:
                         range_mm = sensor.range
                         print(f"Sensor {key} range: {range_mm} mm")
                     except Exception as e:
-                        print(f"Error reading sensor {key}: {e})
+                        print(f"Error reading sensor {key}: {e}")
             
                 time.sleep(1)  # Adjust as needed for desired sampling interval
 

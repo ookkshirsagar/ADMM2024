@@ -30,24 +30,35 @@ class ServoControl:
         self.pwm_3.start(0)
         self.pwm_4.start(0)
 
-        # Initial angles for the servos
-        self.initial_angle_1 = 170
-        self.initial_angle_2 = 0
-        self.initial_angle_3 = 170
-        self.initial_angle_4 = 0
 
-        # Set initial positions for the servos
-        self.set_servo_angle(self.pwm_1, self.initial_angle_1)
-        self.set_servo_angle(self.pwm_2, self.initial_angle_2)
-        self.set_servo_angle(self.pwm_3, self.initial_angle_3)
-        self.set_servo_angle(self.pwm_4, self.initial_angle_4)
-        time.sleep(1)  # Give time for servos to reach the initial positions
 
     def set_servo_angle(self, pwm, angle):
         duty_cycle = 2.5 + (angle / 18.0)  # Adjust the duty cycle calculation if needed
         pwm.ChangeDutyCycle(duty_cycle)
+        
+    def move_to_initial_positions(self):
+        try:
+            while True:
+                # Initial angles for the servos
+                self.initial_angle_1 = 170
+                self.initial_angle_2 = 0
+                self.initial_angle_3 = 170
+                self.initial_angle_4 = 0
 
-    def move_servos(self):
+                # Set initial positions for the servos
+                self.set_servo_angle(self.pwm_1, self.initial_angle_1)
+                self.set_servo_angle(self.pwm_2, self.initial_angle_2)
+                self.set_servo_angle(self.pwm_3, self.initial_angle_3)
+                self.set_servo_angle(self.pwm_4, self.initial_angle_4)
+                time.sleep(1)  # Give time for servos to reach the initial positions
+                
+        except KeyboardInterrupt:
+            print("Program stopped by user")
+
+        finally:
+            self.cleanup()
+        
+    def move_servos_upward(self):
         try:
             while True:
                 # Move the servos to specific angles
@@ -57,6 +68,16 @@ class ServoControl:
                 self.set_servo_angle(self.pwm_4, 30)
                 time.sleep(1)  # Adjust delay as necessary for servos to reach position
 
+        except KeyboardInterrupt:
+            print("Program stopped by user")
+
+        finally:
+            self.cleanup()
+
+    def move_servos_downward(self):
+        try:
+            while True:
+                # Move the servos downward
                 self.set_servo_angle(self.pwm_1, 170)
                 self.set_servo_angle(self.pwm_2, 0)
                 self.set_servo_angle(self.pwm_3, 170)

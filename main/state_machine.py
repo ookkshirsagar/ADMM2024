@@ -19,7 +19,7 @@ class MainControl:
         self.servo.move_to_initial_positions()
         time.sleep(5)  # Allow components to stabilize
 
-    def move_to_initial_positions(self):
+    def move_servos_upward(self):
         # Move servo motors to initial angles
         self.servo.move_servos_upward()
         time.sleep(1)  # Allow time for servo motors to move
@@ -68,9 +68,9 @@ class MainControl:
     def run(self):
         try:
             self.initialize_components()
-            self.move_to_initial_positions()
 
             while True:
+                self.servo.move_servos_upward()
                 self.move_forward_and_stop()
                 self.move_servos_downward()
                 self.perform_voltage_check()

@@ -61,6 +61,26 @@ right_rear_en = 19
 sensor_address = 0x68
 sensor = mpu6050(sensor_address)  # Ensure mpu6050 is correctly imported
 
+# GPIO setup
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+
+# Set up Left Motors
+GPIO.setup(left_front_in1, GPIO.OUT)
+GPIO.setup(left_front_in2, GPIO.OUT)
+GPIO.setup(left_front_en, GPIO.OUT)
+GPIO.setup(left_rear_in1, GPIO.OUT)
+GPIO.setup(left_rear_in2, GPIO.OUT)
+GPIO.setup(left_rear_en, GPIO.OUT)
+
+# Set up Right Motors
+GPIO.setup(right_front_in1, GPIO.OUT)
+GPIO.setup(right_front_in2, GPIO.OUT)
+GPIO.setup(right_front_en, GPIO.OUT)
+GPIO.setup(right_rear_in1, GPIO.OUT)
+GPIO.setup(right_rear_in2, GPIO.OUT)
+GPIO.setup(right_rear_en, GPIO.OUT)
+
 # Set up PWM for motor speed control
 pwm_left_front = GPIO.PWM(left_front_en, 100)
 pwm_left_rear = GPIO.PWM(left_rear_en, 100)

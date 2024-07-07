@@ -549,7 +549,7 @@ def main():
             if initial_voltage is None:
                 continue  # Retry if initial voltage reading failed
 
-            move_servos_up
+            move_servos_up()
 
             move_forward_for_1_second()
             distance_mm = sensors['sensorFRONT'].range - OFFSET

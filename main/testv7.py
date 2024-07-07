@@ -190,6 +190,7 @@ def stop_motors_for_8sec():
 def initial_reading():
     global initial_voltage
     move_servos_down_and_publish_voltage(ser, mqtt_client)
+    time.sleep(1)
             
     # Read initial voltage after servos are down
     initial_voltage = read_initial_voltage(ser)
@@ -552,7 +553,9 @@ def main():
         while True:
 
             initial_reading()
+
             move_forward_for_1_second()
+
             distance_mm = sensors['sensorFRONT'].range - OFFSET
             ema_distances['sensorFRONT'] = apply_ema_filter(ema_distances['sensorFRONT'], distance_mm)
             print(f"Front sensor distance: {ema_distances['sensorFRONT']:.2f} mm")

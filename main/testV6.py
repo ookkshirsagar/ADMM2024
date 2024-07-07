@@ -41,6 +41,39 @@ MQTT_TOPIC = "getdata"
 MQTT_USERNAME = "Bhawbhaw5050"
 MQTT_PASSWORD = "Bhawbhaw5050"
 
+mqtt_client = mqtt.Client(client_id="")
+mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+mqtt_client.tls_set()
+
+def publish_to_mqtt(client, topic, message):
+    client.publish(topic, message)
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connected to MQTT broker.")
+    else:
+        print(f"Failed to connect, return code {rc}")
+
+
+mqtt_client.on_connect = on_connect
+mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
+mqtt_client.loop_start()
+            
+print("Connecting to MQTT broker...")
+while not mqtt_client.is_connected():
+    time.sleep(0.1)
+
+def open_serial_connection(port, baudrate, timeout):
+    try:
+        ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1, inter_byte_timeout=0.5)
+        time.sleep(1)
+        return ser
+    except serial.SerialException as e:
+        print(f"Error opening serial port: {e}")
+        return None
+    
+ser = open_serial_connection('/dev/ttyUSB0', 115200, timeout=1)
+
 # Motor Driver Pins (Left Motors)
 left_front_in1 = 23
 left_front_in2 = 24
@@ -179,7 +212,7 @@ def move_forward_for_1_second(speed=20):
     set_motor_speed(pwm_right_rear, speed)
 
     time.sleep(1)  # Move forward for 1 second
-    move_servos_down_and_publish_voltage()
+    move_servos_down_and_publish_voltage(ser, mqtt_client)
     move_servos_up()
     stop_motors_for_20sec()
 
@@ -397,14 +430,7 @@ def cleanup():
     pwm_4.stop()
     GPIO.cleanup()
 
-def open_serial_connection(port, baudrate, timeout):
-    try:
-        ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1, inter_byte_timeout=0.5)
-        time.sleep(1)
-        return ser
-    except serial.SerialException as e:
-        print(f"Error opening serial port: {e}")
-        return None
+
 
 def send_command(ser, command, value1=0, value2=0):
     message = bytearray([command])
@@ -493,34 +519,11 @@ def filter_outliers(samples, threshold=2):
     filtered_samples = [s for s in samples if abs(s - median) <= threshold * median]
     return filtered_samples
 
-def publish_to_mqtt(client, topic, message):
-    client.publish(topic, message)
-
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("Connected to MQTT broker.")
-    else:
-        print(f"Failed to connect, return code {rc}")
-
 def main():
     i2c = busio.I2C(board.SCL, board.SDA)
     initialize_gpio()
     move_servos_to_initial_positions()
 
-    mqtt_client = mqtt.Client(client_id="")
-    mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
-    mqtt_client.tls_set()
-    mqtt_client.on_connect = on_connect
-    mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
-    mqtt_client.loop_start()
-            
-    print("Connecting to MQTT broker...")
-    while not mqtt_client.is_connected():
-        time.sleep(0.1)
-
-    ser = open_serial_connection('/dev/ttyUSB0', 115200, timeout=1)
-    if ser is None:
-        return
     # Initialize sensors with new addresses
     sensors = {}
     ema_distances = {}

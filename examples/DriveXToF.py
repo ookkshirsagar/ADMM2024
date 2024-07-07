@@ -295,10 +295,10 @@ def main():
                         left_distance = ema_distances['sensor_left']
                         right_distance = ema_distances['sensor_right']
 
-                        if right_distance < 200:
+                        if right_distance <=200:
                             print("Turning left...")
                             turn_left(sensor)
-                        elif left_distance < 200:
+                        elif left_distance <=50:
                             print("Turning right...")
                             turn_right(sensor)
                         else:

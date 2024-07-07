@@ -405,6 +405,8 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     else:
         print("Failed to read initial voltage.")
 
+    time.sleep(3)
+
 def measure_and_publish_voltage(ser, mqtt_client):
     global initial_voltage
     set_servo_angle(pwm_1, 170)
@@ -412,6 +414,7 @@ def measure_and_publish_voltage(ser, mqtt_client):
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
     print("Servos are down")
+    
     ser.reset_input_buffer()
     ser.write(bytes([CMD_GET_IMPEDANCE]))
     resp = ser.read(MSG_LEN)
@@ -423,6 +426,7 @@ def measure_and_publish_voltage(ser, mqtt_client):
         if initial_voltage is not None and abs(current_voltage - initial_voltage) <= INITIAL_VOLTAGE_TOLERANCE:
             publish_to_mqtt(mqtt_client, MQTT_TOPIC, str(current_voltage))
         return current_voltage
+time.sleep(3)
 
 def read_initial_voltage(ser):
     voltage_samples = collect_samples(ser, NUM_SAMPLES)
@@ -573,7 +577,6 @@ def main():
                 break
 
             time.sleep(0.5)  # Adjust refresh rate as needed
-                    # Set Frequency and Current
 
 
     except KeyboardInterrupt:

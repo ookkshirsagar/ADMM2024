@@ -44,6 +44,7 @@ RETRY_LIMIT = 3
 MQTT_BROKER = "a988861856734e6381d16cde197811da.s1.eu.hivemq.cloud"
 MQTT_PORT = 8883
 MQTT_TOPIC = "getdata"
+MQTT_Initial= "initial_voltage"
 MQTT_USERNAME = "Bhawbhaw5050"
 MQTT_PASSWORD = "Bhawbhaw5050"
 
@@ -184,7 +185,7 @@ def stop_motors():
 def stop_motors_for_8sec():
     stop_motors()
     time.sleep(1)
-    move_servos_down_and_publish_voltage(ser, mqtt_client)
+    measure_and_publish_voltage(ser, mqtt_client)
     move_servos_up()
 
 def initial_reading():
@@ -400,7 +401,7 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     voltage = read_initial_voltage(ser)
     if voltage is not None:
         initial_voltage = voltage
-        publish_to_mqtt(mqtt_client, MQTT_TOPIC, str(initial_voltage))
+        publish_to_mqtt(mqtt_client, MQTT_Initial, str(initial_voltage))
     else:
         print("Failed to read initial voltage.")
 

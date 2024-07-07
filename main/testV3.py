@@ -60,17 +60,17 @@ def set_servo_angle(pwm, angle):
     pwm.ChangeDutyCycle(duty_cycle)
 
 def move_servos_to_initial_positions():
-    initial_angle_1 = 140
-    initial_angle_2 = 30
-    initial_angle_3 = 140
-    initial_angle_4 = 30
+    initial_angle_1 = 120
+    initial_angle_2 = 50
+    initial_angle_3 = 120
+    initial_angle_4 = 50
 
     set_servo_angle(pwm_1, initial_angle_1)
     set_servo_angle(pwm_2, initial_angle_2)
     set_servo_angle(pwm_3, initial_angle_3)
     set_servo_angle(pwm_4, initial_angle_4)
     print("Servos are UP")
-    time.sleep(5)
+    time.sleep(1)
 
 def move_servos_down_and_publish_voltage(ser, mqtt_client):
     set_servo_angle(pwm_1, 170)
@@ -83,7 +83,7 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     voltage_thread = threading.Thread(target=measure_and_publish_voltage, args=(ser, mqtt_client))
     voltage_thread.start()
 
-    time.sleep(15)
+    time.sleep(3)
 
     # Wait for the voltage thread to complete before continuing
     voltage_thread.join()
@@ -101,10 +101,10 @@ def measure_and_publish_voltage(ser, mqtt_client):
         print("No valid samples collected.")
 
 def move_servos_up():
-    set_servo_angle(pwm_1, 140)
-    set_servo_angle(pwm_2, 30)
-    set_servo_angle(pwm_3, 140)
-    set_servo_angle(pwm_4, 30)
+    set_servo_angle(pwm_1, 120)
+    set_servo_angle(pwm_2, 50)
+    set_servo_angle(pwm_3, 120)
+    set_servo_angle(pwm_4, 50)
     print("Servos are Up again")
     time.sleep(1)
 

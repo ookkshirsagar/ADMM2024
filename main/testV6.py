@@ -177,6 +177,7 @@ def stop_motors():
 # Function to stop all motors
 def stop_motors_for_8sec():
     stop_motors()
+    time.sleep(1)
     move_servos_down_and_publish_voltage(ser, mqtt_client)
     move_servos_up()
 

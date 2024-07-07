@@ -179,7 +179,6 @@ def stop_motors_for_8sec():
     stop_motors()
     move_servos_down_and_publish_voltage(ser, mqtt_client)
     move_servos_up()
-    time.sleep(8)
 
 # Function to move forward for 1 second
 def move_forward_for_1_second(speed=20):

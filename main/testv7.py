@@ -187,6 +187,14 @@ def stop_motors_for_8sec():
     move_servos_down_and_publish_voltage(ser, mqtt_client)
     move_servos_up()
 
+def initial_reading():
+    global initial_voltage
+    move_servos_down_and_publish_voltage(ser, mqtt_client)
+            
+    # Read initial voltage after servos are down
+    initial_voltage = read_initial_voltage(ser)
+    move_servos_up()
+
 # Function to move forward for 1 second
 def move_forward_for_1_second(speed=20):
     # Left motors move forward
@@ -542,15 +550,8 @@ def main():
 
     try:
         while True:
-            move_servos_down_and_publish_voltage(ser, mqtt_client)
-            
-            # Read initial voltage after servos are down
-            initial_voltage = read_initial_voltage(ser)
-            if initial_voltage is None:
-                continue  # Retry if initial voltage reading failed
 
-            move_servos_up()
-
+            initial_reading()
             move_forward_for_1_second()
             distance_mm = sensors['sensorFRONT'].range - OFFSET
             ema_distances['sensorFRONT'] = apply_ema_filter(ema_distances['sensorFRONT'], distance_mm)

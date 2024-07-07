@@ -1,5 +1,4 @@
 import time
-import threading
 import board
 import busio
 import adafruit_vl53l0x
@@ -28,7 +27,7 @@ NEW_ADDRESSES = {
 }
 
 # Exponential Moving Average (EMA) alpha
-EMA_ALPHA = 1.0
+EMA_ALPHA = 0.2
 
 # Motor Driver Pins (Left Motors)
 left_front_in1 = 23
@@ -170,33 +169,28 @@ def set_servo_angle(pwm, angle):
 # Function to move servos down and up
 def move_servos():
     print("Moving servos down")
-    set_servo_angle(pwm_1, 170)
-    set_servo_angle(pwm_2, 0)
-    set_servo_angle(pwm_3, 170)
-    set_servo_angle(pwm_4, 0)
-    time.sleep(1)  # Allow time for servos to move down
-    print("Waiting for 15 seconds")
-    time.sleep(15)
-    print("Moving servos up")
     set_servo_angle(pwm_1, 140)
     set_servo_angle(pwm_2, 30)
     set_servo_angle(pwm_3, 140)
     set_servo_angle(pwm_4, 30)
+    time.sleep(1)  # Allow time for servos to move down
+    print("Waiting for 15 seconds")
+    time.sleep(15)
+    print("Moving servos up")
+    set_servo_angle(pwm_1, 170)
+    set_servo_angle(pwm_2, 0)
+    set_servo_angle(pwm_3, 170)
+    set_servo_angle(pwm_4, 0)
     time.sleep(1)  # Allow time for servos to move up
 
 # Function to move servos up initially
 def move_initial_servos():
     print("Moving servos UP ")
-    set_servo_angle(pwm_1, 170)
-    set_servo_angle(pwm_2, 0)
-    set_servo_angle(pwm_3, 170)
-    set_servo_angle(pwm_4, 0)
-    
-    # Set initial angles for servos
-    set_servo_angle(pwm_1, initial_angle_1)
-    set_servo_angle(pwm_2, initial_angle_2)
-    set_servo_angle(pwm_3, initial_angle_3)
-    set_servo_angle(pwm_4, initial_angle_4)
+    set_servo_angle(pwm_1, 140)
+    set_servo_angle(pwm_2, 30)
+    set_servo_angle(pwm_3, 140)
+    set_servo_angle(pwm_4, 30)
+
 
 # Function to turn left with gyro control
 def turn_left(sensor, angle=82.0, speed=100):
@@ -344,43 +338,18 @@ def initialize_sensor(i2c, xshut_pin, new_address):
         print(f"Error initializing VL53L0X sensor: {e}")
         exit()
 
-# Function to read TOF sensor data in a thread
-def read_tof_sensors(sensors, ema_distances):
-    while True:
-        print("Reading TOF sensor data")
-        for key in sensors:
-            distance = sensors[key].range
-            ema_distances[key] = apply_ema_filter(ema_distances[key], distance)
-        time.sleep(0.1)
-
-# Function to move the robot
-def control_robot(sensor, sensors, ema_distances):
-    while True:
-        print("Controlling robot")
-        # Example logic based on sensor data
-        if ema_distances['sensor_front'] is not None and ema_distances['sensor_front'] <= 100:
-            if ema_distances['sensor_left'] is not None and ema_distances['sensor_left'] <= 60:
-                turn_right(sensor)
-            else:
-                turn_left(sensor)
-
-        move_forward_for_duration(1)
-        stop_motors()
-        time.sleep(1)
-
-# Function to move servos periodically
-def control_servos():
-    while True:
-        move_initial_servos()
-        move_servos()
-        time.sleep(20)
-
 # Main function
 def main():
     print("Starting main program...")
     
     i2c = busio.I2C(board.SCL, board.SDA)
     
+    # Set initial angles for servos
+    set_servo_angle(pwm_1, initial_angle_1)
+    set_servo_angle(pwm_2, initial_angle_2)
+    set_servo_angle(pwm_3, initial_angle_3)
+    set_servo_angle(pwm_4, initial_angle_4)
+
     # Initialize sensors with new addresses
     sensors = {}
     ema_distances = {}
@@ -396,18 +365,47 @@ def main():
     sensor = mpu6050(sensor_address)
     
     try:
-        # Start threads
-        tof_thread = threading.Thread(target=read_tof_sensors, args=(sensors, ema_distances))
-        robot_thread = threading.Thread(target=control_robot, args=(sensor, sensors, ema_distances))
-        servo_thread = threading.Thread(target=control_servos)
+        while True:
+            print("Looping in main program...")
+            # Move servos up initially.
+            move_initial_servos()
 
-        tof_thread.start()
-        robot_thread.start()
-        servo_thread.start()
+            # Move forward for 2 seconds, then stop for 20 seconds
+            move_forward_for_duration(1)
+            stop_motors()
+            
+            # Move servos during the 20-second stop period
+            move_servos()
+            time.sleep(20)
 
-        tof_thread.join()
-        robot_thread.join()
-        servo_thread.join()
+            # Check TOF sensor readings
+            front_distance = sensors['sensor_front'].range
+            left_distance = sensors['sensor_left'].range
+            right_distance = sensors['sensor_right'].range
+
+            print(f"TOF Sensor Readings - Front: {front_distance}, Left: {left_distance}, Right: {right_distance}")
+
+            # Apply EMA filter to sensor readings
+            ema_distances['sensor_front'] = apply_ema_filter(ema_distances['sensor_front'], front_distance)
+            ema_distances['sensor_left'] = apply_ema_filter(ema_distances['sensor_left'], left_distance)
+            ema_distances['sensor_right'] = apply_ema_filter(ema_distances['sensor_right'], right_distance)
+
+            if ema_distances['sensor_front'] <= 100:
+                if ema_distances['sensor_left'] <= 60:
+                    turn_right(sensor)
+                else:
+                    turn_left(sensor)
+
+            move_forward_for_duration(1)
+            stop_motors()
+
+            # Move servos during the 20-second stop period
+            move_servos()
+            time.sleep(20)
+            
+
+            if ema_distances['sensor_right'] >= 200:
+                turn_left(sensor)
     
     except KeyboardInterrupt:
         print("\nExiting program.")

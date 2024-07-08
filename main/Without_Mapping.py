@@ -423,6 +423,9 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     voltage_thread.join()
 
 def measure_and_publish_voltage(ser, mqtt_client):
+    print("Set Frequency: ", admm_set(CMD_SET_FREQ_HZ, 200)[1])
+    print("Set Current: ", admm_set(CMD_SET_CURRENT_UA, 150)[1]) 
+    print("Set Duration: ", admm_set(CMD_SET_MEASURE_DURATION, 2)[1])
     # Collect samples and calculate the average voltage
     voltage_samples = collect_samples(ser, NUM_SAMPLES)
 
@@ -511,6 +514,8 @@ def admm_start_and_get_measurement(ser):
     else:
         print("Error: Measurement time is non-positive.")
         return None, None, None
+
+
 
 def collect_samples(ser, num_samples):
     voltage_samples = []

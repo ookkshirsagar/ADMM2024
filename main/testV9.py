@@ -233,7 +233,7 @@ def move_forward_for_1_second(speed=20):
     stop_motors_for_8sec()
 
 # Function to turn left with gyro control
-def turn_left(sensor, angle=82.0, speed=100):
+def turn_left(sensor, angle=82.5, speed=100):
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -401,7 +401,7 @@ def move_servos_to_initial_positions():
     set_servo_angle(pwm_3, initial_angle_3)
     set_servo_angle(pwm_4, initial_angle_4)
     print("Servos are UP")
-    time.sleep(1)
+    time.sleep(0.5)
 
 def move_servos_down_and_publish_voltage(ser, mqtt_client):
     
@@ -440,7 +440,7 @@ def move_servos_up():
     set_servo_angle(pwm_3, 120)
     set_servo_angle(pwm_4, 50)
     print("Servos are Up again")
-    time.sleep(1)
+    time.sleep(0.5)
 
 def cleanup():
     pwm_1.stop()
@@ -541,8 +541,7 @@ def filter_outliers(samples, threshold=2):
 def main():
     i2c = busio.I2C(board.SCL, board.SDA)
     initialize_gpio()
-    move_servos_to_initial_positions()
-    read_initial_voltage()
+
 
     # Initialize sensors with new addresses
     sensors = {}
@@ -555,6 +554,9 @@ def main():
             print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
+    
+    move_servos_to_initial_positions()
+    read_initial_voltage()
 
     try:
         while True:
@@ -564,7 +566,7 @@ def main():
             ema_distances['sensorFRONT'] = apply_ema_filter(ema_distances['sensorFRONT'], distance_mm)
             print(f"Front sensor distance: {ema_distances['sensorFRONT']:.2f} mm")
 
-            if ema_distances['sensorFRONT'] <= 100:
+            if ema_distances['sensorFRONT'] <= 150:
                 print("Obstacle detected, stopping.")
                 stop_motors()
                 
@@ -581,17 +583,25 @@ def main():
                 if ema_distances['sensorLEFT'] > ema_distances['sensorRIGHT']:
                     print("Turning left.")
                     turn_left(sensor)
+                    time.sleep(0.5)
                     move_forward_after_turn()
+                    time.sleep(1)
                     turn_left(sensor)
+                    time.sleep(0.5)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
+                    time.sleep(1)
                 else:
                     print("Turning right.")
                     turn_right(sensor)
+                    time.sleep(0.5)
                     move_forward_after_turn()
+                    time.sleep(1)
                     turn_right(sensor)
+                    time.sleep(0.5)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
+                    time.sleep(1)
 
-            time.sleep(0.1)  # Adjust refresh rate as needed
+            time.sleep(0.5)  # Adjust refresh rate as needed
 
     except KeyboardInterrupt:
         print("\nExiting program.")

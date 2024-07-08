@@ -427,6 +427,8 @@ def measure_and_publish_voltage(ser, mqtt_client):
         if initial_voltage is not None and abs(current_voltage - initial_voltage) <= INITIAL_VOLTAGE_TOLERANCE:
             publish_to_mqtt(mqtt_client, MQTT_TOPIC, str(current_voltage))
         return current_voltage
+    
+    time.sleep(3)
 
 def read_initial_voltage(ser):
     voltage_samples = collect_samples(ser, NUM_SAMPLES)

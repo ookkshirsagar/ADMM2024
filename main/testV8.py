@@ -179,12 +179,14 @@ def stop_motors_for_8sec():
     stop_motors()
     time.sleep(1)
     move_servos_down_and_publish_voltage(ser, mqtt_client)
+    time.sleep(1)
     move_servos_up()
     
 # Function to read Initial Voltage
 def read_initial_voltage():
     time.sleep(1)
     move_servos_down_and_publish_voltage(ser, mqtt_client)
+    time.sleep(1)
     move_servos_up()
 
 # Function to move forward for 1 second
@@ -388,7 +390,7 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     set_servo_angle(pwm_4, 0)
     print("Servos are down")
     
-    time.sleep(1)
+    time.sleep(2)
 
     # Create a thread to handle voltage measurement and publishing
     voltage_thread = threading.Thread(target=measure_and_publish_voltage, args=(ser, mqtt_client))

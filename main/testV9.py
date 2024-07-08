@@ -208,7 +208,7 @@ def move_forward_after_turn(speed=20):
     set_motor_speed(pwm_right_front, speed)
     set_motor_speed(pwm_right_rear, speed)
 
-    time.sleep(1)  # Move forward for 1 second
+    time.sleep(2)  # Move forward for 1 second
 
 # Function to move forward for 1 second
 def move_forward_for_1_second(speed=20):

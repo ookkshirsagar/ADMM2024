@@ -21,12 +21,6 @@ pwm_2 = None
 pwm_3 = None
 pwm_4 = None
 
-# Global variable for initial voltage
-initial_voltage = None
-
-# Constants for voltage comparison
-INITIAL_VOLTAGE_TOLERANCE = 50
-
 # Constants and global variables for the voltage measurement
 MSG_LEN = 9
 CMD_SET_FREQ_HZ = 0xA1
@@ -44,7 +38,6 @@ RETRY_LIMIT = 3
 MQTT_BROKER = "a988861856734e6381d16cde197811da.s1.eu.hivemq.cloud"
 MQTT_PORT = 8883
 MQTT_TOPIC = "getdata"
-MQTT_Initial= "initial_voltage"
 MQTT_USERNAME = "Bhawbhaw5050"
 MQTT_PASSWORD = "Bhawbhaw5050"
 
@@ -185,17 +178,13 @@ def stop_motors():
 def stop_motors_for_8sec():
     stop_motors()
     time.sleep(1)
-    measure_and_publish_voltage(ser, mqtt_client)
-    time.sleep(3)
-    move_servos_up()
-
-def initial_reading():
-    global initial_voltage
     move_servos_down_and_publish_voltage(ser, mqtt_client)
+    move_servos_up()
+    
+# Function to read Initial Voltage
+def read_initial_voltage():
     time.sleep(1)
-            
-    # Read initial voltage after servos are down
-    initial_voltage = read_initial_voltage(ser)
+    move_servos_down_and_publish_voltage(ser, mqtt_client)
     move_servos_up()
 
 # Function to move forward for 1 second
@@ -392,54 +381,33 @@ def move_servos_to_initial_positions():
     time.sleep(1)
 
 def move_servos_down_and_publish_voltage(ser, mqtt_client):
-    global initial_voltage
     set_servo_angle(pwm_1, 170)
     set_servo_angle(pwm_2, 0)
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
     print("Servos are down")
 
-    voltage = read_initial_voltage(ser)
-    if voltage is not None:
-        initial_voltage = voltage
-        publish_to_mqtt(mqtt_client, MQTT_Initial, str(initial_voltage))
-    else:
-        print("Failed to read initial voltage.")
+    # Create a thread to handle voltage measurement and publishing
+    voltage_thread = threading.Thread(target=measure_and_publish_voltage, args=(ser, mqtt_client))
+    voltage_thread.start()
 
     time.sleep(3)
+
+    # Wait for the voltage thread to complete before continuing
+    voltage_thread.join()
 
 def measure_and_publish_voltage(ser, mqtt_client):
-    global initial_voltage
-    set_servo_angle(pwm_1, 170)
-    set_servo_angle(pwm_2, 0)
-    set_servo_angle(pwm_3, 170)
-    set_servo_angle(pwm_4, 0)
-    print("Servos are down")
-    
-    ser.reset_input_buffer()
-    ser.write(bytes([CMD_GET_IMPEDANCE]))
-    resp = ser.read(MSG_LEN)
-    if len(resp) != MSG_LEN:
-        print(f"Error: Received {len(resp)} bytes instead of {MSG_LEN} bytes.")
-        return None
-    else:
-        current_voltage = struct.unpack('>f', resp[1:5])[0]
-        if initial_voltage is not None and abs(current_voltage - initial_voltage) <= INITIAL_VOLTAGE_TOLERANCE:
-            publish_to_mqtt(mqtt_client, MQTT_TOPIC, str(current_voltage))
-        return current_voltage
-    
-    time.sleep(3)
-
-def read_initial_voltage(ser):
+    # Collect samples and calculate the average voltage
     voltage_samples = collect_samples(ser, NUM_SAMPLES)
+
     if voltage_samples:
         filtered_samples = filter_outliers(voltage_samples)
-        initial_voltage = sum(filtered_samples) / len(filtered_samples)
-        return initial_voltage
+        average_voltage = sum(filtered_samples) / len(filtered_samples)
+        print(f"Average Voltage: {average_voltage}")
+        publish_to_mqtt(mqtt_client, MQTT_TOPIC, str(average_voltage))
     else:
-        print("Failed to read initial voltage.")
-        return None
-    
+        print("No valid samples collected.")
+
 def move_servos_up():
     set_servo_angle(pwm_1, 120)
     set_servo_angle(pwm_2, 50)
@@ -545,10 +513,10 @@ def filter_outliers(samples, threshold=2):
     return filtered_samples
 
 def main():
-    global initial_voltage
     i2c = busio.I2C(board.SCL, board.SDA)
     initialize_gpio()
     move_servos_to_initial_positions()
+    read_initial_voltage()
 
     # Initialize sensors with new addresses
     sensors = {}
@@ -564,11 +532,7 @@ def main():
 
     try:
         while True:
-
-            initial_reading()
-
             move_forward_for_1_second()
-
             distance_mm = sensors['sensorFRONT'].range - OFFSET
             ema_distances['sensorFRONT'] = apply_ema_filter(ema_distances['sensorFRONT'], distance_mm)
             print(f"Front sensor distance: {ema_distances['sensorFRONT']:.2f} mm")
@@ -579,6 +543,7 @@ def main():
                 break
 
             time.sleep(0.5)  # Adjust refresh rate as needed
+                    # Set Frequency and Current
 
 
     except KeyboardInterrupt:

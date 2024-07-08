@@ -583,11 +583,13 @@ def main():
                     turn_left(sensor)
                     move_forward_after_turn()
                     turn_left(sensor)
+                    move_servos_down_and_publish_voltage(ser, mqtt_client)
                 else:
                     print("Turning right.")
                     turn_right(sensor)
                     move_forward_after_turn()
                     turn_right(sensor)
+                    move_servos_down_and_publish_voltage(ser, mqtt_client)
 
             time.sleep(0.1)  # Adjust refresh rate as needed
 

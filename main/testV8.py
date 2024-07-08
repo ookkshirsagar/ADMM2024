@@ -381,17 +381,20 @@ def move_servos_to_initial_positions():
     time.sleep(1)
 
 def move_servos_down_and_publish_voltage(ser, mqtt_client):
+    
     set_servo_angle(pwm_1, 170)
     set_servo_angle(pwm_2, 0)
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
     print("Servos are down")
+    
+    time.sleep(1)
 
     # Create a thread to handle voltage measurement and publishing
     voltage_thread = threading.Thread(target=measure_and_publish_voltage, args=(ser, mqtt_client))
     voltage_thread.start()
 
-    time.sleep(3)
+    time.sleep(1)
 
     # Wait for the voltage thread to complete before continuing
     voltage_thread.join()

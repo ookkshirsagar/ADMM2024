@@ -13,8 +13,8 @@ import threading
 # Constants and global variables for the servo control
 servo_pin_1 = 17
 servo_pin_2 = 27
-servo_pin_3 = 22
-servo_pin_4 = 4
+servo_pin_3 = 4
+servo_pin_4 = 22
 
 pwm_1 = None
 pwm_2 = None
@@ -34,7 +34,7 @@ CMD_GET_IMPEDANCE = 0xB4
 
 NUM_SAMPLES = 50
 RETRY_LIMIT = 3
-MAX_ATTEMPTS = 5
+MAX_ATTEMPTS = 15
 
 MQTT_BROKER = "a988861856734e6381d16cde197811da.s1.eu.hivemq.cloud"
 MQTT_PORT = 8883

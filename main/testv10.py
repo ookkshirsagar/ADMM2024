@@ -457,14 +457,12 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
     print("Servos are down")
-    
-    time.sleep(2)
 
     # Create a thread to handle voltage measurement and publishing
     voltage_thread = threading.Thread(target=measure_and_publish_voltage, args=(ser, mqtt_client))
     voltage_thread.start()
 
-    time.sleep(1)
+    time.sleep(0.1)
 
     # Wait for the voltage thread to complete before continuing
     voltage_thread.join()
@@ -487,7 +485,7 @@ def move_servos_up():
     set_servo_angle(pwm_3, 120)
     set_servo_angle(pwm_4, 50)
     print("Servos are Up again")
-    time.sleep(0.5)
+    time.sleep(0.1)
 
 def cleanup():
     pwm_1.stop()
@@ -618,7 +616,6 @@ def main():
         servos_up_after_turn = False
 
         while True:
-            time.sleep(1)
             # Move forward while checking the distance
             move_forward_for_1_second()
             distance_mm = sensors['sensorFRONT'].range - OFFSET
@@ -646,7 +643,6 @@ def main():
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_left(sensor)
-                    time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
                     # Set flag to indicate action in progress
@@ -660,7 +656,6 @@ def main():
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_right(sensor)
-                    time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
                     # Set flag to indicate action in progress

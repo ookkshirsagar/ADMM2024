@@ -613,6 +613,9 @@ def main():
                     time.sleep(0.5)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
+                    # Indicate that the action sequence is complete
+                    action_in_progress = False
+
                 else:
                     print("Turning right.")
                     turn_right(sensor)
@@ -623,10 +626,10 @@ def main():
                     time.sleep(0.5)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
+                    # Indicate that the action sequence is complete
+                    action_in_progress = False
 
-                # Indicate that the action sequence is complete
-                action_in_progress = False
-
+                
             time.sleep(0.5)  # Adjust refresh rate as needed
 
     except KeyboardInterrupt:

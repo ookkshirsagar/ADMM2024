@@ -185,6 +185,13 @@ def stop_motors_for_8sec():
     move_servos_down_and_publish_voltage(ser, mqtt_client)
     time.sleep(1)
     move_servos_up()
+
+def stop_for_impedance_measure():
+    stop_motors()
+    time.sleep(1)
+    move_servos_down_and_publish_voltage(ser, mqtt_client)
+    time.sleep(1)
+    move_servos_up()
     
 # Function to read Initial Voltage
 def read_initial_voltage():
@@ -457,12 +464,14 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     set_servo_angle(pwm_3, 170)
     set_servo_angle(pwm_4, 0)
     print("Servos are down")
+    
+    time.sleep(2)
 
     # Create a thread to handle voltage measurement and publishing
     voltage_thread = threading.Thread(target=measure_and_publish_voltage, args=(ser, mqtt_client))
     voltage_thread.start()
 
-    time.sleep(0.1)
+    time.sleep(1)
 
     # Wait for the voltage thread to complete before continuing
     voltage_thread.join()
@@ -485,7 +494,7 @@ def move_servos_up():
     set_servo_angle(pwm_3, 120)
     set_servo_angle(pwm_4, 50)
     print("Servos are Up again")
-    time.sleep(0.1)
+    time.sleep(0.5)
 
 def cleanup():
     pwm_1.stop()
@@ -643,7 +652,7 @@ def main():
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_left(sensor)
-                    move_servos_down_and_publish_voltage(ser, mqtt_client)
+                    stop_for_impedance_measure()
                     time.sleep(1)
                     # Set flag to indicate action in progress
                     action_in_progress = True
@@ -656,7 +665,7 @@ def main():
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_right(sensor)
-                    move_servos_down_and_publish_voltage(ser, mqtt_client)
+                    stop_for_impedance_measure()
                     time.sleep(1)
                     # Set flag to indicate action in progress
                     action_in_progress = True

@@ -21,6 +21,9 @@ pwm_2 = None
 pwm_3 = None
 pwm_4 = None
 
+# Declare global variable for action in progress
+action_in_progress = False
+
 # Constants and global variables for the voltage measurement
 MSG_LEN = 9
 CMD_SET_FREQ_HZ = 0xA1
@@ -549,6 +552,7 @@ def filter_outliers(samples, threshold=2):
     return filtered_samples
 
 def main():
+    global action_in_progress
     i2c = busio.I2C(board.SCL, board.SDA)
     initialize_gpio()
 
@@ -569,10 +573,12 @@ def main():
     read_initial_voltage()
 
     print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
-    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 150)[1])
+    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
     print("Set Duration: ", admm_set(ser, CMD_SET_MEASURE_DURATION, 2)[1])
 
     try:
+        action_in_progress = False
+
         while True:
             # Move forward while checking the distance
             move_forward_for_1_second()
@@ -583,6 +589,9 @@ def main():
             if ema_distances['sensorFRONT'] <= 150:
                 print("Obstacle detected, stopping.")
                 stop_motors()
+
+                # Indicate that an action sequence is starting
+                action_in_progress = True
                 
                 # Check left and right sensors
                 distance_left_mm = sensors['sensorLEFT'].range - OFFSET
@@ -614,6 +623,9 @@ def main():
                     time.sleep(0.5)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
+
+                # Indicate that the action sequence is complete
+                action_in_progress = False
 
             time.sleep(0.5)  # Adjust refresh rate as needed
 

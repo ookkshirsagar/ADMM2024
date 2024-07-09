@@ -193,8 +193,10 @@ def read_initial_voltage():
     time.sleep(1)
     move_servos_up()
 
-# Function to move forward for 1 second
-def move_forward_after_turn(speed=20):
+# Function to move forward after turn for a specified duration and check for obstacles
+def move_forward_after_turn(sensors,ema_distances, duration=1, speed=50):
+    start_time = time.time()
+
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -212,7 +214,18 @@ def move_forward_after_turn(speed=20):
     set_motor_speed(pwm_right_front, speed)
     set_motor_speed(pwm_right_rear, speed)
 
-    time.sleep(2)  # Move forward for 1 second
+    while time.time() - start_time < duration:
+        time.sleep(0.1)  # Adjust as needed
+        # Check front sensor during movement
+        distance_mm = sensors['sensorFRONT'].range - OFFSET
+        ema_distances['sensorFRONT'] = apply_ema_filter(ema_distances['sensorFRONT'], distance_mm)
+        if ema_distances['sensorFRONT'] <= 100:  # Adjust threshold as needed
+            print("Obstacle detected while moving forward after turn, stopping.")
+            stop_motors()
+            return False  # Indicate obstacle detected
+
+    stop_motors()
+    return True  # No obstacle detected
 
 # Function to move forward for 1 second
 def move_forward_for_1_second(speed=20):
@@ -632,7 +645,7 @@ def main():
                     print("Turning left.")
                     turn_left(sensor)
                     time.sleep(1)
-                    move_forward_after_turn()
+                    move_forward_after_turn(duration=1, speed=20)
                     time.sleep(1)
                     turn_left(sensor)
                     stop_for_impedance_measure()
@@ -642,7 +655,7 @@ def main():
                     print("Turning right.")
                     turn_right(sensor)
                     time.sleep(1)
-                    move_forward_after_turn()
+                    move_forward_after_turn(duration=1, speed=20)
                     time.sleep(1)
                     turn_right(sensor)
                     stop_for_impedance_measure()

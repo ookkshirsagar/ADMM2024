@@ -451,6 +451,15 @@ def move_servos_to_initial_positions():
     time.sleep(0.5)
 
 def move_servos_down_and_publish_voltage(ser, mqtt_client):
+
+    global action_in_progress
+
+    if action_in_progress:
+        print("Action in progress. Cannot turn.")
+        return
+
+    # Indicate that an action sequence is starting
+    action_in_progress = True
     
     set_servo_angle(pwm_1, 170)
     set_servo_angle(pwm_2, 0)
@@ -468,6 +477,9 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
 
     # Wait for the voltage thread to complete before continuing
     voltage_thread.join()
+
+    # Ensure action_in_progress is reset after completing actions
+    action_in_progress = False
 
 def measure_and_publish_voltage(ser, mqtt_client):
     # Collect samples and calculate the average voltage

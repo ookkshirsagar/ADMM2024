@@ -13,8 +13,8 @@ import threading
 # Constants and global variables for the servo control
 servo_pin_1 = 17
 servo_pin_2 = 27
-servo_pin_3 = 22
-servo_pin_4 = 4
+servo_pin_3 = 4
+servo_pin_4 = 22
 
 pwm_1 = None
 pwm_2 = None

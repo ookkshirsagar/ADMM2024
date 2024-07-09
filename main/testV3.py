@@ -8,8 +8,8 @@ import threading
 # Constants and global variables for the servo control
 servo_pin_1 = 17
 servo_pin_2 = 27
-servo_pin_3 = 22
-servo_pin_4 = 4
+servo_pin_3 = 4
+servo_pin_4 = 22
 
 pwm_1 = None
 pwm_2 = None
@@ -219,15 +219,20 @@ def on_connect(client, userdata, flags, rc):
         print("Connected to MQTT broker.")
     else:
         print(f"Failed to connect, return code {rc}")
+    
+
 
 def main():
     initialize_gpio()
     move_servos_to_initial_positions()
 
+
     ser = open_serial_connection('/dev/ttyUSB0', 115200, timeout=1)
     if ser is None:
         return
-
+    print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
+    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 150)[1])
+    
     try:
         # Set Frequency and Current
         print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])

@@ -219,6 +219,10 @@ def move_forward_for_1_second(speed=20):
 
     global action_in_progress
 
+    if action_in_progress:
+        print("Action in progress. Waiting...")
+        return
+
     # Indicate that an action sequence is starting
     action_in_progress = True
     # Left motors move forward
@@ -240,11 +244,22 @@ def move_forward_for_1_second(speed=20):
 
     time.sleep(1)  # Move forward for 1 second
     stop_motors_for_8sec()
+
     # Ensure action_in_progress is reset after completing actions
     action_in_progress = False
 
 # Function to turn left with gyro control
 def turn_left(sensor, angle=82.5, speed=100):
+
+    global action_in_progress
+
+    if action_in_progress:
+        print("Action in progress. Cannot turn.")
+        return
+
+    # Indicate that an action sequence is starting
+    action_in_progress = True
+
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -282,9 +297,20 @@ def turn_left(sensor, angle=82.5, speed=100):
             time.sleep(dt - elapsed_time)
 
     stop_motors()
+    # Ensure action_in_progress is reset after completing actions
+    action_in_progress = False
 
 # Function to turn right with gyro control
 def turn_right(sensor, angle=86.0, speed=100):
+    global action_in_progress
+
+    if action_in_progress:
+        print("Action in progress. Cannot turn.")
+        return
+
+    # Indicate that an action sequence is starting
+    action_in_progress = True
+
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -325,6 +351,9 @@ def turn_right(sensor, angle=86.0, speed=100):
             time.sleep(dt - elapsed_time)
 
     stop_motors()
+    
+    # Ensure action_in_progress is reset after completing actions
+    action_in_progress = False
 
 # Function to get calibrated gyroscope data
 def get_calibrated_gyro_data(sensor):
@@ -617,8 +646,8 @@ def main():
                     time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
-                    # Indicate that the left turn is complete
-                    action_in_progress = False
+                    # Set flag to indicate action in progress
+                    action_in_progress = True
 
                 else:
                     print("Turning right.")
@@ -630,8 +659,12 @@ def main():
                     time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
-                    # Indicate that the right turn is complete
-                    action_in_progress = False
+                    # Set flag to indicate action in progress
+                    action_in_progress = True
+
+            else:
+                # Ensure action_in_progress is reset after completing actions
+                action_in_progress = False
 
                 
             time.sleep(0.5)  # Adjust refresh rate as needed

@@ -218,6 +218,9 @@ def move_forward_after_turn(speed=20):
 def move_forward_for_1_second(speed=20):
 
     global action_in_progress
+
+    # Indicate that an action sequence is starting
+    action_in_progress = True
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -593,9 +596,6 @@ def main():
             if ema_distances['sensorFRONT'] <= 150:
                 print("Obstacle detected, stopping.")
                 stop_motors()
-
-                # Indicate that an action sequence is starting
-                action_in_progress = True
                 
                 # Check left and right sensors
                 distance_left_mm = sensors['sensorLEFT'].range - OFFSET
@@ -610,27 +610,27 @@ def main():
                 if ema_distances['sensorLEFT'] > ema_distances['sensorRIGHT']:
                     print("Turning left.")
                     turn_left(sensor)
-                    time.sleep(0.5)
+                    time.sleep(1)
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_left(sensor)
-                    time.sleep(0.5)
+                    time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
-                    # Indicate that the action sequence is complete
+                    # Indicate that the left turn is complete
                     action_in_progress = False
 
                 else:
                     print("Turning right.")
                     turn_right(sensor)
-                    time.sleep(0.5)
+                    time.sleep(1)
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_right(sensor)
-                    time.sleep(0.5)
+                    time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
-                    # Indicate that the action sequence is complete
+                    # Indicate that the right turn is complete
                     action_in_progress = False
 
                 

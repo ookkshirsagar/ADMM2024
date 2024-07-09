@@ -178,14 +178,7 @@ def stop_motors():
     GPIO.output(right_rear_in1, GPIO.LOW)
     GPIO.output(right_rear_in2, GPIO.LOW)
 
-# Function to stop all motors
-def stop_motors_for_8sec():
-    stop_motors()
-    time.sleep(1)
-    move_servos_down_and_publish_voltage(ser, mqtt_client)
-    time.sleep(1)
-    move_servos_up()
-
+# Function to stop motors and take impedance measurement
 def stop_for_impedance_measure():
     stop_motors()
     time.sleep(1)
@@ -223,15 +216,6 @@ def move_forward_after_turn(speed=20):
 
 # Function to move forward for 1 second
 def move_forward_for_1_second(speed=20):
-
-    global action_in_progress
-
-    if action_in_progress:
-        print("Action in progress. Waiting...")
-        return
-
-    # Indicate that an action sequence is starting
-    action_in_progress = True
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -250,23 +234,10 @@ def move_forward_for_1_second(speed=20):
     set_motor_speed(pwm_right_rear, speed)
 
     time.sleep(1)  # Move forward for 1 second
-    stop_motors_for_8sec()
-
-    # Ensure action_in_progress is reset after completing actions
-    action_in_progress = False
+    stop_for_impedance_measure()
 
 # Function to turn left with gyro control
 def turn_left(sensor, angle=82.5, speed=100):
-
-    global action_in_progress
-
-    if action_in_progress:
-        print("Action in progress. Cannot turn.")
-        return
-
-    # Indicate that an action sequence is starting
-    action_in_progress = True
-
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -304,20 +275,9 @@ def turn_left(sensor, angle=82.5, speed=100):
             time.sleep(dt - elapsed_time)
 
     stop_motors()
-    # Ensure action_in_progress is reset after completing actions
-    action_in_progress = False
 
 # Function to turn right with gyro control
 def turn_right(sensor, angle=86.0, speed=100):
-    global action_in_progress
-
-    if action_in_progress:
-        print("Action in progress. Cannot turn.")
-        return
-
-    # Indicate that an action sequence is starting
-    action_in_progress = True
-
     kp = 1.0
     current_angle = 0.0
     dt = 0.005
@@ -358,9 +318,6 @@ def turn_right(sensor, angle=86.0, speed=100):
             time.sleep(dt - elapsed_time)
 
     stop_motors()
-    
-    # Ensure action_in_progress is reset after completing actions
-    action_in_progress = False
 
 # Function to get calibrated gyroscope data
 def get_calibrated_gyro_data(sensor):
@@ -595,7 +552,6 @@ def filter_outliers(samples, threshold=2):
     return filtered_samples
 
 def main():
-    global action_in_progress
     i2c = busio.I2C(board.SCL, board.SDA)
     initialize_gpio()
 
@@ -620,10 +576,6 @@ def main():
     print("Set Duration: ", admm_set(ser, CMD_SET_MEASURE_DURATION, 2)[1])
 
     try:
-        action_in_progress = False
-        turn_count = 0
-        servos_up_after_turn = False
-
         while True:
             # Move forward while checking the distance
             move_forward_for_1_second()
@@ -654,9 +606,6 @@ def main():
                     turn_left(sensor)
                     stop_for_impedance_measure()
                     time.sleep(1)
-                    # Set flag to indicate action in progress
-                    action_in_progress = True
-                    turn_count += 1
 
                 else:
                     print("Turning right.")
@@ -667,25 +616,6 @@ def main():
                     turn_right(sensor)
                     stop_for_impedance_measure()
                     time.sleep(1)
-                    # Set flag to indicate action in progress
-                    action_in_progress = True
-                    turn_count += 1
-
-                # After two turns, check if servos are up
-                if turn_count == 2:
-                    # Assuming servos are back up after turn
-                    servos_up_after_turn = True
-
-            else:
-                # Ensure action_in_progress is reset after completing actions
-                action_in_progress = False
-                servos_up_after_turn = False
-                turn_count = 0
-
-            # Move forward only if servos are up after two turns
-            if servos_up_after_turn:
-                move_forward_for_1_second()
-                servos_up_after_turn = False  # Reset flag
  
             time.sleep(0.5)  # Adjust refresh rate as needed
 

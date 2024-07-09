@@ -195,8 +195,6 @@ def read_initial_voltage():
 
 # Function to move forward for 1 second
 def move_forward_after_turn(speed=20):
-
-    global action_in_progress
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -216,11 +214,10 @@ def move_forward_after_turn(speed=20):
 
     time.sleep(2)  # Move forward for 1 second
 
-    # Ensure action_in_progress is reset after completing actions
-    action_in_progress = False
-
 # Function to move forward for 1 second
 def move_forward_for_1_second(speed=20):
+
+    global action_in_progress
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)
@@ -240,6 +237,8 @@ def move_forward_for_1_second(speed=20):
 
     time.sleep(1)  # Move forward for 1 second
     stop_motors_for_8sec()
+    # Ensure action_in_progress is reset after completing actions
+    action_in_progress = False
 
 # Function to turn left with gyro control
 def turn_left(sensor, angle=82.5, speed=100):

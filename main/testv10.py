@@ -451,15 +451,6 @@ def move_servos_to_initial_positions():
     time.sleep(0.5)
 
 def move_servos_down_and_publish_voltage(ser, mqtt_client):
-
-    global action_in_progress
-
-    if action_in_progress:
-        print("Action in progress. Cannot turn.")
-        return
-
-    # Indicate that an action sequence is starting
-    action_in_progress = True
     
     set_servo_angle(pwm_1, 170)
     set_servo_angle(pwm_2, 0)
@@ -477,9 +468,6 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
 
     # Wait for the voltage thread to complete before continuing
     voltage_thread.join()
-
-    # Ensure action_in_progress is reset after completing actions
-    action_in_progress = False
 
 def measure_and_publish_voltage(ser, mqtt_client):
     # Collect samples and calculate the average voltage
@@ -626,6 +614,8 @@ def main():
 
     try:
         action_in_progress = False
+        turn_count = 0
+        servos_up_after_turn = False
 
         while True:
             # Move forward while checking the distance
@@ -660,6 +650,7 @@ def main():
                     time.sleep(1)
                     # Set flag to indicate action in progress
                     action_in_progress = True
+                    turn_count += 1
 
                 else:
                     print("Turning right.")
@@ -673,12 +664,24 @@ def main():
                     time.sleep(1)
                     # Set flag to indicate action in progress
                     action_in_progress = True
+                    turn_count += 1
+
+                # After two turns, check if servos are up
+                if turn_count == 2:
+                    # Assuming servos are back up after turn
+                    servos_up_after_turn = True
 
             else:
                 # Ensure action_in_progress is reset after completing actions
                 action_in_progress = False
+                servos_up_after_turn = False
+                turn_count = 0
 
-                
+            # Move forward only if servos are up after two turns
+            if servos_up_after_turn:
+                move_forward_for_1_second()
+                servos_up_after_turn = False  # Reset flag
+ 
             time.sleep(0.5)  # Adjust refresh rate as needed
 
     except KeyboardInterrupt:

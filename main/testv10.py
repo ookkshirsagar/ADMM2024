@@ -618,6 +618,7 @@ def main():
         servos_up_after_turn = False
 
         while True:
+            time.sleep(1)
             # Move forward while checking the distance
             move_forward_for_1_second()
             distance_mm = sensors['sensorFRONT'].range - OFFSET
@@ -645,6 +646,7 @@ def main():
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_left(sensor)
+                    time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
                     # Set flag to indicate action in progress
@@ -658,6 +660,7 @@ def main():
                     move_forward_after_turn()
                     time.sleep(1)
                     turn_right(sensor)
+                    time.sleep(1)
                     move_servos_down_and_publish_voltage(ser, mqtt_client)
                     time.sleep(1)
                     # Set flag to indicate action in progress

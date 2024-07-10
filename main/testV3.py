@@ -231,12 +231,12 @@ def main():
     if ser is None:
         return
     print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
-    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 150)[1])
+    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
     
     try:
         # Set Frequency and Current
         print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
-        print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 150)[1])
+        print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
 
         mqtt_client = mqtt.Client(client_id="")
         mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)

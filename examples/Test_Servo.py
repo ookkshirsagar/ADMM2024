@@ -7,8 +7,8 @@ GPIO.setmode(GPIO.BCM)
 # Set GPIO pins for the servos
 servo_pin_1 = 17  # GPIO pin for the first servo
 servo_pin_2 = 27  # GPIO pin for the second servo
-servo_pin_3 = 22 # GPIO pin for the second servo
-servo_pin_4 = 4  # GPIO pin for the second servo
+servo_pin_3 = 4 # GPIO pin for the second servo
+servo_pin_4 = 22  # GPIO pin for the second servo
 
 # Set PWM parameters
 GPIO.setup(servo_pin_1, GPIO.OUT)
@@ -35,10 +35,10 @@ def set_servo_angle(pwm, angle):
     
 
 # Initial angles
-initial_angle_1 = 140
-initial_angle_2 = 30
-initial_angle_3 = 140
-initial_angle_4 = 30
+initial_angle_1 = 120
+initial_angle_2 = 50
+initial_angle_3 = 120
+initial_angle_4 = 50
 
 try:
     # Set the initial positions for the servos
@@ -54,13 +54,13 @@ try:
         set_servo_angle(pwm_2, 0)
         set_servo_angle(pwm_3, 170)
         set_servo_angle(pwm_4, 0)
-        time.sleep(15)  # Adjust delay as necessary for servos to reach position
+        time.sleep(5)  # Adjust delay as necessary for servos to reach position
 
         # Move the first servo from 160 to 180 degrees and the second from 20 to 0 degrees
-        set_servo_angle(pwm_1, 140)
-        set_servo_angle(pwm_2, 30)
-        set_servo_angle(pwm_3, 140)
-        set_servo_angle(pwm_4, 30)
+        set_servo_angle(pwm_1, 110)
+        set_servo_angle(pwm_2, 60)
+        set_servo_angle(pwm_3, 110)
+        set_servo_angle(pwm_4, 60)
         time.sleep(1)  # Adjust delay as necessary for servos to reach position
 
 except KeyboardInterrupt:

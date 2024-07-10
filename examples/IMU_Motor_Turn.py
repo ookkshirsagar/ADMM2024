@@ -79,7 +79,7 @@ def stop_motors():
     GPIO.output(right_rear_in2, GPIO.LOW)
 
 # Function to move forward for 1 second
-def move_forward_for_1_second(speed=20):
+def move_forward_for_1_second(speed=100):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)

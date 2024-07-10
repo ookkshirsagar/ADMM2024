@@ -588,10 +588,59 @@ def alternate_turn_direction():
     
     turn_count += 1
 
+def move_robot_and_check_obstacle(sensors, ema_distances):
+    distance_mm = sensors['sensorFRONT'].range - OFFSET
+    ema_distances['sensorFRONT'] = apply_ema_filter(ema_distances['sensorFRONT'], distance_mm)
+    print(f"Front sensor distance: {ema_distances['sensorFRONT']:.2f} mm")
+
+    if ema_distances['sensorFRONT'] <= 150:
+        print("Obstacle detected, stopping.")
+        stop_motors()
+                
+    # Check left and right sensors
+    distance_left_mm = sensors['sensorLEFT'].range - OFFSET
+    ema_distances['sensorLEFT'] = apply_ema_filter(ema_distances['sensorLEFT'], distance_left_mm)
+    print(f"Left sensor distance: {ema_distances['sensorLEFT']:.2f} mm")
+
+    distance_right_mm = sensors['sensorRIGHT'].range - OFFSET
+    ema_distances['sensorRIGHT'] = apply_ema_filter(ema_distances['sensorRIGHT'], distance_right_mm)
+    print(f"Right sensor distance: {ema_distances['sensorRIGHT']:.2f} mm")
+
+    # Determine initial turn direction if not already determined
+    if initial_turn_direction is None:
+        determine_initial_turn_direction(ema_distances)
+
+        # Alternate turn direction
+        alternate_turn_direction()
+
+        # Decide the direction to turn
+        if current_turn_direction == 'left':
+            print("Turning left.")
+            turn_left(sensor)
+            time.sleep(1)
+            move_forward_after_turn(sensors, ema_distances, duration=1, speed=20)
+            time.sleep(1)
+            turn_left(sensor)
+            stop_for_impedance_measure()
+            time.sleep(1)
+
+        else:
+            print("Turning right.")
+            turn_right(sensor)
+            time.sleep(1)
+            move_forward_after_turn(sensors, ema_distances, duration=1, speed=20)
+            time.sleep(1)
+            turn_right(sensor)
+            stop_for_impedance_measure()
+            time.sleep(1)
+
+    else: 
+        # Move forward while checking the distance
+        move_forward_for_1_second()
+
 def main():
     i2c = busio.I2C(board.SCL, board.SDA)
     initialize_gpio()
-
 
     # Initialize sensors with new addresses
     sensors = {}
@@ -604,6 +653,7 @@ def main():
             print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
+
     
     move_servos_to_initial_positions()
     read_initial_voltage()
@@ -614,53 +664,7 @@ def main():
 
     try:
         while True:
-            # Move forward while checking the distance
-            move_forward_for_1_second()
-            distance_mm = sensors['sensorFRONT'].range - OFFSET
-            ema_distances['sensorFRONT'] = apply_ema_filter(ema_distances['sensorFRONT'], distance_mm)
-            print(f"Front sensor distance: {ema_distances['sensorFRONT']:.2f} mm")
-
-            if ema_distances['sensorFRONT'] <= 150:
-                print("Obstacle detected, stopping.")
-                stop_motors()
-                
-                # Check left and right sensors
-                distance_left_mm = sensors['sensorLEFT'].range - OFFSET
-                ema_distances['sensorLEFT'] = apply_ema_filter(ema_distances['sensorLEFT'], distance_left_mm)
-                print(f"Left sensor distance: {ema_distances['sensorLEFT']:.2f} mm")
-
-                distance_right_mm = sensors['sensorRIGHT'].range - OFFSET
-                ema_distances['sensorRIGHT'] = apply_ema_filter(ema_distances['sensorRIGHT'], distance_right_mm)
-                print(f"Right sensor distance: {ema_distances['sensorRIGHT']:.2f} mm")
-
-                # Determine initial turn direction if not already determined
-                if initial_turn_direction is None:
-                    determine_initial_turn_direction(ema_distances)
-
-                # Alternate turn direction
-                alternate_turn_direction()
-
-                # Decide the direction to turn
-                if current_turn_direction == 'left':
-                    print("Turning left.")
-                    turn_left(sensor)
-                    time.sleep(1)
-                    move_forward_after_turn(duration=1, speed=20)
-                    time.sleep(1)
-                    turn_left(sensor)
-                    stop_for_impedance_measure()
-                    time.sleep(1)
-
-                else:
-                    print("Turning right.")
-                    turn_right(sensor)
-                    time.sleep(1)
-                    move_forward_after_turn(duration=1, speed=20)
-                    time.sleep(1)
-                    turn_right(sensor)
-                    stop_for_impedance_measure()
-                    time.sleep(1)
- 
+            move_robot_and_check_obstacle(sensors, ema_distances)
             time.sleep(0.5)  # Adjust refresh rate as needed
 
     except KeyboardInterrupt:

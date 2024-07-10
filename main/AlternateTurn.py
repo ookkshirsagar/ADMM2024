@@ -10,19 +10,17 @@ import struct
 import paho.mqtt.client as mqtt
 import threading
 
-# Constants and global variables for the servo control
+# Setting Pins for the servo control
 servo_pin_1 = 17
 servo_pin_2 = 27
 servo_pin_3 = 4
 servo_pin_4 = 22
 
+# Setting PWM for the servo control
 pwm_1 = None
 pwm_2 = None
 pwm_3 = None
 pwm_4 = None
-
-# Declare global variable for action in progress
-action_in_progress = False
 
 # Constants and global variables for the voltage measurement
 MSG_LEN = 9
@@ -36,9 +34,10 @@ CMD_START_MEASUREMENT = 0xA4
 CMD_GET_IMPEDANCE = 0xB4
 
 NUM_SAMPLES = 50
-RETRY_LIMIT = 3
+RETRY_LIMIT = 5
 MAX_ATTEMPTS = 15
 
+# MQTT Connection
 MQTT_BROKER = "a988861856734e6381d16cde197811da.s1.eu.hivemq.cloud"
 MQTT_PORT = 8883
 MQTT_TOPIC = "getdata"

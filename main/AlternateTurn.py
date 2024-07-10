@@ -35,7 +35,7 @@ CMD_GET_MEASURE_DURATION = 0xB3
 CMD_START_MEASUREMENT = 0xA4
 CMD_GET_IMPEDANCE = 0xB4
 
-NUM_SAMPLES = 50
+NUMBER_SAMPLES = 50
 RETRY_LIMIT = 3
 MAX_ATTEMPTS = 15
 
@@ -129,9 +129,6 @@ pwm_left_front.start(0)
 pwm_left_rear.start(0)
 pwm_right_front.start(0)
 pwm_right_rear.start(0)
-
-# Number of samples to average for stability
-NUM_SAMPLES = 20
 
 # Offset adjustment based on calibration (if needed)
 OFFSET = 20
@@ -448,7 +445,7 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
 
 def measure_and_publish_voltage(ser, mqtt_client):
     # Collect samples and calculate the average voltage
-    voltage_samples = collect_samples(ser, NUM_SAMPLES)
+    voltage_samples = collect_samples(ser, NUMBER_SAMPLES)
 
     if voltage_samples:
         filtered_samples = filter_outliers(voltage_samples)
@@ -538,12 +535,12 @@ def admm_start_and_get_measurement(ser):
 
 
 
-def collect_samples(ser, num_samples):
+def collect_samples(ser, number_samples):
     voltage_samples = []
     retries = 0
     i = 0
 
-    while len(voltage_samples) < num_samples and retries < RETRY_LIMIT:
+    while len(voltage_samples) < number_samples and retries < RETRY_LIMIT:
         received_command, abs_rms_voltage, angle_cur_vol = admm_start_and_get_measurement(ser)
         if received_command is not None:
             voltage_samples.append(abs_rms_voltage)
@@ -610,7 +607,7 @@ def main():
     read_initial_voltage()
 
     print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
-    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
+    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 150)[1])
     print("Set Duration: ", admm_set(ser, CMD_SET_MEASURE_DURATION, 2)[1])
 
     try:

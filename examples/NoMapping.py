@@ -588,8 +588,6 @@ def alternate_turn_direction():
     
     turn_count += 1
 
-def move_forward_and_check_obstacle(sensors, ema_distances):
-    
 
 def main():
     i2c = busio.I2C(board.SCL, board.SDA)

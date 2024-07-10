@@ -99,8 +99,8 @@ def collect_samples(ser, num_samples):
 
     while len(voltage_samples) < num_samples and retries < RETRY_LIMIT:
         received_command, abs_rms_voltage, angle_cur_vol = admm_start_and_get_measurement(ser)
-        print("Phase:", angle_cur_vol)
         if received_command is not None:
+            print("Phase:", angle_cur_vol)
             voltage_samples.append(abs_rms_voltage)
             print(f"Sample {len(voltage_samples)}: Voltage = {abs_rms_voltage}")
             retries = 0  # Reset retries after a successful read

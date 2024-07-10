@@ -543,6 +543,7 @@ def collect_samples(ser, number_samples):
     while len(voltage_samples) < number_samples and retries < RETRY_LIMIT:
         received_command, abs_rms_voltage, angle_cur_vol = admm_start_and_get_measurement(ser)
         if received_command is not None:
+            print("Phase:", angle_cur_vol)
             voltage_samples.append(abs_rms_voltage)
             print(f"Sample {len(voltage_samples)}: Voltage = {abs_rms_voltage}")
             retries = 0
@@ -607,7 +608,7 @@ def main():
     read_initial_voltage()
 
     print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
-    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 150)[1])
+    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 120)[1])
     print("Set Duration: ", admm_set(ser, CMD_SET_MEASURE_DURATION, 2)[1])
 
     try:

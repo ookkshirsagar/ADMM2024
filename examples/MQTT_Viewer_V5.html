@@ -90,6 +90,14 @@
             <div id="status">Connecting to MQTT broker...</div>
         </div>
         
+        <!-- Reference Voltage Block -->
+        <div class="message-box" id="reference-voltage-box" style="display: none;">
+            <h2>Reference Voltage</h2>
+            <div id="reference-voltage">
+                <!-- Reference voltage content will be inserted here -->
+            </div>
+        </div>
+        
         <div class="message-box">
             <h2>Latest Measurement</h2>
             <div id="current-message">
@@ -121,6 +129,8 @@
         const statusDiv = document.getElementById('status');
         const currentMessageDiv = document.getElementById('current-message');
         const pastMessagesTableBody = document.querySelector('#past-messages tbody');
+        const referenceVoltageDiv = document.getElementById('reference-voltage');
+        const referenceVoltageBox = document.getElementById('reference-voltage-box');
         const clearScreenButton = document.getElementById('clear-screen');
 
         // MQTT Broker details
@@ -142,6 +152,10 @@
         // Log connection attempt
         console.log('Attempting to connect to MQTT broker...');
         statusDiv.textContent = 'Attempting to connect to MQTT broker...';
+
+        // Variable to store reference voltage
+        let referenceVoltage = null;
+        let isFirstMessage = true;
 
         // When connected, subscribe to the MQTT topic
         client.on('connect', function () {
@@ -172,16 +186,26 @@
 
             if (match) {
                 const timestamp = new Date().toLocaleString();
-                const voltage = match[1];
+                const voltage = parseFloat(match[1]); // Parse voltage as float
                 const positionX = match[2];
                 const positionY = match[3];
+
+                // Set the first message voltage as the reference voltage
+                if (isFirstMessage) {
+                    referenceVoltage = voltage;
+                    isFirstMessage = false; // Set isFirstMessage to false after setting referenceVoltage
+
+                    // Show the reference voltage box and update its content
+                    referenceVoltageDiv.innerHTML = `Reference Voltage: ${referenceVoltage.toFixed(2)}V`;
+                    referenceVoltageBox.style.display = 'block';
+                }
 
                 // Prepare table row
                 const newRow = document.createElement('tr');
                 const timestampCell = document.createElement('td');
                 timestampCell.textContent = timestamp;
                 const voltageCell = document.createElement('td');
-                voltageCell.textContent = voltage;
+                voltageCell.textContent = voltage.toFixed(2) + 'V'; // Display voltage with two decimal places
                 const positionCell = document.createElement('td');
                 positionCell.textContent = `(${positionX}, ${positionY})`;
 
@@ -193,7 +217,7 @@
                 pastMessagesTableBody.insertBefore(newRow, pastMessagesTableBody.firstChild);
 
                 // Display latest message in the current message section
-                currentMessageDiv.textContent = `Voltage: ${voltage}V, Position: (${positionX}, ${positionY})`;
+                currentMessageDiv.textContent = `Voltage: ${voltage.toFixed(2)}V, Position: (${positionX}, ${positionY})`;
             } else {
                 console.error('Message format does not match expected pattern');
             }

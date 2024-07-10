@@ -155,30 +155,38 @@
         client.on('message', function (topic, message) {
             console.log('Received message:', message.toString());
 
-            const data = JSON.parse(message.toString());
-            const voltage = data.voltage;
-            const position = data.position;
+            // Assuming message format: "Voltage: 120V, Position: (50, 75)"
+            const regex = /Voltage: (\d+)V, Position: \((\d+), (\d+)\)/;
+            const match = message.toString().match(regex);
 
-            const newMessage = document.createElement('div');
-            newMessage.className = 'message';
+            if (match) {
+                const voltage = match[1];
+                const xPosition = match[2];
+                const yPosition = match[3];
 
-            const timestamp = document.createElement('div');
-            timestamp.className = 'timestamp';
-            timestamp.textContent = `Received at: ${new Date().toLocaleString()}`;
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
 
-            const messageContent = document.createElement('div');
-            messageContent.textContent = `Voltage: ${voltage}V, Position: (${position.x}, ${position.y})`;
+                const timestamp = document.createElement('div');
+                timestamp.className = 'timestamp';
+                timestamp.textContent = `Received at: ${new Date().toLocaleString()}`;
 
-            newMessage.appendChild(timestamp);
-            newMessage.appendChild(messageContent);
+                const messageContent = document.createElement('div');
+                messageContent.textContent = `Voltage: ${voltage}V, Position: (${xPosition}, ${yPosition})`;
 
-            // Move old messages to past messages section
-            const pastMessage = newMessage.cloneNode(true);
-            pastMessagesDiv.insertBefore(pastMessage, pastMessagesDiv.firstChild);
+                newMessage.appendChild(timestamp);
+                newMessage.appendChild(messageContent);
 
-            // Display latest message in the current message section
-            currentMessageDiv.innerHTML = '';
-            currentMessageDiv.appendChild(newMessage);
+                // Move old messages to past messages section
+                const pastMessage = newMessage.cloneNode(true);
+                pastMessagesDiv.insertBefore(pastMessage, pastMessagesDiv.firstChild);
+
+                // Display latest message in the current message section
+                currentMessageDiv.innerHTML = '';
+                currentMessageDiv.appendChild(newMessage);
+            } else {
+                console.error('Message format does not match expected format');
+            }
         });
 
         // Error handling

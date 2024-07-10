@@ -456,10 +456,10 @@ def measure_and_publish_voltage(ser, mqtt_client):
         print("No valid samples collected.")
 
 def move_servos_up():
-    set_servo_angle(pwm_1, 120)
-    set_servo_angle(pwm_2, 50)
-    set_servo_angle(pwm_3, 120)
-    set_servo_angle(pwm_4, 50)
+    set_servo_angle(pwm_1, 110)
+    set_servo_angle(pwm_2, 60)
+    set_servo_angle(pwm_3, 110)
+    set_servo_angle(pwm_4, 60)
     print("Servos are Up again")
     time.sleep(0.5)
 

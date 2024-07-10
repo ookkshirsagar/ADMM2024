@@ -152,6 +152,28 @@ NEW_ADDRESSES = {
 # Exponential Moving Average (EMA) alpha
 EMA_ALPHA = 1.0
 
+# Initialize variables to store the position of the robot
+current_x = 0.0
+current_y = 0.0
+
+# Define offsets for the accelerometer readings
+ACCEL_CALIB_FACTOR_X = 1 / 10.20
+ACCEL_CALIB_FACTOR_Y = 1 / 9.85
+ACCEL_CALIB_FACTOR_Z = 1 / 8.25
+
+def update_position(sensor, current_x, current_y, dt=0.1):
+    accel_data = sensor.get_accel_data()
+    gyro_data = get_calibrated_gyro_data(sensor)
+    
+    # Integrate the accelerometer data to get velocity (simple integration)
+    vel_x = accel_data['x'] * dt
+    vel_y = accel_data['y'] * dt
+    
+    # Integrate the velocity to get position
+    current_x += vel_x * dt
+    current_y += vel_y * dt
+    
+    return current_x, current_y
 
 # Function to set motor speed
 def set_motor_speed(pwm, speed):
@@ -446,6 +468,7 @@ def move_servos_down_and_publish_voltage(ser, mqtt_client):
     voltage_thread.join()
 
 def measure_and_publish_voltage(ser, mqtt_client):
+    global current_x, current_y
     # Collect samples and calculate the average voltage
     voltage_samples = collect_samples(ser, NUM_SAMPLES)
 
@@ -453,7 +476,14 @@ def measure_and_publish_voltage(ser, mqtt_client):
         filtered_samples = filter_outliers(voltage_samples)
         average_voltage = sum(filtered_samples) / len(filtered_samples)
         print(f"Average Voltage: {average_voltage}")
-        publish_to_mqtt(mqtt_client, MQTT_TOPIC, str(average_voltage))
+
+        # Update position
+        current_x, current_y = update_position(sensor, current_x, current_y)
+    
+        # Create message with voltage and position
+        message = f"Voltage: {average_voltage}V, Position: ({current_x}, {current_y})"
+
+        publish_to_mqtt(mqtt_client, MQTT_TOPIC, message)
     else:
         print("No valid samples collected.")
 

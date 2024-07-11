@@ -63,7 +63,7 @@ def on_connect(client, userdata, flags, rc):
         print(f"Failed to connect, return code {rc}")
 
 def on_message(client, userdata, msg):
-    global main_loop_running
+    global main_loop_running, main_thread
 
     message = msg.payload.decode()
     if message == "START":
@@ -76,6 +76,9 @@ def on_message(client, userdata, msg):
     elif message == "STOP":
         main_loop_running = False
         print("Main function stopped.")
+        # Ensure main thread stops
+        if main_thread and main_thread.is_alive():
+            main_thread.join()
 
 
 def setup_mqtt():

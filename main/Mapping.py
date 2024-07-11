@@ -719,6 +719,8 @@ def robot_control():
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
 
+    move_servos_to_initial_positions()
+    read_initial_voltage()
 
     print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
     print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
@@ -726,8 +728,7 @@ def robot_control():
 
     while True:
         if main_loop_running: 
-            move_servos_to_initial_positions()
-            read_initial_voltage()
+            
             move_robot_and_check_obstacle(sensors, ema_distances)
             print("Robot Control Loop Running...")
             time.sleep(0.5)  # Adjust refresh rate as needed

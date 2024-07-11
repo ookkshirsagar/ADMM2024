@@ -295,7 +295,7 @@ def move_forward_after_turn(sensors,ema_distances, duration=1, speed=50):
     return True  # No obstacle detected
 
 # Function to move forward for 1 second
-def move_forward_for_1_second(speed=20):
+def move_forward_for_1_second(speed=50):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)

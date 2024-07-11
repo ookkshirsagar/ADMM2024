@@ -412,12 +412,12 @@ def get_calibrated_gyro_data(sensor):
 
 def get_calibrated_accel_data(sensor):
     raw_data = sensor.get_accel_data()
-    calibrated_data = {
+    accel_data = {
         'x': raw_data['x'] * (1 / 10.20),
         'y': raw_data['y'] * (1 / 9.85),
         'z': raw_data['z'] * (1 / 8.25)
     }
-    return calibrated_data
+    return accel_data
 
 def initialize_sensor(i2c, xshut_pin, new_address):
     attempt_count = 0

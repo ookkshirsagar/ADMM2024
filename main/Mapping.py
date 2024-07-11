@@ -210,8 +210,8 @@ def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=100):
     current_y = max(0, current_y)       # Ensure y is non-negative
     
     # Limit to maximum boundaries
-    current_x = min(current_x, 220 * scaling_factor)     # Ensure x is within 0 to 220 cm (scaled)
-    current_y = min(current_y, 215 * scaling_factor)     # Ensure y is within 0 to 215 cm (scaled)
+    current_x = min(current_x, 220 )     # Ensure x is within 0 to 220 cm (scaled)
+    current_y = min(current_y, 215 )     # Ensure y is within 0 to 215 cm (scaled)
     
     return current_x, current_y
 
@@ -312,7 +312,7 @@ def move_forward_for_1_second(speed=20):
     stop_for_impedance_measure()
 
 # Function to turn left with gyro control
-def turn_left(sensor, angle=82.5, speed=100):
+def turn_left(sensor, angle=85, speed=100):
     kp = 1.0
     current_angle = 0.0
     dt = 0.005

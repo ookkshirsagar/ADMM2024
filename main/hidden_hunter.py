@@ -717,36 +717,39 @@ def robot_control():
 
     global main_loop_running
 
-    i2c = busio.I2C(board.SCL, board.SDA)
-    initialize_gpio()
-
-    # Initialize sensors with new addresses
-    sensors = {}
-    ema_distances = {}
-    for key, xshut_pin in XSHUT_PINS.items():
-        if not check_sensor(i2c, NEW_ADDRESSES[key]):
-            sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
-        else:
-            sensors[key] = adafruit_vl53l0x.VL53L0X(i2c, address=NEW_ADDRESSES[key])
-            print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
-        ema_distances[key] = None
-        time.sleep(1)  # Small delay to ensure the address change takes effect
-
-
-    print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
-    print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
-    print("Set Duration: ", admm_set(ser, CMD_SET_MEASURE_DURATION, 2)[1])
-
     while True:
-        if main_loop_running: 
-            move_servos_to_initial_positions()
-            read_initial_voltage()
-            move_robot_and_check_obstacle(sensors, ema_distances)
-            print("Robot Control Loop Running...")
-            time.sleep(0.5)  # Adjust refresh rate as needed
+
+        i2c = busio.I2C(board.SCL, board.SDA)
+        initialize_gpio()
+
+        # Initialize sensors with new addresses
+        sensors = {}
+        ema_distances = {}
+        for key, xshut_pin in XSHUT_PINS.items():
+            if not check_sensor(i2c, NEW_ADDRESSES[key]):
+                sensors[key] = initialize_sensor(i2c, xshut_pin, NEW_ADDRESSES[key])
+            else:
+                sensors[key] = adafruit_vl53l0x.VL53L0X(i2c, address=NEW_ADDRESSES[key])
+                print(f"VL53L0X sensor already initialized at address {hex(NEW_ADDRESSES[key])}")
+            ema_distances[key] = None
+            time.sleep(1)  # Small delay to ensure the address change takes effect
         
+        move_servos_to_initial_positions()
+        read_initial_voltage()
+
+        print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
+        print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
+        print("Set Duration: ", admm_set(ser, CMD_SET_MEASURE_DURATION, 2)[1])
+
+        
+        if main_loop_running: 
+                
+                move_robot_and_check_obstacle(sensors, ema_distances)
+                print("Robot Control Loop Running...")
+                time.sleep(0.5)  # Adjust refresh rate as needed
+            
         else: 
-            print("Robot Control Loop Paused, Waiting for Start Command")
+                print("Robot Control Loop Paused, Waiting for Start Command")
 
 
 def main():

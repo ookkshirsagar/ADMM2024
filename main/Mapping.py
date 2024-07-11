@@ -202,8 +202,8 @@ def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=1000): 
     vel_y = accel_data['y'] * dt * scaling_factor
     
     # Integrate the velocity to get position (scaled)
-    current_x += vel_x * dt
-    current_y += vel_y * dt
+    current_x += vel_x * dt * scaling_factor
+    current_y += vel_y * dt * scaling_factor
     
     # Ensure position stays within bounds
     current_x = max(0, current_x)       # Ensure x is non-negative

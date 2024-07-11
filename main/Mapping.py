@@ -255,7 +255,7 @@ def read_initial_voltage():
     move_servos_up()
 
 # Function to move forward after turn for a specified duration and check for obstacles
-def move_forward_after_turn(sensors,ema_distances, duration=1, speed=80):
+def move_forward_after_turn(sensors,ema_distances, duration=1, speed=50):
     start_time = time.time()
 
     # Left motors move forward
@@ -289,7 +289,7 @@ def move_forward_after_turn(sensors,ema_distances, duration=1, speed=80):
     return True  # No obstacle detected
 
 # Function to move forward for 1 second
-def move_forward_for_1_second(speed=80):
+def move_forward_for_1_second(speed=40):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)

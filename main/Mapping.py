@@ -74,7 +74,7 @@ def on_message(client, userdata, msg):
             print("Main function started.")
 
     elif message == "STOP":
-        main_loop_running = True
+        main_loop_running = False
         print("Main function stopped.")
 
 
@@ -83,7 +83,7 @@ def setup_mqtt():
     print("Connecting to MQTT broker...")
     mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
     mqtt_client.tls_set()
-    
+
     mqtt_client.on_connect = on_connect
     mqtt_client.on_message = on_message
     mqtt_client.connect(MQTT_BROKER, MQTT_PORT)

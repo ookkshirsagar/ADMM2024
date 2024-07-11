@@ -50,8 +50,6 @@ MQTT_PASSWORD = "Bhawbhaw5050"
 main_loop_running = False
 
 mqtt_client = mqtt.Client(client_id="")
-mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
-mqtt_client.tls_set()
 
 def publish_to_mqtt(client, topic, message):
     client.publish(topic, message)
@@ -81,14 +79,20 @@ def on_message(client, userdata, msg):
 
 
 def setup_mqtt():
+    global mqtt_client
     print("Connecting to MQTT broker...")
+    mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+    mqtt_client.tls_set()
+    
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_message = on_message
     mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
+    mqtt_client.loop_start()
     
     while not mqtt_client.is_connected():
         time.sleep(0.1)
-    mqtt_client.on_connect = on_connect
-    mqtt_client.on_message = on_message
-    mqtt_client.loop_start()
+    
+    
 
 def open_serial_connection(port, baudrate, timeout):
     try:

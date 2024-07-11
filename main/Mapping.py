@@ -689,28 +689,28 @@ def move_robot_and_check_obstacle(sensors, ema_distances):
             determine_initial_turn_direction(ema_distances)
 
             # Alternate turn direction
-            alternate_turn_direction()
+        alternate_turn_direction()
 
             # Decide the direction to turn
-            if current_turn_direction == 'left':
-                print("Turning left.")
-                turn_left(sensor)
-                time.sleep(1)
-                move_forward_after_turn(sensors, ema_distances, duration=1, speed=20)
-                time.sleep(1)
-                turn_left(sensor)
-                stop_for_impedance_measure()
-                time.sleep(1)
+        if current_turn_direction == 'left':
+            print("Turning left.")
+            turn_left(sensor)
+            time.sleep(1)
+            move_forward_after_turn(sensors, ema_distances, duration=1, speed=20)
+            time.sleep(1)
+            turn_left(sensor)
+            stop_for_impedance_measure()
+            time.sleep(1)
 
-            else:
-                print("Turning right.")
-                turn_right(sensor)
-                time.sleep(1)
-                move_forward_after_turn(sensors, ema_distances, duration=1, speed=20)
-                time.sleep(1)
-                turn_right(sensor)
-                stop_for_impedance_measure()
-                time.sleep(1)
+        else:
+            print("Turning right.")
+            turn_right(sensor)
+            time.sleep(1)
+            move_forward_after_turn(sensors, ema_distances, duration=1, speed=20)
+            time.sleep(1)
+            turn_right(sensor)
+            stop_for_impedance_measure()
+            time.sleep(1)
 
     else: 
         # Move forward while checking the distance

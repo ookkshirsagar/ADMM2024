@@ -194,27 +194,30 @@ ACCEL_CALIB_FACTOR_X = 1 / 10.20
 ACCEL_CALIB_FACTOR_Y = 1 / 9.85
 ACCEL_CALIB_FACTOR_Z = 1 / 8.25
 
-def update_position(sensor, current_x, current_y, dt=0.1):
+def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=100):
     accel_data = sensor.get_accel_data()
     gyro_data = get_calibrated_gyro_data(sensor)
     
-    # Integrate the accelerometer data to get velocity (simple integration)
-    vel_x = accel_data['x'] * dt
-    vel_y = accel_data['y'] * dt
+    # Integrate the accelerometer data to get velocity (scaled)
+    vel_x = accel_data['x'] * dt * scaling_factor
+    vel_y = accel_data['y'] * dt * scaling_factor
     
-    # Integrate the velocity to get position
-    current_x += vel_x * dt
-    current_y += vel_y * dt
+    # Integrate the velocity to get position (scaled)
+    current_x += vel_x
+    current_y += vel_y
     
     # Ensure position stays within bounds
-    current_x = max(0, current_x)  # Ensure x is non-negative
-    current_y = max(0, current_y)  # Ensure y is non-negative
+    current_x = max(0, current_x)       # Ensure x is non-negative
+    current_y = max(0, current_y)       # Ensure y is non-negative
     
-    # Limit to maximum boundaries if needed
-    current_x = min(current_x, 220)  # Ensure x is within 0 to 220 cm
-    current_y = min(current_y, 215)  # Ensure y is within 0 to 215 cm
+    # Limit to maximum boundaries
+    max_x = 220 * scaling_factor       # Maximum x coordinate (scaled)
+    max_y = 215 * scaling_factor       # Maximum y coordinate (scaled)
+    current_x = min(current_x, max_x)  # Ensure x is within 0 to max_x
+    current_y = min(current_y, max_y)  # Ensure y is within 0 to max_y
     
     return current_x, current_y
+
 
 
 
@@ -531,10 +534,10 @@ def measure_and_publish_voltage(ser, mqtt_client):
         print("No valid samples collected.")
 
 def move_servos_up():
-    set_servo_angle(pwm_1, 120)
-    set_servo_angle(pwm_2, 50)
-    set_servo_angle(pwm_3, 120)
-    set_servo_angle(pwm_4, 50)
+    set_servo_angle(pwm_1, 110)
+    set_servo_angle(pwm_2, 60)
+    set_servo_angle(pwm_3, 110)
+    set_servo_angle(pwm_4, 60)
     print("Servos are Up again")
     time.sleep(0.5)
 

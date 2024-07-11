@@ -194,7 +194,7 @@ ACCEL_CALIB_FACTOR_X = 1 / 10.20
 ACCEL_CALIB_FACTOR_Y = 1 / 9.85
 ACCEL_CALIB_FACTOR_Z = 1 / 8.25
 
-def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=1000):  # Increased scaling factor
+def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=10):  # Increased scaling factor
     accel_data = get_calibrated_accel_data(sensor)
     
     # Integrate the accelerometer data to get velocity (scaled)
@@ -214,8 +214,6 @@ def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=1000): 
     current_y = min(current_y, 215)     # Ensure y is within
 
     return current_x, current_y  # Return the updated values
-
-
 
 # Function to set motor speed
 def set_motor_speed(pwm, speed):
@@ -257,7 +255,7 @@ def read_initial_voltage():
     move_servos_up()
 
 # Function to move forward after turn for a specified duration and check for obstacles
-def move_forward_after_turn(sensors,ema_distances, duration=1, speed=50):
+def move_forward_after_turn(sensors,ema_distances, duration=1, speed=80):
     start_time = time.time()
 
     # Left motors move forward
@@ -291,7 +289,7 @@ def move_forward_after_turn(sensors,ema_distances, duration=1, speed=50):
     return True  # No obstacle detected
 
 # Function to move forward for 1 second
-def move_forward_for_1_second(speed=20):
+def move_forward_for_1_second(speed=80):
     # Left motors move forward
     GPIO.output(left_front_in1, GPIO.HIGH)
     GPIO.output(left_front_in2, GPIO.LOW)

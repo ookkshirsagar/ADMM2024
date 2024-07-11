@@ -313,7 +313,7 @@
 
                 // Determine object type based on voltage comparison with reference
                 const voltageDifference = voltage - referenceVoltage;
-                if (!isFirstMessage && Math.abs(voltageDifference) >= 50) {
+                if (!isFirstMessage && Math.abs(voltageDifference) >= 8) {
                     let objectType, tableBody;
                     if (voltage > referenceVoltage) {
                         objectType = 'Non-Conductive Object';

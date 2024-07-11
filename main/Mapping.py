@@ -48,6 +48,7 @@ MQTT_PASSWORD = "Bhawbhaw5050"
 
 # Global variables
 main_loop_running = False
+main_thread = None
 
 mqtt_client = mqtt.Client(client_id="")
 
@@ -75,10 +76,11 @@ def on_message(client, userdata, msg):
 
     elif message == "STOP":
         main_loop_running = False
-        print("Main function stopped.")
+        print("Main function stopping........")
         # Ensure main thread stops
         if main_thread and main_thread.is_alive():
             main_thread.join()
+        print("Main function stopped.")
 
 
 def setup_mqtt():

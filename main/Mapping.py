@@ -194,7 +194,7 @@ ACCEL_CALIB_FACTOR_X = 1 / 10.20
 ACCEL_CALIB_FACTOR_Y = 1 / 9.85
 ACCEL_CALIB_FACTOR_Z = 1 / 8.25
 
-def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=100):  # Increased scaling factor
+def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=1000):  # Increased scaling factor
     accel_data = get_calibrated_accel_data(sensor)
     
     # Integrate the accelerometer data to get velocity (scaled)
@@ -210,8 +210,8 @@ def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=100):  
     current_y = max(0, current_y)       # Ensure y is non-negative
     
     # Limit to maximum boundaries
-    current_x = min(current_x, 220 * scaling_factor)     # Ensure x is within 0 to 220 cm (scaled)
-    current_y = min(current_y, 215 * scaling_factor)     # Ensure y is within
+    current_x = min(current_x, 220)     # Ensure x is within 0 to 220 cm (scaled)
+    current_y = min(current_y, 215)     # Ensure y is within
 
     return current_x, current_y  # Return the updated values
 

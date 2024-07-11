@@ -81,14 +81,14 @@ def on_message(client, userdata, msg):
 
 
 def setup_mqtt():
+    print("Connecting to MQTT broker...")
+    mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
+    
+    while not mqtt_client.is_connected():
+        time.sleep(0.1)
     mqtt_client.on_connect = on_connect
     mqtt_client.on_message = on_message
-    mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
     mqtt_client.loop_start()
-            
-print("Connecting to MQTT broker...")
-while not mqtt_client.is_connected():
-    time.sleep(0.1)
 
 def open_serial_connection(port, baudrate, timeout):
     try:

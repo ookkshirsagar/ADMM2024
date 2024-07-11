@@ -213,6 +213,7 @@ def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=1000): 
     current_x = min(current_x, 220 * scaling_factor)     # Ensure x is within 0 to 220 cm (scaled)
     current_y = min(current_y, 215 * scaling_factor)     # Ensure y is within
 
+    return current_x, current_y  # Return the updated values
 
 
 

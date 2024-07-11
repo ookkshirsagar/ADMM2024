@@ -247,6 +247,7 @@
         const MQTT_BROKER = "a988861856734e6381d16cde197811da.s1.eu.hivemq.cloud";
         const MQTT_PORT = 8884;
         const MQTT_TOPIC = "getdata";
+        const MQTT_PUBLISH_TOPIC = "givedata"; 
         const MQTT_USERNAME = "Bhawbhaw5050";
         const MQTT_PASSWORD = "Bhawbhaw5050";
 
@@ -435,13 +436,13 @@
                 startStopButton.classList.add('stop');
                 isStarted = true;
                 // Logic to send start command via MQTT
-                client.publish(MQTT_TOPIC, 'START');
+                client.publish(MQTT_PUBLISH_TOPIC, 'START');
             } else {
                 startStopButton.textContent = 'Start';
                 startStopButton.classList.remove('stop');
                 isStarted = false;
                 // Logic to send stop command via MQTT
-                client.publish(MQTT_TOPIC, 'STOP');
+                client.publish(MQTT_PUBLISH_TOPIC, 'STOP');
             }
         });
     </script>

@@ -698,7 +698,7 @@ def move_robot_and_check_obstacle(sensors, ema_distances):
         # Move forward while checking the distance
         move_forward_for_1_second()
 
-def main():
+def robot_control():
 
     global main_loop_running
 
@@ -717,19 +717,28 @@ def main():
         ema_distances[key] = None
         time.sleep(1)  # Small delay to ensure the address change takes effect
 
-    
-
 
     print("Set Frequency: ", admm_set(ser, CMD_SET_FREQ_HZ, 200)[1])
     print("Set Current: ", admm_set(ser, CMD_SET_CURRENT_UA, 200)[1])
     print("Set Duration: ", admm_set(ser, CMD_SET_MEASURE_DURATION, 2)[1])
 
-    try:
-        while main_loop_running:
+    while True:
+        if main_loop_running: 
             move_servos_to_initial_positions()
             read_initial_voltage()
             move_robot_and_check_obstacle(sensors, ema_distances)
+            print("Robot Control Loop Running...")
             time.sleep(0.5)  # Adjust refresh rate as needed
+        
+        else: 
+            print("Robot Control Loop Paused, Waiting for Start Command")
+
+
+def main():
+    
+    try:
+        setup_mqtt()
+        robot_control()
 
     except KeyboardInterrupt:
         print("\nExiting program.")
@@ -745,15 +754,4 @@ def main():
 
 # Main entry point of the script
 if __name__ == "__main__":
-    try:
-        setup_mqtt()
-        while True:
-            time.sleep(1)  # Keep the main thread running while MQTT handling happens in the background
-
-    except KeyboardInterrupt:
-        print("Interrupted, cleaning up...")
-        stop_motors()
-        GPIO.cleanup()
-        mqtt_client.loop_stop()
-        mqtt_client.disconnect()
-        print("Clean up done.")
+    main()

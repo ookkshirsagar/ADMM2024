@@ -194,7 +194,7 @@ ACCEL_CALIB_FACTOR_X = 1 / 10.20
 ACCEL_CALIB_FACTOR_Y = 1 / 9.85
 ACCEL_CALIB_FACTOR_Z = 1 / 8.25
 
-def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=1000):  # Increased scaling factor
+def update_position(sensor, current_x, current_y, dt=0.1, scaling_factor=100):  # Increased scaling factor
     accel_data = get_calibrated_accel_data(sensor)
     
     # Integrate the accelerometer data to get velocity (scaled)
